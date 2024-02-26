@@ -22,7 +22,7 @@
                             <?php if (!empty($departments) && is_array($departments)): ?>
                                 <?php foreach ($departments as $department): ?>
                                     <?php
-                                    $model = new \App\Models\DivisionModel();
+                                    $model = new \App\Models\GroupModel();
                                     if ($department['group_id']) {
                                         $groupData = $model->find($department['group_id']);
                                         if ($groupData !== null && isset($groupData['group_name'])) {

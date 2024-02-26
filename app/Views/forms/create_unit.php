@@ -5,21 +5,7 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body">
-            <?php if (\Config\Services::validation()->getErrors()): ?>
-                <div id="errorAlert" class="alert alert-danger alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <?php foreach (\Config\Services::validation()->getErrors() as $error): ?>
-                        <p><?= esc($error) ?></p>
-                    <?php endforeach; ?>
-                </div>
-
-                <script>
-                    // Hide the error alert after 3 seconds
-                    setTimeout(function () {
-                        $("#errorAlert").fadeOut("slow");
-                    }, 3000);
-                </script>
-            <?php endif; ?>
+            <?php include(APPPATH . 'Views/includes/message.php'); ?>
 
             <?php if (isset($unit)): ?>
                 <?= form_open(url_to('ldm.units.update', $unit['id'])) ?>
@@ -28,15 +14,18 @@
             <?php endif; ?>
 
             <div class="form-group">
-                <label>Unit Name <span class="required">*</span></label>
-                <input type="text" name="division_name" value="<?= isset($unit) ? esc($unit['unit_name']) : '' ?>"
-                       class="form-control" placeholder="Enter Division Name" required>
+                <label for=unit_name">Unit Name <span class="required">*</span></label>
+                <input id="unit_name" type="text" name="unit_name" value="<?= isset($unit) ? esc($unit['unit_name']) : set_value('unit_name') ?>"
+                       class="form-control" placeholder="Enter Unit Name" required>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('unit_name')) ? $validation->getError('unit_name') : '' ?>
+                </span>
             </div>
             <div class="form-group">
-                <label id="department">Department</label>
-                <select class="form-control" name="department_id">
+                <label for="department">Department</label>
+                <select id="department" class="form-control" name="department_id">
                     <option>Choose Department</option>
-                    <?php $selected_department_id = isset($unit) ? $unit['department_id'] : ''; ?>
+                    <?php $selected_department_id = isset($unit) ? $unit['department_id'] : set_value('department_id'); ?>
                     <?php if (!empty($departments) && is_array($departments)): ?>
                         <?php foreach ($departments as $department): ?>
                             <?php if ($department['id'] === $selected_department_id): ?>
@@ -48,6 +37,9 @@
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('department_id')) ? $validation->getError('department_id') : '' ?>
+                </span>
             </div>
             <div class="item form-group">
                 <div class="col-md-6 col-sm-6 offset-md-3">

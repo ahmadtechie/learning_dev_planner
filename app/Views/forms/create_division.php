@@ -5,21 +5,7 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body">
-            <?php if (\Config\Services::validation()->getErrors()): ?>
-                <div id="errorAlert" class="alert alert-danger alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <?php foreach (\Config\Services::validation()->getErrors() as $error): ?>
-                        <p><?= esc($error) ?></p>
-                    <?php endforeach; ?>
-                </div>
-
-                <script>
-                    // Hide the error alert after 3 seconds
-                    setTimeout(function () {
-                        $("#errorAlert").fadeOut("slow");
-                    }, 3000);
-                </script>
-            <?php endif; ?>
+            <?php include(APPPATH . 'Views/includes/message.php'); ?>
 
             <?php if (isset($division)): ?>
                 <?= form_open(url_to('ldm.divisions.update', esc($division['id']))) ?>
@@ -29,8 +15,11 @@
 
             <div class="form-group">
                 <label>Division Name <span class="required">*</span></label>
-                <input type="text" name="division_name" value="<?= isset($division) ? esc($division['division_name']) : '' ?>"
+                <input type="text" name="division_name" value="<?= isset($division) ? esc($division['division_name']) : set_value('division_name') ?>"
                        class="form-control" placeholder="Enter Division Name" required>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('division_name')) ? $validation->getError('division_name') : '' ?>
+                </span>
             </div>
 
             <div class="item form-group">

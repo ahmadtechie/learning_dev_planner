@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class DevelopmentCycleModel extends Model
 {
-    protected $table            = 'developmentcycle';
+    protected $table            = 'development_cycle';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

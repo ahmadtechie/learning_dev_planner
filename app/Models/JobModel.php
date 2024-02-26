@@ -37,4 +37,10 @@ class JobModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    // Define the relationship with the Competency model
+    public function competencies()
+    {
+        return $this->belongsToMany('App\Models\CompetencyModel', 'job_competencies', 'job_id', 'competency_id');
+    }
 }

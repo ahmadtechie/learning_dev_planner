@@ -25,17 +25,16 @@
                                     $model = new \App\Models\DepartmentModel();
                                     if ($unit['department_id']) {
                                         $departmentData = $model->find($unit['department_id']);
-                                        if ($departmentData !== null && isset($unitData['department_name'])) {
+                                        if ($departmentData !== null && isset($departmentData['department_name'])) {
                                             $department_name = $departmentData['department_name'];
                                         } else {
                                             // Handle the case where department data is not found or 'department_name' is not set
                                             $department_name = 'Unknown Department';
                                         }
                                     } else {
-                                        // Handle the case where 'division_id' is not set
+                                        // Handle the case where 'department_id' is not set
                                         $department_name = 'No Department';
                                     }
-//                                    $division_name = $model->find($group['division_id'])['division_name'];
                                     ?>
                                     <tr>
                                         <td><?= $unit['unit_name']; ?></td>

@@ -5,21 +5,7 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body">
-            <?php if (\Config\Services::validation()->getErrors()): ?>
-                <div id="errorAlert" class="alert alert-danger alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <?php foreach (\Config\Services::validation()->getErrors() as $error): ?>
-                        <p><?= esc($error) ?></p>
-                    <?php endforeach; ?>
-                </div>
-
-                <script>
-                    // Hide the error alert after 3 seconds
-                    setTimeout(function () {
-                        $("#errorAlert").fadeOut("slow");
-                    }, 3000);
-                </script>
-            <?php endif; ?>
+            <?php include(APPPATH . 'Views/includes/message.php'); ?>
 
             <?php if (isset($group)): ?>
                 <?= form_open(url_to('ldm.groups.update', esc($group['id']))) ?>
@@ -28,15 +14,18 @@
             <?php endif; ?>
 
             <div class="form-group">
-                <label>Group Name <span>*</span></label>
-                <input type="text" name="group_name" value="<?= isset($group) ? esc($group['group_name']) : '' ?>"
+                <label for="group_name">Group Name <span>*</span></label>
+                <input type="text" id="group_name" name="group_name" value="<?= isset($group) ? esc($group['group_name']) : set_value('group_name') ?>"
                        class="form-control" placeholder="Enter Group Name" required>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('group_name')) ? $validation->getError('group_name') : '' ?>
+                </span>
             </div>
             <div class="form-group">
-                <label id="division">Division</label>
-                <select class="form-control" name="division_id">
+                <label for="division">Division</label>
+                <select id="division" class="form-control" name="division_id">
                     <option>Choose Division</option>
-                    <?php $selected_division_id = isset($group) ? $group['division_id'] : ''; ?>
+                    <?php $selected_division_id = isset($group) ? $group['division_id'] : set_value('division_id'); ?>
                     <?php if (!empty($divisions) && is_array($divisions)): ?>
                         <?php foreach ($divisions as $division): ?>
                             <?php if ($division['id'] === $selected_division_id): ?>
@@ -47,6 +36,9 @@
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('division_id')) ? $validation->getError('division_id') : '' ?>
+                </span>
             </div>
 
             <div class="item form-group">

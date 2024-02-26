@@ -6,13 +6,13 @@ use CodeIgniter\Model;
 
 class UserRoleModel extends Model
 {
-    protected $table            = 'userrole';
+    protected $table            = 'role';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['role', 'user_id', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['role', 'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
     protected $useTimestamps = false;
@@ -37,9 +37,4 @@ class UserRoleModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
-    public function user()
-    {
-        return $this->belongsTo('UserModel', 'user_id');
-    }
 }

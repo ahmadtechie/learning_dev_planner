@@ -10,25 +10,42 @@ helper(['form']);
 
 class UnitController extends BaseController
 {
+    public array $data;
+    public array $validation = [
+        'unit_name' => [
+            'rules' => 'required|min_length[3]|validateUnitUnique[unit.unit_name]',
+            'errors' => [
+                'required' => 'Unit name must be provided',
+                'min_length' => 'Unit name must be at least 3 characters.',
+                'validateUnitUnique' => 'A unit with this name already registered'
+            ]
+        ],
+        'department_id' => [
+            'rules' => 'required|integer',
+            'errors' => [
+                'integer' => 'A department must be selected!',
+            ],
+        ]
+    ];
+
+    function __construct() {
+        $this->data = [
+            'title' => 'Unit Page | LD Planner',
+            'page_name' => 'units',
+        ];
+        $departmentModel = model(DepartmentModel::class);
+        $unitModel = model(UnitModel::class);
+        $this->data['departments'] = $departmentModel->orderBy('created_at', 'DESC')->findAll();
+        $this->data['units'] = $unitModel->orderBy('created_at', 'DESC')->findAll();
+    }
+
     public function index(): string
     {
-        $unitModel = model(UnitModel::class);
-        $units = $unitModel->orderBy('created_at', 'DESC')->findAll();
-
-        $departmentModel = model(DepartmentModel::class);
-        $departments = $departmentModel->orderBy('created_at', 'DESC')->findAll();
-
-        $data = [
-            'title' => 'Unit Page | LD Planner',
-            'units' => $units,
-            'departments' => $departments,
-        ];
-
-        return view('includes/head') .
+        return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
-            view('includes/mini_navbar', $data) .
-            view('forms/create_unit', $data) .
+            view('includes/mini_navbar', $this->data) .
+            view('forms/create_unit', $this->data) .
             view('includes/footer');
     }
 
@@ -36,39 +53,22 @@ class UnitController extends BaseController
     {
         $model = model(UnitModel::class);
 
-        $units = $model->orderBy('created_at', 'DESC')->findAll();
-
-        $departmentModel = model(DepartmentModel::class);
-        $departments = $departmentModel->orderBy('created_at', 'DESC')->findAll();
-
-        $data = [
-            'title' => 'Unit Page | LD Planner',
-            'units' => $units,
-            'departments' => $departments,
-        ];
-
-        if (!$this->validate([
-            'unit_name' => 'required|min_length[3]',
-            'department_id' => 'required|integer',
-        ])) {
-            $errors = [
-                'errors' => $this->validator->getError(),
-            ];
+        if (!$this->validate($this->validation)) {
+            $validation = ['validation' =>$this->validator];
             return view('includes/head') .
                 view('includes/navbar') .
                 view('includes/sidebar') .
-                view('includes/mini_navbar', $data) .
-                view('forms/create_unit', array_merge($data, $errors)) .
+                view('includes/mini_navbar', $this->data) .
+                view('forms/create_unit', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
 
         // Validation successful
         $validData = $this->validator->getValidated();
+        $model->save($validData);
 
-        $model->save([
-            'unit_name' => $validData['unit_name'],
-            'department_id' => $validData['department_id']
-        ]);
+        $session = \Config\Services::session();
+        $session->setFlashdata('success', "Unit {$validData['unit_name']} created successfully.");
 
         return redirect('ldm.units');
     }
@@ -77,70 +77,52 @@ class UnitController extends BaseController
     {
         $unitModel = model(UnitModel::class);
         $unit = $unitModel->find($id);
-        $units = $unitModel->orderBy('created_at', 'DESC')->findAll();
 
-        $departmentModel = model(DepartmentModel::class);
-        $departments = $departmentModel->orderBy('created_at', 'DESC')->findAll();
-
-        $data = [
-            'unit' => $unit,
-            'units' => $units,
-            'departments' => $departments,
-        ];
+        $this->data['unit'] = $unit;
+        $this->data['title'] = 'Unit Page | Edit Unit';
 
         if ($unit === null) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException("Unit with ID $id not found.");
         }
 
-        return view('includes/head') .
+        return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
-            view('includes/mini_navbar', $data) .
-            view('forms/create_unit', $data) .
+            view('includes/mini_navbar', $this->data) .
+            view('forms/create_unit', $this->data) .
             view('includes/footer');
     }
 
     public function update($id)
     {
         $model = new UnitModel();
+        $this->validation['unit_name']['rules'] = 'required|min_length[3]';
 
-        $units = $model->orderBy('created_at', 'DESC')->findAll();
-
-        $departmentModel = model(DepartmentModel::class);
-        $departments = $departmentModel->orderBy('created_at', 'DESC')->findAll();
-
-        $data = [
-            'units' => $units,
-            'departments' => $departments,
-        ];
-
-        if (!$this->validate([
-            'unit_name' => 'required|min_length[3]',
-            'department_id' => 'required|integer',
-        ])) {
-            $errors = [
-                'errors' => $this->validator->getError(),
-            ];
-            return view('includes/head') .
+        if (!$this->validate($this->validation)) {
+            $validation = ['validation' => $this->validator];
+            return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .
-                view('includes/mini_navbar', $data) .
-                view('forms/create_unit', $data) .
+                view('includes/mini_navbar', $this->data) .
+                view('forms/create_unit', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
 
         $validData = $this->request->getPost();
-
         $model->update($id, $validData);
 
+        $session = \Config\Services::session();
+        $session->setFlashdata('success', "Unit {$validData['unit_name']} edited successfully.");
         return redirect('ldm.units.create');
     }
 
     public function delete($id)
     {
         $model = new UnitModel();
-
         $model->delete($id);
+
+        $session = \Config\Services::session();
+        $session->setFlashdata('deleted', "Unit deleted successfully.");
 
         return redirect('ldm.units');
     }

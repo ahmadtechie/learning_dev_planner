@@ -12,97 +12,81 @@ helper(['form']);
 
 class DepartmentController extends BaseController
 {
-    public function index(): string
-    {
+    public array $data;
+    public array $validation = [
+        'department_name' => [
+            'rules' => 'required|min_length[3]|validateDepartmentUnique[department.department_name]',
+            'errors' => [
+                'required' => 'Department name must be provided',
+                'min_length' => 'Division name must be at least 3 characters.',
+                'is_unique' => 'A department with this name already registered'
+            ]
+        ],
+//        'group_id' => [
+//            'rules' => 'required|integer',
+//            'errors' => [
+//                'integer' => 'A group must be selected!',
+//            ],
+//        ]
+    ];
+
+    function __construct() {
         $departmentModel = model(DepartmentModel::class);
         $departments = $departmentModel->orderBy('created_at', 'DESC')->findAll();
 
         $groupModel = model(GroupModel::class);
         $groups = $groupModel->orderBy('created_at', 'DESC')->findAll();
 
-        $data = [
+        $this->data = [
             'title' => 'Department Page | LD Planner',
             'departments' => $departments,
             'groups' => $groups,
+            'page_name' => 'departments',
         ];
+    }
 
-        return view('includes/head') .
+    public function index(): string
+    {
+        return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
-            view('includes/mini_navbar', $data) .
-            view('forms/create_department', $data) .
+            view('includes/mini_navbar', $this->data) .
+            view('forms/create_department', $this->data) .
             view('includes/footer');
     }
 
     public function create()
     {
         $departmentModel = model(DepartmentModel::class);
-        $departments = $departmentModel->orderBy('created_at', 'DESC')->findAll();
 
-
-        $groupModel = model(GroupModel::class);
-        $groups = $groupModel->orderBy('created_at', 'DESC')->findAll();
-
-        $data = [
-            'title' => 'Department Page | LD Planner',
-            'departments' => $departments,
-            'groups' => $groups,
-        ];
-
-        if (!$this->validate([
-            'department_name' => 'required|min_length[3]|is_unique[department.department_name]',
-            'group_id' => 'required|integer',
-        ])) {
-            // Validation failed
-
-            // Store the user's input in the session
-            $session = Services::session();
-            $session->setFlashdata('old', $this->request->getPost());
-            $oldInput = $session->getFlashdata('old');
-
-            // Display custom error message and re-populate the form
-            $errors = [
-                'errors' => [
-                    'department_name' => 'The department name has already been taken. Please choose another.',
-                ],
-            ];
-
-            return view('includes/head') .
+        if (!$this->validate($this->validation)) {
+            $validation = ['validation' =>$this->validator];
+            return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .
-                view('includes/mini_navbar', $data) .
-                view('forms/create_department', array_merge($errors, $oldInput, $data)) .
+                view('includes/mini_navbar', $this->data) .
+                view('forms/create_department', array_merge($validation, $this->data)) .
                 view('includes/footer');
         }
-
         // Validation successful
         $validData = $this->validator->getValidated();
 
         try {
             $departmentModel->save($validData);
+            $session = \Config\Services::session();
+            $session->setFlashdata('success', "Department {$validData['department_name']} created successfully.");
             return redirect()->to(url_to('ldm.departments'));
         } catch (\Exception $e) {
-            if ($e->getCode() == 1062) { // MySQL duplicate entry error code
-                // Duplicate entry error handling
+            if ($e->getCode() == 1062) {
+                $validation = ['validation' => $this->validator];
 
-                // Retrieve the old input from the session
-                $session = Services::session();
-                $oldInput = $session->getFlashdata('old');
-
-                // Display custom error message and re-populate the form
-                $errors = [
-                    'errors' => [
-                        'department_name' => 'The department name has already been taken. Please choose another.',
-                    ],
-                ];
-
-                return view('includes/head') .
+                return view('includes/head', $this->data) .
+                    view('includes/navbar') .
                     view('includes/sidebar') .
-                    view('includes/nav') .
-                    view('forms/create_department', array_merge($errors, $oldInput)) .
+                    view('includes/mini_navbar', $this->data) .
+                    view('forms/create_department', array_merge($validation, $this->data)) .
                     view('includes/footer');
             } else {
-                // Handle other exceptions or rethrow if necessary
                 throw $e;
             }
         }
@@ -112,84 +96,52 @@ class DepartmentController extends BaseController
     {
         $departmentModel = model(DepartmentModel::class);
         $department = $departmentModel->find($id);
-        $departments = $departmentModel->orderBy('created_at', 'DESC')->findAll();
 
-        $groupModel = model(GroupModel::class);
-        $groups = $groupModel->orderBy('created_at', 'DESC')->findAll();
-
-        $data = [
-            'department' => $department,
-            'departments' => $departments,
-            'groups' => $groups,
-        ];
+        $this->data['title'] = 'LD Planner | Edit Department';
 
         if ($department === null) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException("Department with ID $id not found.");
         }
 
         return view('includes/head') .
+            view('includes/navbar') .
             view('includes/sidebar') .
-            view('includes/nav') .
-            view('forms/edit_department', $data) .
+            view('includes/mini_navbar', $this->data + ['department' => $department]) .
+            view('forms/create_department', $this->data + ['department' => $department]) .
             view('includes/footer');
     }
 
     public function update($id)
     {
-        $model = new DepartmentModel();
-        $departments = $model->orderBy('created_at', 'DESC')->findAll();
+        $departmentModel = new DepartmentModel();
 
-
-        $groupModel = model(GroupModel::class);
-        $groups = $groupModel->orderBy('created_at', 'DESC')->findAll();
-
-        $data = [
-            'title' => 'Department Page | LD Planner',
-            'departments' => $departments,
-            'groups' => $groups,
-        ];
-
-        if (!$this->validate([
-            'department_name' => "required|min_length[3]|is_unique[department.department_name,id,$id]",
-            'group_id' => 'required|integer',
-        ])) {
-
-            // Store the user's input in the session
-            $session = Services::session();
-            $session->setFlashdata('old', $this->request->getPost());
-            $oldInput = $session->getFlashdata('old');
-
-            // Display custom error message and re-populate the form
-            $errors = [
-                'errors' => [
-                    'department_name' => 'The department name has already been taken. Please choose another.',
-                ],
-            ];
-
-            return view('includes/head') .
+        $this->validation['department_name']['rules'] = 'required|min_length[3]';
+        if (!$this->validate($this->validation)) {
+            $validation = ['validation' =>$this->validator];
+            return view('includes/head', $this->data) .
+                view('includes/navbar') .
                 view('includes/sidebar') .
-                view('includes/nav') .
-                view('forms/edit_department', array_merge($errors, $oldInput, $data)) .
+                view('includes/mini_navbar', $this->data) .
+                view('forms/create_department', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-
         $validData = $this->request->getPost();
 
         try {
-            $model->update($id, $validData);
+            $departmentModel->update($id, $validData);
+            $session = \Config\Services::session();
+            $session->setFlashdata('success', "Department {$validData['department_name']} edited successfully.");
             return redirect()->to(url_to('ldm.departments'));
         } catch (\Exception $e) {
-            if ($e->getCode() == 1062) { // MySQL duplicate entry error code
-                $errors = [
-                    'errors' => ['department_name' => 'The department name has already been taken. Please choose another.'],
-                ];
+            if ($e->getCode() == 1062) {
+                $validation = ['validation' =>$this->validator];
                 return view('includes/head') .
+                    view('includes/navbar') .
                     view('includes/sidebar') .
-                    view('includes/nav') .
-                    view('forms/edit_department', $errors) .
+                    view('includes/mini_navbar', $this->data) .
+                    view('forms/create_department', array_merge($this->data, $validation)) .
                     view('includes/footer');
             } else {
-                // Handle other exceptions or rethrow if necessary
                 throw $e;
             }
         }
@@ -199,6 +151,8 @@ class DepartmentController extends BaseController
     {
         $model = new DepartmentModel();
         $model->delete($id);
+        $session = \Config\Services::session();
+        $session->setFlashdata('deleted', "Department deleted successfully.");
         return redirect()->to(url_to('ldm.departments'));
     }
 }

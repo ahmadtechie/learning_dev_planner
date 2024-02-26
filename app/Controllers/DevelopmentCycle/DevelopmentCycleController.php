@@ -3,15 +3,26 @@
 namespace App\Controllers\DevelopmentCycle;
 
 use App\Controllers\BaseController;
+use App\Models\DevelopmentCycleModel;
 
 class DevelopmentCycleController extends BaseController
 {
     public function index(): string
     {
-        return view('includes/head') .
+        $cycleModel = model(DevelopmentCycleModel::class);
+        $cycles = $cycleModel->orderBy('created_at', 'DESC')->findAll();
+
+        $data = [
+            'title' => 'Development Cycle | LD Planner',
+            'page_name' => 'development cycle',
+            'cycles' => $cycles,
+        ];
+
+        return view('includes/head', $data) .
+            view('includes/navbar') .
             view('includes/sidebar') .
-            view('includes/nav') .
-            view('forms/division_form') .
+            view('includes/mini_navbar', $data) .
+            view('forms/cycle_setup', $data) .
             view('includes/footer');
     }
 
