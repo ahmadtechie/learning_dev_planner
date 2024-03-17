@@ -12,7 +12,7 @@
                             <thead>
                             <tr>
                                 <th>Line Manager</th>
-                                <th>Department/Unit</th>
+<!--                                <th>Department/Unit</th>-->
                                 <th>Subordinates</th>
                                 <th>Updated At</th>
                                 <th></th>
@@ -21,10 +21,20 @@
                             <tbody>
                             <?php if (!empty($line_managers) && is_array($line_managers)): ?>
                                 <?php foreach ($line_managers as $line_manager): ?>
+                                <?php
+                                    $employeeModel = model(\App\Models\EmployeeModel::class);
+                                    $employees_under_manager = $employeeModel->getEmployeesUnderLineManager($line_manager['id'])
+                                ?>
                                     <tr>
                                         <td><?= esc($line_manager['first_name']); esc($line_manager['last_name']);  ?></td>
-                                        <td><?= $line_manager['unit']; ?></td>
-                                        <td><?= $line_manager['employees'] ?></td>
+<!--                                        <td>--><?php //= $line_manager['unit']; ?><!--</td>-->
+                                        <td>
+                                            <?php if (!empty($employees_under_manager) && is_array($employees_under_manager)): ?>
+                                                <?php foreach ($employees_under_manager as $employee_under_manager): ?>
+                                                    <?= "{$employee_under_manager['first_name']} {$employee_under_manager['last_name']}" ?>
+                                                <?php endforeach ?>
+                                            <?php endif ?>
+                                        </td>
                                         <td><?= $line_manager['updated_at']; ?></td>
                                         <td>
                                             <div class="btn-group">
@@ -36,9 +46,9 @@
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item edit-btn"
-                                                       href="<?= url_to('ldm.competencies.mapping.edit', $line_manager['line_manager_id']) ?>">Edit</a>
+                                                       href="<?= url_to('ldm.line.manager.edit', $line_manager['id']) ?>">Edit</a>
                                                     <a class="dropdown-item delete-btn"
-                                                       href="<?= url_to('ldm.competencies.mapping.delete', $line_manager['line_manager_id']) ?>">Delete</a>
+                                                       href="<?= url_to('ldm.line.manager.delete', $line_manager['id']) ?>">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -46,7 +56,7 @@
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="2">No line manager assignments found</td>
+                                    <td colspan="5">No line manager assignments found</td>
                                 </tr>
                             <?php endif; ?>
                             </tbody>

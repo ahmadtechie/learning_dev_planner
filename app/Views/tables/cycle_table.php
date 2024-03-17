@@ -21,11 +21,27 @@
                             </thead>
                             <tbody>
                             <?php if (!empty($cycles) && is_array($cycles)): ?>
+                                <?php
+                                $months = [
+                                    1 => 'January',
+                                    2 => 'February',
+                                    3 => 'March',
+                                    4 => 'April',
+                                    5 => 'May',
+                                    6 => 'June',
+                                    7 => 'July',
+                                    8 => 'August',
+                                    9 => 'September',
+                                    10 => 'October',
+                                    11 => 'November',
+                                    12 => 'December',
+                                ]
+                                ?>
                                 <?php foreach ($cycles as $cycle): ?>
                                     <tr>
                                         <td><?= $cycle['cycle_year']; ?></td>
-                                        <td><?= $cycle['start_month'] ?></td>
-                                        <td><?= $cycle['end_month']; ?></td>
+                                        <td><?= $months[$cycle['start_month']]; ?></td>
+                                        <td><?= $months[$cycle['end_month']]; ?></td>
                                         <td><?= $cycle['max_competencies']; ?></td>
                                         <td><?= $cycle['descriptor_text']; ?></td>
                                         <td>
@@ -38,9 +54,9 @@
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item edit-btn"
-                                                       href="">Edit</a>
+                                                       href="<?= url_to('ldm.cycle.edit', $cycle['id']) ?>">Edit</a>
                                                     <a class="dropdown-item delete-btn"
-                                                       href="">Delete</a>
+                                                       href="<?= url_to('ldm.cycle.delete', $cycle['id']) ?>">Delete</a>
                                                 </div>
                                             </div>
                                         </td>

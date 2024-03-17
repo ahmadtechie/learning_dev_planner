@@ -18,8 +18,8 @@
             <?php endif; ?>
 
             <div class="form-group">
-                <label for="job">Job <span>*</span></label>
-                <select id="job" class="form-control" name="line_manager_id" required>
+                <label for="line_manager">Line Manager <span>*</span></label>
+                <select id="line_manager" class="form-control" name="line_manager_id" required>
                     <option>Choose Line Manager</option>
                     <?php $selected_line_manager_id = isset($assign) ? $assign['id'] : set_value('line_manager_id') ?>
                     <?php if (!empty($line_managers) && is_array($line_managers)): ?>
@@ -40,7 +40,7 @@
                 </span>
             </div>
             <div class="form-group">
-                <label for="employee_ids">Select Competencies <span>*</span></label>
+                <label for="employee_ids">Select Employees <span>*</span></label>
                 <select id="employee_ids" data-placeholder="Select employees" name="employee_ids[]" multiple="multiple"
                         required style="width: 100%;">
                     <?php if (!empty($employees) && is_array($employees)): ?>
@@ -57,7 +57,7 @@
                             }
                             ?>
                             <option value="<?= $employee['id'] ?>" <?= set_select('employee_ids[]', $employee['id'], $isSelected) ?>>
-                                <?= $employee['first_name'] ?>
+                                <?= "{$employee['first_name']} {$employee['last_name']}" ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

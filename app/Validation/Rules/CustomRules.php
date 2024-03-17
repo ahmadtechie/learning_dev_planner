@@ -4,6 +4,7 @@ namespace App\Validation\Rules;
 
 use App\Models\CompetencyModel;
 use App\Models\DepartmentModel;
+use App\Models\DevelopmentCycleModel;
 use App\Models\DivisionModel;
 use App\Models\GroupModel;
 use App\Models\JobCompetencyModel;
@@ -86,6 +87,16 @@ class CustomRules
     public function validateUserUnique($str, string $field, array $data): bool
     {
         $model = new UserModel();
+
+        // Check if the email is unique, excluding soft-deleted records
+        $existing = $model->where($field, $str)->where('deleted_at IS NULL')->first();
+
+        return empty($existing);
+    }
+
+    public function validateCycleYearUnique($str, string $field, array $data): bool
+    {
+        $model = new DevelopmentCycleModel();
 
         // Check if the email is unique, excluding soft-deleted records
         $existing = $model->where($field, $str)->where('deleted_at IS NULL')->first();

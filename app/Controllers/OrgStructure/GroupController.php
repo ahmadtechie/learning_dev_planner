@@ -22,12 +22,12 @@ class GroupController extends BaseController
                 'validateGroupUnique' => 'A group with this name already registered'
             ]
         ],
-//        'division_id' => [
-//            'rules' => 'required|integer',
-//            'errors' => [
-//                'integer' => 'A group must be selected!',
-//            ],
-//        ]
+        'division_id' => [
+            'rules' => 'required|integer',
+            'errors' => [
+                'integer' => 'A group must be selected!',
+            ],
+        ]
     ];
 
     function __construct() {

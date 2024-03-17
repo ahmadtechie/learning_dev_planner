@@ -11,7 +11,7 @@ class InterventionVendorController extends BaseController
         return view('includes/head') .
             view('includes/sidebar') .
             view('includes/nav') .
-            view('forms/division_form') .
+            view('forms/create_intervention_vendor.php') .
             view('includes/footer');
     }
 

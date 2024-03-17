@@ -3,13 +3,22 @@
 use App\Controllers\CompetencyFramework\CompetencyController;
 use App\Controllers\CompetencyFramework\CompetencyMappingController;
 use App\Controllers\CompetencyFramework\JobController;
+use App\Controllers\DevelopmentContracting\DevelopmentRatingController;
 use App\Controllers\DevelopmentCycle\DevelopmentCycleController;
 use App\Controllers\Employee\EmployeeController;
+use App\Controllers\Employee\EmployeeInviteController;
 use App\Controllers\Employee\LineManagerController;
+use App\Controllers\EmployeeCSVController;
+use App\Controllers\InterventionManagement\AssignInterventionController;
+use App\Controllers\InterventionManagement\InterventionAttendanceController;
+use App\Controllers\InterventionManagement\InterventionTypeController;
+use App\Controllers\LoginController;
 use App\Controllers\OrgStructure\DepartmentController;
 use App\Controllers\OrgStructure\DivisionController;
 use App\Controllers\OrgStructure\GroupController;
 use App\Controllers\OrgStructure\UnitController;
+use App\Controllers\ReportController;
+use App\Controllers\Trainer\TrainerController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -84,20 +93,86 @@ $routes->group('ldm', function ($routes) {
         $routes->post('update/(:num)/', [EmployeeController::class, 'update'], ['as' => 'ldm.employee.update']);
         $routes->post('delete/(:num)/', [EmployeeController::class, 'delete'], ['as' => 'ldm.employee.delete']);
 
-        $routes->get('role/', [LineManagerController::class, 'index'], ['as' => 'ldm.line.manager']);
-        $routes->post('role/', [LineManagerController::class, 'create'], ['as' => 'ldm.line.manager.create']);
-    });
+        $routes->get('invite/', [EmployeeInviteController::class, 'index'], ['as' => 'ldm.employee.invite']);
+        $routes->post('invite/', [EmployeeInviteController::class, 'index'], ['as' => 'ldm.employee.invite.create']);
 
-    // Line Manager Routes
-    $routes->group('manager', function ($routes) {
-        $routes->get('assign/', [LineManagerController::class, 'index'], ['as' => 'ldm.line.manager']);
-        $routes->post('assign/', [LineManagerController::class, 'create'], ['as' => 'ldm.line.manager.create']);
-        $routes->post('assign/edit/(:num)/', [LineManagerController::class, 'edit'], ['as' => 'ldm.line.manager.edit']);
-        $routes->post('assign/update/(:num)/', [LineManagerController::class, 'update'], ['as' => 'ldm.line.manager.update']);
-        $routes->post('assign/delete/(:num)/', [LineManagerController::class, 'delete'], ['as' => 'ldm.line.manager.delete']);
+        $routes->get('upload/', [EmployeeCSVController::class, 'index'], ['as' => 'ldm.employee.upload']);
+        $routes->post('upload/', [EmployeeCSVController::class, 'index'], ['as' => 'ldm.employee.upload.create']);
+
+        // Line Manager Routes
+        $routes->group('manager', function ($routes) {
+            $routes->get('assign/', [LineManagerController::class, 'index'], ['as' => 'ldm.line.manager']);
+            $routes->post('assign/', [LineManagerController::class, 'create'], ['as' => 'ldm.line.manager.create']);
+            $routes->post('assign/edit/(:num)/', [LineManagerController::class, 'edit'], ['as' => 'ldm.line.manager.edit']);
+            $routes->post('assign/update/(:num)/', [LineManagerController::class, 'update'], ['as' => 'ldm.line.manager.update']);
+            $routes->post('assign/delete/(:num)/', [LineManagerController::class, 'delete'], ['as' => 'ldm.line.manager.delete']);
+        });
     });
 
     // Development Cycles
-    $routes->get('cycle/', [DevelopmentCycleController::class, 'index'], ['as' => 'ldm.cycle']);
+    $routes->group('development', function ($routes) {
+        $routes->get('cycle/', [DevelopmentCycleController::class, 'index'], ['as' => 'ldm.cycle']);
+        $routes->post('cycle/', [DevelopmentCycleController::class, 'create'], ['as' => 'ldm.cycle.create']);
+        $routes->get('cycle/edit/(:num)/', [DevelopmentCycleController::class, 'edit'], ['as' => 'ldm.cycle.edit']);
+        $routes->post('cycle/update/(:num)/', [DevelopmentCycleController::class, 'update'], ['as' => 'ldm.cycle.update']);
+        $routes->post('cycle/delete/(:num)/', [DevelopmentCycleController::class, 'delete'], ['as' => 'ldm.cycle.delete']);
+    });
+
+    $routes->group('contracting', function ($routes) {
+        $routes->get('self/', [DevelopmentRatingController::class, 'index'], ['as' => 'ldm.rating.self']);
+        $routes->post('self/', [DevelopmentRatingController::class, 'create'], ['as' => 'ldm.rating.self.create']);
+        $routes->get('self/edit/(:num)/', [DevelopmentRatingController::class, 'edit'], ['as' => 'ldm.rating.self.edit']);
+        $routes->post('self/update/(:num)/', [DevelopmentRatingController::class, 'update'], ['as' => 'ldm.rating.self.update']);
+        $routes->post('self/delete/(:num)/', [DevelopmentRatingController::class, 'delete'], ['as' => 'ldm.rating.self.delete']);
+
+        $routes->get('validate/', [DevelopmentRatingController::class, 'index'], ['as' => 'ldm.rating.validate']);
+        $routes->post('validate/', [DevelopmentRatingController::class, 'create'], ['as' => 'ldm.rating.validate.create']);
+        $routes->get('validate/edit/(:num)/', [DevelopmentRatingController::class, 'edit'], ['as' => 'ldm.rating.validate.edit']);
+        $routes->post('validate/update/(:num)/', [DevelopmentRatingController::class, 'update'], ['as' => 'ldm.rating.validate.update']);
+        $routes->post('validate/delete/(:num)/', [DevelopmentRatingController::class, 'delete'], ['as' => 'ldm.rating.validate.delete']);
+    });
+
+    $routes->group('intervention', function ($routes) {
+        $routes->get('type/', [InterventionTypeController::class, 'index'], ['as' => 'ldm.intervention.type']);
+        $routes->post('type/', [InterventionTypeController::class, 'create'], ['as' => 'ldm.intervention.type.create']);
+        $routes->get('type/edit/(:num)/', [InterventionTypeController::class, 'edit'], ['as' => 'ldm.intervention.type.edit']);
+        $routes->post('type/update/(:num)/', [InterventionTypeController::class, 'update'], ['as' => 'ldm.intervention.type.update']);
+        $routes->post('type/delete/(:num)/', [InterventionTypeController::class, 'delete'], ['as' => 'ldm.intervention.type.delete']);
+
+        $routes->get('assign/', [AssignInterventionController::class, 'index'], ['as' => 'ldm.intervention.assign']);
+        $routes->post('assign/', [AssignInterventionController::class, 'create'], ['as' => 'ldm.intervention.assign.create']);
+        $routes->get('assign/edit/(:num)/', [AssignInterventionController::class, 'edit'], ['as' => 'ldm.intervention.assign.edit']);
+        $routes->post('assign/update/(:num)/', [AssignInterventionController::class, 'update'], ['as' => 'ldm.intervention.assign.update']);
+        $routes->post('assign/delete/(:num)/', [AssignInterventionController::class, 'delete'], ['as' => 'ldm.intervention.assign.delete']);
+
+        $routes->get('attendance/', [InterventionAttendanceController::class, 'index'], ['as' => 'ldm.intervention.attendance']);
+        $routes->post('attendance/', [InterventionAttendanceController::class, 'create'], ['as' => 'ldm.intervention.attendance.create']);
+        $routes->get('attendance/edit/(:num)/', [InterventionAttendanceController::class, 'edit'], ['as' => 'ldm.intervention.attendance.edit']);
+        $routes->post('attendance/update/(:num)/', [InterventionAttendanceController::class, 'update'], ['as' => 'ldm.intervention.attendance.update']);
+        $routes->post('attendance/delete/(:num)/', [InterventionAttendanceController::class, 'delete'], ['as' => 'ldm.intervention.attendance.delete']);
+    });
+
+    $routes->group('trainer', function ($routes) {
+        $routes->get('vendor/', [TrainerController::class, 'index'], ['as' => 'ldm.trainer']);
+        $routes->post('vendor/', [TrainerController::class, 'create'], ['as' => 'ldm.trainer.create']);
+        $routes->get('vendor/edit/(:num)/', [TrainerController::class, 'edit'], ['as' => 'ldm.trainer.edit']);
+        $routes->post('vendor/update/(:num)/', [TrainerController::class, 'update'], ['as' => 'ldm.trainer.update']);
+        $routes->post('vendor/delete/(:num)/', [TrainerController::class, 'delete'], ['as' => 'ldm.trainer.delete']);
+    });
+
+    $routes->group('dashboard', function ($routes) {
+        $routes->get('pdp/', [TrainerController::class, 'index'], ['as' => 'ldm.dashboard.pdp']);
+        $routes->get('adp/', [TrainerController::class, 'index'], ['as' => 'ldm.dashboard.adp']);
+    });
+
+    $routes->group('reports', function ($routes) {
+        $routes->get('competencies/', [ReportController::class, 'index'], ['as' => 'ldm.reports.competencies']);
+        $routes->get('contracts/', [ReportController::class, 'index'], ['as' => 'ldm.reports.contracts']);
+        $routes->get('interventions/', [ReportController::class, 'index'], ['as' => 'ldm.reports.interventions']);
+        $routes->get('attendance/', [ReportController::class, 'index'], ['as' => 'ldm.reports.attendance']);
+        $routes->get('feedback/', [ReportController::class, 'index'], ['as' => 'ldm.reports.feedback']);
+    });
+
+    $routes->get('login/', [LoginController::class, 'index'], ['as' => 'ldm.reports.competencies']);
 });
 

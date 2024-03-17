@@ -3,18 +3,22 @@
 namespace App\Controllers\Employee;
 
 use App\Controllers\BaseController;
+use App\Models\EmployeeModel;
 use App\Models\UserModel;
+
+helper(['form']);
 
 class LineManagerController extends BaseController
 {
     public array $data;
     function __construct() {
-        $userModel = model(UserModel::class);
-        $users = $userModel->orderBy('created_at', 'DESC')->findAll();
+        $employeeModel = model(EmployeeModel::class);
+        $employees = $employeeModel->getUnAssignedEmployeeDetailsWithUser();
 
         $this->data = [
-            'title' => 'Department Page | LD Planner',
-            'employees' => $users,
+            'title' => 'Line Manager Page | LD Planner',
+            'employees' => $employees,
+            'line_managers' => $employeeModel->getAllLineManagers(),
             'page_name' => 'line managers',
         ];
     }

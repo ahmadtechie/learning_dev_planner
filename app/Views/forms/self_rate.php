@@ -6,24 +6,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Competency Rating</h3>
                     </div>
-
-                    <?php if (\Config\Services::validation()->getErrors()): ?>
-                        <div id="errorAlert" class="alert alert-danger alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                            <?php foreach (\Config\Services::validation()->getErrors() as $error): ?>
-                                <p><?= esc($error) ?></p>
-                            <?php endforeach; ?>
-                        </div>
-
-                        <script>
-                            // Hide the error alert after 3 seconds
-                            setTimeout(function () {
-                                $("#errorAlert").fadeOut("slow");
-                            }, 3000);
-                        </script>
-                    <?php endif; ?>
-
-                    <form id="quickForm">
+                    <?= form_open(url_to('ldm.rating.self')) ?>
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="InputEmail"></label>

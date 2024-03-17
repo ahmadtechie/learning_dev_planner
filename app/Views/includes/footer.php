@@ -82,6 +82,32 @@
 <!-- AdminLTE App -->
 <script src="<?php echo base_url("dist/js/adminlte.min.js") ?>"></script>
 <!-- Page specific script -->
+
+<script>
+    $(document).ready(function() {
+        // Store the initial state of the employee options
+        let initialEmployeeOptions = $('#employee_ids').html();
+
+        // Function to filter out the selected line manager from employee options
+        function filterEmployeeOptions(lineManagerId) {
+            $('#employee_ids').html(initialEmployeeOptions);
+            $('#employee_ids option[value="' + lineManagerId + '"]').remove();
+        }
+
+        // Event listener for line manager selection change
+        $('#line_manager').on('change', function() {
+            let selectedLineManagerId = $(this).val();
+            if (selectedLineManagerId) {
+                filterEmployeeOptions(selectedLineManagerId);
+            } else {
+                // If no line manager is selected, reset the employee options
+                $('#employee_ids').html(initialEmployeeOptions);
+            }
+        });
+    });
+
+</script>
+
 <script>
     $(function () {
         $("#example1").DataTable({
