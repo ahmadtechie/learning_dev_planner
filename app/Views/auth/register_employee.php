@@ -4,15 +4,48 @@
             <div class="col-md-6">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">Register New Staff</h3>
+                        <?php if (isset($employee)): ?>
+                            <h3 class="card-title">Update Staff Details</h3>
+                        <?php else: ?>
+                            <h3 class="card-title">Register New Staff</h3>
+                        <?php endif; ?>
                     </div>
                     <div class="card-body">
-                        <?= form_open(url_to('ldm.employee.create')) ?>
+                        <?php if (!empty(session()->getFlashdata('success'))): ?>
+                            <div id="successAlert" class="alert alert-success" role="alert">
+                                <?= session('success') ?>
+                            </div>
+                            <script>
+                                setTimeout(function () {
+                                    $("#successAlert").fadeOut("slow");
+                                }, 3000);
+                            </script>
+                        <?php endif; ?>
+                        <?php if (!empty(session()->getFlashdata('error'))): ?>
+                            <div id="errorAlert" class="alert alert-danger" role="alert">
+                                <?= session('error') ?>
+                            </div>
+                            <script>
+                                setTimeout(function () {
+                                    $("#errorAlert").fadeOut("slow");
+                                }, 3000);
+                            </script>
+                        <?php endif; ?>
+
+                        <?php if (isset($employee)): ?>
+                            <?= form_open(url_to('ldm.employee.update', $employee['employee_id'])) ?>
+                        <?php else: ?>
+                            <?= form_open(url_to('ldm.employee.create')) ?>
+                        <?php endif; ?>
+
                         <div class="form-group">
                             <label for="InputEmail">Email address</label>
                             <input type="email" name="email" class="form-control" id="InputEmail"
                                    placeholder="Enter email"
-                                   value="<?= set_value('email') ?>" required>
+                                   value="<?= isset($employee) ? esc($employee['email']) : set_value('email') ?>"
+
+                                   required
+                            >
                             <span class="text-danger">
                             <?= (isset($validation) && $validation->hasError('email')) ? $validation->getError('email') : '' ?>
                         </span>
@@ -20,7 +53,9 @@
                         <div class="form-group">
                             <label for="FirstName">First Name</label>
                             <input type="text" name="first_name" class="form-control" id="FirstName"
-                                   placeholder="Enter first name" value="<?= set_value('first_name') ?>" required>
+                                   placeholder="Enter first name"
+                                   value="<?= isset($employee) ? esc($employee['first_name']) : set_value('first_name') ?>"
+                                   required>
                             <span class="text-danger">
                             <?= (isset($validation) && $validation->hasError('first_name')) ? $validation->getError('first_name') : '' ?>
                         </span>
@@ -28,7 +63,9 @@
                         <div class="form-group">
                             <label for="LastName">Last Name</label>
                             <input type="text" name="last_name" class="form-control" id="LastName"
-                                   placeholder="Enter last name" value="<?= set_value('last_name') ?>" required>
+                                   placeholder="Enter last name"
+                                   value="<?= isset($employee) ? esc($employee['last_name']) : set_value('last_name') ?>"
+                                   required>
                             <span class="text-danger">
                             <?= (isset($validation) && $validation->hasError('last_name')) ? $validation->getError('last_name') : '' ?>
                         </span>
@@ -37,9 +74,10 @@
                             <label for="job">Job</label>
                             <select id="job" class="form-control" name="job_id" required>
                                 <option>Choose Job</option>
+                                <?php $selected_job_id = isset($employee) ? $employee['job_id'] : set_value('job_id'); ?>
                                 <?php if (!empty($jobs) && is_array($jobs)): ?>
                                     <?php foreach ($jobs as $job): ?>
-                                        <?php if (set_value('job_id') == $job['id']): ?>
+                                        <?php if ($selected_job_id == $job['id'] or set_value('job_id') == $job['id']): ?>
                                             <option value="<?= $job['id'] ?>"
                                                     selected><?= esc($job['job_title']) ?></option>
                                         <?php else: ?>
@@ -58,20 +96,15 @@
                                     name="role_ids[]" multiple="multiple" required style="width: 100%;">
                                 <?php if (!empty($roles) && is_array($roles)): ?>
                                     <?php foreach ($roles as $role): ?>
-                                        <?php
-                                        $isSelected = false;
-                                        if (!empty($selected_roles) && is_array($selected_roles)) {
-                                            foreach ($selected_roles as $selected_role) {
-                                                if ($role['id'] == $selected_role['id']) {
-                                                    $isSelected = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        ?>
-                                        <option value="<?= $role['id'] ?>" <?= set_select('role_ids[]', $role['id'], $isSelected) ?>>
-                                            <?= $role['name'] ?>
-                                        </option>
+                                        <?php if (isset($selected_roles)): ?>
+                                            <option value="<?= $role['id'] ?>" <?= in_array($role['id'], array_column($selected_roles, 'role_id')) ? 'selected' : '' ?>>
+                                                <?= $role['name'] ?>
+                                            </option>
+                                        <?php else: ?>
+                                            <option value="<?= $role['id'] ?>">
+                                                <?= $role['name'] ?>
+                                            </option>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
@@ -87,7 +120,7 @@
                                 <?php if (!empty($line_managers) && is_array($line_managers)): ?>
                                     <?php $selected_line_manager_id = isset($employee) ? $employee['line_manager_id'] : set_value('line_manager_id') ?>
                                     <?php foreach ($line_managers as $line_manager): ?>
-                                        <?php if ($line_manager['id'] === $selected_line_manager_id): ?>
+                                        <?php if ($line_manager['employee_id'] == $selected_line_manager_id): ?>
                                             <option value="<?= $line_manager['employee_id'] ?>"
                                                     selected><?= esc($line_manager['first_name']);
                                                 esc($line_manager['last_name']); ?></option>

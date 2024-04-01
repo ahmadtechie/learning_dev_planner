@@ -36,6 +36,8 @@ class DivisionController extends BaseController
 
     public function index(): string
     {
+        $this->data['userData'] = $this->request->userData;
+
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -46,6 +48,7 @@ class DivisionController extends BaseController
 
     public function create()
     {
+        $this->data['userData'] = $this->request->userData;
         $model = model(DivisionModel::class);
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
@@ -66,6 +69,8 @@ class DivisionController extends BaseController
 
     public function edit($num)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $model = model(DivisionModel::class);
         $division = $model->find($num);
         $this->data['title'] = 'LD Planner | Edit Division';
@@ -84,6 +89,8 @@ class DivisionController extends BaseController
 
     public function update($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $model = new DivisionModel();
         $this->validation['division_name']['rules'] = 'required|min_length[3]';
 
@@ -111,6 +118,8 @@ class DivisionController extends BaseController
 
     public function delete($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $model = new DivisionModel();
 
         $session = \Config\Services::session();

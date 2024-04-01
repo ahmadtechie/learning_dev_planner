@@ -9,6 +9,6 @@ class EmailController extends BaseController
 {
     public function index()
     {
-        //
+        echo 'Hi, friends';
     }
 }

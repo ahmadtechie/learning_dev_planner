@@ -23,15 +23,15 @@
                                 <?php foreach ($line_managers as $line_manager): ?>
                                 <?php
                                     $employeeModel = model(\App\Models\EmployeeModel::class);
-                                    $employees_under_manager = $employeeModel->getEmployeesUnderLineManager($line_manager['id'])
+                                    $employees_under_manager = $employeeModel->getEmployeesUnderLineManager($line_manager['employee_id'])
                                 ?>
                                     <tr>
-                                        <td><?= esc($line_manager['first_name']); esc($line_manager['last_name']);  ?></td>
+                                        <td><?= "{$line_manager['first_name']} {$line_manager['last_name']}"  ?></td>
 <!--                                        <td>--><?php //= $line_manager['unit']; ?><!--</td>-->
                                         <td>
                                             <?php if (!empty($employees_under_manager) && is_array($employees_under_manager)): ?>
                                                 <?php foreach ($employees_under_manager as $employee_under_manager): ?>
-                                                    <?= "{$employee_under_manager['first_name']} {$employee_under_manager['last_name']}" ?>
+                                                    <?= "{$employee_under_manager['first_name']} {$employee_under_manager['last_name']}," ?>
                                                 <?php endforeach ?>
                                             <?php endif ?>
                                         </td>

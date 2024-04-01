@@ -1,4 +1,4 @@
-</div>g
+</div>
 <!-- /.content-wrapper -->
 <footer class="main-footer">
     <strong>Copyright &copy; <?= date('Y'); ?></strong>
@@ -82,23 +82,64 @@
 <!-- AdminLTE App -->
 <script src="<?php echo base_url("dist/js/adminlte.min.js") ?>"></script>
 <!-- Page specific script -->
+<script>
+    // Event listener for Preview button
+    document.getElementById("previewBtn").addEventListener("click", function() {
+        // Clear existing previews
+        document.getElementById("previewTableBody").innerHTML = "";
+
+        // Send AJAX request to fetch preview data
+        fetch('http://localhost:8080/ldm/employee/upload/preview', {
+            method: 'POST',
+            body: myDropzone.files[0]
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Populate table with preview data
+                data.forEach(rowData => {
+                    const newRow = document.createElement("tr");
+                    rowData.forEach(cellData => {
+                        const newCell = document.createElement("td");
+                        newCell.textContent = cellData;
+                        newRow.appendChild(newCell);
+                    });
+                    document.getElementById("previewTableBody").appendChild(newRow);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+
+</script>
+
 
 <script>
     $(document).ready(function() {
-        // Store the initial state of the employee options
         let initialEmployeeOptions = $('#employee_ids').html();
-
-        // Function to filter out the selected line manager from employee options
         function filterEmployeeOptions(lineManagerId) {
             $('#employee_ids').html(initialEmployeeOptions);
             $('#employee_ids option[value="' + lineManagerId + '"]').remove();
         }
 
-        // Event listener for line manager selection change
         $('#line_manager').on('change', function() {
             let selectedLineManagerId = $(this).val();
             if (selectedLineManagerId) {
                 filterEmployeeOptions(selectedLineManagerId);
+                // Send AJAX request to fetch subordinate line manager
+                $.ajax({
+                    url: 'http://localhost:8080/ldm/employee/line-manager',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { line_manager_id: selectedLineManagerId },
+                    success: function(response) {
+                        let subordinateLineManagerId = response.subordinate_line_manager_id;
+                        $('#employee_ids option[value="' + subordinateLineManagerId + '"]').remove();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                        console.error('Error fetching line manager id.');}
+                });
             } else {
                 // If no line manager is selected, reset the employee options
                 $('#employee_ids').html(initialEmployeeOptions);

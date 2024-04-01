@@ -9,6 +9,8 @@
         </div>
 
         <div class="card-body">
+            <?php include(APPPATH . 'Views/includes/message.php'); ?>
+
             <?php if (isset($job)): ?>
                 <?= form_open(url_to('ldm.jobs.update', esc($job['id']))) ?>
             <?php else: ?>

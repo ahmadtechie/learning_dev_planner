@@ -6,6 +6,7 @@ use App\Models\CompetencyModel;
 use App\Models\DepartmentModel;
 use App\Models\DevelopmentCycleModel;
 use App\Models\DivisionModel;
+use App\Models\EmployeeModel;
 use App\Models\GroupModel;
 use App\Models\JobCompetencyModel;
 use App\Models\JobModel;

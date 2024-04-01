@@ -44,6 +44,8 @@ class JobController extends BaseController
 
     public function index(): string
     {
+        $this->data['userData'] = $this->request->userData;
+
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -60,6 +62,7 @@ class JobController extends BaseController
         $jobModel = new JobModel();
 
         $this->data['title'] = 'Create Job | LD Planner';
+        $this->data['userData'] = $this->request->userData;
 
         if (!$this->validate($this->validation)) {
             // Validation failed
@@ -86,6 +89,7 @@ class JobController extends BaseController
         $jobModel = new JobModel();
         $job = $jobModel->find($id);
 
+        $this->data['userData'] = $this->request->userData;
 
         if ($job === null) {
             throw new PageNotFoundException("Job with ID $id not found.");
@@ -104,6 +108,7 @@ class JobController extends BaseController
 
     public function update($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $jobModel = new JobModel();
         $this->validation['job_title']['rules'] = 'required|min_length[3]';
 
@@ -130,6 +135,8 @@ class JobController extends BaseController
 
     public function delete($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $jobModel = new JobModel();
         $jobModel->delete($id);
         $session = \Config\Services::session();

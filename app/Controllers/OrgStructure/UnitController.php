@@ -41,6 +41,8 @@ class UnitController extends BaseController
 
     public function index(): string
     {
+        $this->data['userData'] = $this->request->userData;
+
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -51,6 +53,7 @@ class UnitController extends BaseController
 
     public function create()
     {
+        $this->data['userData'] = $this->request->userData;
         $model = model(UnitModel::class);
 
         if (!$this->validate($this->validation)) {
@@ -75,6 +78,8 @@ class UnitController extends BaseController
 
     public function edit($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $unitModel = model(UnitModel::class);
         $unit = $unitModel->find($id);
 
@@ -95,6 +100,7 @@ class UnitController extends BaseController
 
     public function update($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $model = new UnitModel();
         $this->validation['unit_name']['rules'] = 'required|min_length[3]';
 
@@ -118,6 +124,7 @@ class UnitController extends BaseController
 
     public function delete($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $model = new UnitModel();
         $model->delete($id);
 

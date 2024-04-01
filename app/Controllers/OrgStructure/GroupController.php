@@ -47,6 +47,8 @@ class GroupController extends BaseController
 
     public function index(): string
     {
+        $this->data['userData'] = $this->request->userData;
+
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -58,6 +60,7 @@ class GroupController extends BaseController
     public function create()
     {
         $model = model(GroupModel::class);
+        $this->data['userData'] = $this->request->userData;
 
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
@@ -85,6 +88,8 @@ class GroupController extends BaseController
 
     public function edit($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $model = model(GroupModel::class);
         $group = $model->find($id);
 
@@ -105,6 +110,8 @@ class GroupController extends BaseController
 
     public function update($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $model = new GroupModel();
         $this->validation['group_name']['rules'] = 'required|min_length[3]';
 
@@ -138,6 +145,7 @@ class GroupController extends BaseController
 
     public function delete($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $model = new GroupModel();
 
         // Delete the division from the database

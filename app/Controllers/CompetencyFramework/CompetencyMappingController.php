@@ -35,6 +35,8 @@ class CompetencyMappingController extends BaseController
             'title' => 'Competency-Job Mapping Page | LD Planner',
             'page_name' => 'map competencies',
         ];
+        $this->data['userData'] = $this->request->userData;
+
         $jobModel = model(JobModel::class);
         $competencyModel = model(CompetencyModel::class);
         $jobCompetencyModel = new JobCompetencyModel();

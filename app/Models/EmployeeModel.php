@@ -53,22 +53,38 @@ class EmployeeModel extends Model
         return $this->belongsTo('UserModel', 'line_manager_id');
     }
 
+//    public function getAllEmployeesWithUserDetails(): array
+//    {
+//        // Select employee details along with user details and concatenated role IDs
+//        $employees = $this->select('employee.id AS employee_id, employee.*, user.*, GROUP_CONCAT(role.name) AS user_roles')
+//            ->join('user', 'user.id = employee.user_id')
+//            ->join('employee_roles', 'employee_roles.user_id = user.id')
+//            ->withDeleted()
+//            ->join('role', 'role.id = employee_roles.role_id')
+//            ->groupBy('employee.id')
+//            ->findAll();
+//
+//        // Convert comma-separated role names to arrays
+//        foreach ($employees as $employee) {
+//            $employee['user_roles'] = explode(',', $employee['user_roles']);
+//        }
+//
+//        return $employees;
+//    }
+
     public function getAllEmployeesWithUserDetails(): array
     {
-        // Load UserRoleModel
-        $userRoleModel = model(UserRoleModel::class);
-
         // Select employee details along with user details and concatenated role IDs
-        $employees = $this->select('employee.*, user.*, GROUP_CONCAT(role.name) AS user_roles')
+        $employees = $this->select('employee.id AS employee_id, employee.*, user.*, IFNULL(GROUP_CONCAT(role.name), "") AS user_roles')
             ->join('user', 'user.id = employee.user_id')
-            ->join('employee_roles', 'employee_roles.user_id = user.id')
-            ->join('role', 'role.id = employee_roles.role_id') // Join role table to get role names
-            ->groupBy('employee.id') // Group by employee ID to avoid duplicate rows
+            ->join('employee_roles', 'employee_roles.user_id = user.id', 'left')
+            ->withDeleted()
+            ->join('role', 'role.id = employee_roles.role_id', 'left')
+            ->groupBy('employee.id')
             ->findAll();
 
-        // Convert comma-separated role names to arrays
         foreach ($employees as &$employee) {
-            $employee['user_roles'] = explode(',', $employee['user_roles']);
+            $employee['user_roles'] = !empty($employee['user_roles']) ? $employee['user_roles'] : '';
         }
 
         return $employees;
@@ -76,7 +92,7 @@ class EmployeeModel extends Model
 
     public function getEmployeeDetailsWithUser(int $employeeId)
     {
-        return $this->select('employee.*, user.*, job.job_title as job_title, CONCAT(line_manager.first_name, " ", line_manager.last_name) as line_manager_name')
+        return $this->select('employee.id AS employee_id, employee.*, user.*, job.job_title as job_title, CONCAT(line_manager.first_name, " ", line_manager.last_name) as line_manager_name')
             ->join('user', 'user.id = employee.user_id')
             ->join('job', 'job.id = employee.job_id')
             ->join('user as line_manager', 'line_manager.id = employee.line_manager_id', 'left')
@@ -86,11 +102,11 @@ class EmployeeModel extends Model
 
     public function getUnAssignedEmployeeDetailsWithUser(): array
     {
-        return $this->select('employee.*, user.*, job.job_title as job_title, CONCAT(line_manager.first_name, " ", line_manager.last_name) as line_manager_name')
+        return $this->select('employee.id AS employee_id, employee.*, user.*, job.job_title as job_title, CONCAT(line_manager.first_name, " ", line_manager.last_name) as line_manager_name')
             ->join('user', 'user.id = employee.user_id')
             ->join('job', 'job.id = employee.job_id')
-            ->join('user as line_manager', 'line_manager.id = employee.line_manager_id', 'left')
-            ->where('employee.line_manager_id IS NULL')
+            ->join('user as line_manager', 'line_manager.id = employee.user_id', 'left')
+            ->where('employee.line_manager_id = 0')
             ->findAll();
     }
 
@@ -99,7 +115,7 @@ class EmployeeModel extends Model
         $roleModel = model(UserRoleModel::class);
         $line_manager_role_id = $roleModel->where('name', 'LineManager')->first()['id'];
 
-        return $this->select('employee.*, user.*, job.job_title as job_title')
+        return $this->select('employee.id AS employee_id, employee.*, user.*, job.job_title as job_title')
             ->join('user', 'user.id = employee.user_id')
             ->join('job', 'job.id = employee.job_id')
             ->join('employee_roles', 'employee_roles.employee_id = employee.id')
@@ -109,11 +125,26 @@ class EmployeeModel extends Model
 
     public function getEmployeesUnderLineManager(int $lineManagerId): array
     {
-        return $this->select('employee.*', 'user.*')
+        return $this->select('employee.*, user.*',)
             ->join('user', 'user.id = employee.user_id')
-            ->where('line_manager_id', $lineManagerId)
+            ->where('employee.line_manager_id', $lineManagerId)
             ->findAll();
     }
 
+    /**
+     * @throws \ReflectionException
+     */
+    public function restoreEmployee($employeeId)
+    {
+        // Attempt to find the soft-deleted employee
+        $employee = $this->onlyDeleted()->find($employeeId);
+
+        if (!$employee) {
+            return false; // Employee not found or not soft-deleted
+        }
+
+        // Restore the soft-deleted employee by setting the 'deleted_at' field to NULL
+        return $this->update($employeeId, ['deleted_at' => null]);
+    }
 }
 

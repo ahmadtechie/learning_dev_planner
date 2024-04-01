@@ -19,7 +19,7 @@ class DepartmentController extends BaseController
             'errors' => [
                 'required' => 'Department name must be provided',
                 'min_length' => 'Division name must be at least 3 characters.',
-                'is_unique' => 'A department with this name already registered'
+                'validateDepartmentUnique' => 'A department with this name already registered'
             ]
         ],
 //        'group_id' => [
@@ -47,6 +47,7 @@ class DepartmentController extends BaseController
 
     public function index(): string
     {
+        $this->data['userData'] = $this->request->userData;
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -57,6 +58,8 @@ class DepartmentController extends BaseController
 
     public function create()
     {
+        $this->data['userData'] = $this->request->userData;
+
         $departmentModel = model(DepartmentModel::class);
 
         if (!$this->validate($this->validation)) {
@@ -94,6 +97,8 @@ class DepartmentController extends BaseController
 
     public function edit($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $departmentModel = model(DepartmentModel::class);
         $department = $departmentModel->find($id);
 
@@ -113,6 +118,7 @@ class DepartmentController extends BaseController
 
     public function update($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $departmentModel = new DepartmentModel();
 
         $this->validation['department_name']['rules'] = 'required|min_length[3]';
@@ -149,6 +155,7 @@ class DepartmentController extends BaseController
 
     public function delete($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $model = new DepartmentModel();
         $model->delete($id);
         $session = \Config\Services::session();

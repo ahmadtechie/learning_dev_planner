@@ -25,12 +25,10 @@
                     <?php if (!empty($line_managers) && is_array($line_managers)): ?>
                         <?php foreach ($line_managers as $line_manager): ?>
                             <?php if ($line_manager['id'] === $selected_line_manager_id): ?>
-                                <option value="<?= $line_manager['id'] ?>"
-                                        selected><?= esc($line_manager['first_name']);
-                                    esc($line_manager['last_name']); ?></option>
+                                <option value="<?= $line_manager['employee_id'] ?>"
+                                        selected><?= "{$line_manager['first_name']} {$line_manager['last_name']}" ?></option>
                             <?php else: ?>
-                                <option value="<?= $line_manager['id'] ?>"><?= esc($line_manager['first_name']);
-                                    esc($line_manager['last_name']) ?></option>
+                                <option value="<?= $line_manager['employee_id'] ?>"><?= "{$line_manager['first_name']} {$line_manager['last_name']}" ?></option>
                             <?php endif ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -56,11 +54,12 @@
                                 }
                             }
                             ?>
-                            <option value="<?= $employee['id'] ?>" <?= set_select('employee_ids[]', $employee['id'], $isSelected) ?>>
+                            <option value="<?= $employee['employee_id'] ?>" <?= set_select('employee_ids[]', $employee['id'], $isSelected) ?>>
                                 <?= "{$employee['first_name']} {$employee['last_name']}" ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
+
                 </select>
                 <span class="text-danger"><?= isset($validation) && $validation->hasError('employee_ids[]') ? $validation->getError('employee_ids[]') : '' ?></span>
             </div>

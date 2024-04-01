@@ -55,6 +55,7 @@ class DevelopmentCycleController extends BaseController
 
     public function index(): string
     {
+        $this->data['userData'] = $this->request->userData;
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
@@ -70,6 +71,7 @@ class DevelopmentCycleController extends BaseController
     public function create()
     {
         $cycleModel = new DevelopmentCycleModel();
+        $this->data['userData'] = $this->request->userData;
 
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
@@ -93,6 +95,7 @@ class DevelopmentCycleController extends BaseController
 
     public function edit($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $cycleModel = new DevelopmentCycleModel();
         $cycle = $cycleModel->find($id);
 
@@ -117,6 +120,7 @@ class DevelopmentCycleController extends BaseController
      */
     public function update($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $cycleModel = new DevelopmentCycleModel();
         $this->validation['cycle_year']['rules'] = 'required|integer';
 

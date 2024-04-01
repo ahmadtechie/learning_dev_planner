@@ -63,4 +63,20 @@ class UserModel extends Model
             return false;
         }
     }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function restoreUser($userId)
+    {
+        // Attempt to find the soft-deleted user
+        $user = $this->onlyDeleted()->find($userId);
+
+        if (!$user) {
+            return false; // Employee not found or not soft-deleted
+        }
+
+        // Restore the soft-deleted employee by setting the 'deleted_at' field to NULL
+        return $this->update($userId, ['deleted_at' => null]);
+    }
 }

@@ -24,21 +24,29 @@
                             <?php if (!empty($employees) && is_array($employees)): ?>
                                 <?php foreach ($employees as $employee): ?>
                                     <?php
-                                        $jobModel = new \App\Models\JobModel();
-                                        $employeeModel = new \App\Models\EmployeeModel();
-                                        $jobData = $jobModel->find($employee['job_id']);
+                                    $jobModel = new \App\Models\JobModel();
+                                    $employeeModel = new \App\Models\EmployeeModel();
 
-                                        if (isset($employee['line_manager_id'])) {
-                                            $lineManagerData = $employeeModel->getEmployeeDetailsWithUser($employee['line_manager_id'])['first_name'];
+                                    $jobData = $jobModel->find($employee['job_id']);
+
+                                    $lineManagerData = 'None'; // Default value
+
+                                    // Check if the line manager ID is not null and retrieve their details
+                                    if ($employee['line_manager_id'] !== null) {
+                                        $lineManagerDetails = $employeeModel->getEmployeeDetailsWithUser($employee['line_manager_id']);
+
+                                        // Check if line manager details are retrieved successfully
+                                        if ($lineManagerDetails !== null) {
+                                            $lineManagerData = $lineManagerDetails['first_name'];
                                         }
-                                        $lineManagerData = 'None';
+                                    }
                                     ?>
-                                    <tr>
-                                        <td><?= $employee['first_name'] ?></td>
-                                        <td><?= $employee['last_name'] ?></td>
-                                        <td><?= $employee['email'] ?></td>
-                                        <td><?= $jobData['job_title'] ?></td>
-                                        <td><?= implode(', ', $employee['user_roles']) ?></td>
+                                    <tr <?= $employee['deleted_at'] ? 'style="background-color: #f8d7da;"' : '' ?>>
+                                        <td><?= $employee['first_name'] ?? '' ?></td>
+                                        <td><?= $employee['last_name'] ?? '' ?></td>
+                                        <td><?= $employee['email'] ?? '' ?></td>
+                                        <td><?= $jobData['job_title'] ?? '' ?></td>
+                                        <td><?= $employee['user_roles'] ?? '' ?></td>
                                         <td><?= $lineManagerData ?></td>
                                         <td>
                                             <div class="btn-group">
@@ -50,9 +58,18 @@
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item edit-btn"
-                                                       href="">Edit</a>
-                                                    <a class="dropdown-item delete-btn"
-                                                       href="">Delete</a>
+                                                       href="<?= url_to('ldm.employee.edit', $employee['employee_id']) ?>">Edit</a>
+                                                    <?php if ($employee['deleted_at'] !== null): ?>
+                                                        <a class="dropdown-item delete-btn"
+                                                           href="<?= url_to('ldm.employee.activate', $employee['employee_id']) ?>">
+                                                            Activate
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <a class="dropdown-item delete-btn"
+                                                           href="<?= url_to('ldm.employee.delete', $employee['employee_id']) ?>">
+                                                            Deactivate
+                                                        </a>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         </td>

@@ -42,6 +42,7 @@
     <link rel="stylesheet" href="<?php echo base_url("plugins/datatables-buttons/css/buttons.bootstrap4.min.css") ?>">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?php echo base_url("dist/css/adminlte.min.css") ?>">
+
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">

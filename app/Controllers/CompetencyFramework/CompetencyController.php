@@ -41,6 +41,8 @@ class CompetencyController extends BaseController
             'competencies' => $competencies,
             'page_name' => 'competencies',
         ];
+        $this->data['userData'] = $this->request->userData;
+
     }
 
     public function index(): string
