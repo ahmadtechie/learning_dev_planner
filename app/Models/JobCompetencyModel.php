@@ -102,5 +102,4 @@ class JobCompetencyModel extends Model
             return false;
         }
     }
-
 }

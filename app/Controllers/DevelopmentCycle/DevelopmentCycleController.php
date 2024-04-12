@@ -55,7 +55,9 @@ class DevelopmentCycleController extends BaseController
 
     public function index(): string
     {
+        $cycleModel = new DevelopmentCycleModel();
         $this->data['userData'] = $this->request->userData;
+        $this->data['is_active_cycle_exists'] = $cycleModel->where('is_active', 1)->countAllResults();
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
@@ -71,18 +73,22 @@ class DevelopmentCycleController extends BaseController
     public function create()
     {
         $cycleModel = new DevelopmentCycleModel();
+        $is_active_cycle_exists = $cycleModel->where('is_active', 1)->countAllResults();
         $this->data['userData'] = $this->request->userData;
+        $this->data['is_active_cycle_exists'] = $is_active_cycle_exists;
+        $is_new_active = $this->request->getPost('is_active');
 
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
-            return view('includes/head') .
+            return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .
                 view('includes/mini_navbar', $this->data) .
                 view('forms/cycle_setup', array_merge($this->data, $validation)) .
                 view('includes/footer');
+        } elseif ($is_active_cycle_exists > 0 and $is_new_active == 1) {
+            return redirect('ldm.cycle')->withInput()->with('error', "You can only have one active development cycle at a time. Deactivate previous cycle!");
         }
-
         // Validation successful
         $validData = $this->validator->getValidated();
 
@@ -123,9 +129,11 @@ class DevelopmentCycleController extends BaseController
         $this->data['userData'] = $this->request->userData;
         $cycleModel = new DevelopmentCycleModel();
         $this->validation['cycle_year']['rules'] = 'required|integer';
+        $is_active_cycle_exists = $cycleModel->where('is_active', 1)->countAllResults();
+        $this->data['is_active_cycle_exists'] = $is_active_cycle_exists;
+        $is_new_active = $this->request->getPost('is_active');
 
         if (!$this->validate($this->validation)) {
-            // Validation failed
             $validation = ['validation' => $this->validator];
 
             return view('includes/head', $this->data) .
@@ -134,14 +142,14 @@ class DevelopmentCycleController extends BaseController
                 view('includes/mini_navbar', $this->data) .
                 view('forms/cycle_setup', array_merge($this->data, $validation)) .
                 view('includes/footer');
+        } elseif ($is_active_cycle_exists > 0 and $is_new_active == 1) {
+            return redirect('ldm.cycle')->withInput()->with('error', "You can only have one active development cycle at a time. Deactivate previous cycle!");
         }
 
-        // Validation successful
         $validData = $this->request->getPost();
-
         $cycleModel->update($id, $validData);
         $session = Services::session();
-        $session->setFlashdata('success', "Cycle {$validData['cycle_year']} edited successfully.");
+        $session->setFlashdata('success', "Cycle {$validData['cycle_year']} updated successfully.");
         return redirect()->to(url_to('ldm.cycle'));
     }
 }

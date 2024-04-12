@@ -17,7 +17,7 @@
                 <label for="department_name">Department Name <span>*</span></label>
                 <input type="text" id="department_name" name="department_name"
                        value="<?= isset($department) ? esc($department['department_name']) : set_value('department_name') ?>"
-                       class="form-control" placeholder="Enter Division Name">
+                       class="form-control" placeholder="Enter Department Name">
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('department_name')) ? $validation->getError('department_name') : '' ?>
                 </span>

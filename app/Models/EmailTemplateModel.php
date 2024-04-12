@@ -4,15 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DevelopmentCycleModel extends Model
+class EmailTemplateModel extends Model
 {
-    protected $table            = 'development_cycle';
+    protected $table            = 'email_template';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['max_competencies', 'cycle_year', 'start_month', 'end_month', 'descriptor_text', 'is_active', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['email_type', 'email_subject', 'email_body', 'created_at', 'updated_at', 'deleted_at'];
+
+    protected bool $allowEmptyInserts = false;
 
     // Dates
     protected $useTimestamps = true;

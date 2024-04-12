@@ -4,15 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DevelopmentCycleModel extends Model
+class SiteSettingsModel extends Model
 {
-    protected $table            = 'development_cycle';
+    protected $table            = 'site_settings';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['max_competencies', 'cycle_year', 'start_month', 'end_month', 'descriptor_text', 'is_active', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['company_name', 'logo', 'company_address', 'primary_color', 'secondary_color', 'background_color', 'created_at', 'updated_at', 'deleted_at'];
+
+    protected bool $allowEmptyInserts = false;
 
     // Dates
     protected $useTimestamps = true;

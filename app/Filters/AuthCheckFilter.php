@@ -26,6 +26,7 @@ class AuthCheckFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         if (!session()->has('loggedInUser')) {
+            session()->set('redirect_url', current_url());
             return redirect()->to(url_to('ldm.login'))->with('error', 'You must be logged In to access this page');
         }
     }

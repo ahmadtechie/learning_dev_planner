@@ -4,15 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DevelopmentCycleModel extends Model
+class DevelopmentContractingModel extends Model
 {
-    protected $table            = 'development_cycle';
+    protected $table            = 'development_rating';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['max_competencies', 'cycle_year', 'start_month', 'end_month', 'descriptor_text', 'is_active', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['employee_id', 'competency_id', 'self_rating', 'line_manager_rating', 'cycle_id', 'created_at', 'updated_at', 'deleted_at'];
+
+    protected bool $allowEmptyInserts = false;
 
     // Dates
     protected $useTimestamps = true;
@@ -37,4 +39,15 @@ class DevelopmentCycleModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function updateLineManagerRating($active_cycle_id, $employee_id, $competency_id, $line_manager_rating) {
+        $this->where('cycle_id', $active_cycle_id)
+            ->where('employee_id', $employee_id)
+            ->where('competency_id', $competency_id)
+            ->set('line_manager_rating', $line_manager_rating)
+            ->update();
+    }
 }

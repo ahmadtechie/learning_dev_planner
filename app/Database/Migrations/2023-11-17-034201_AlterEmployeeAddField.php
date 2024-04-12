@@ -14,6 +14,14 @@ class AlterEmployeeAddField extends Migration
                 'constraint' => 5,
                 'unsigned' => true,
             ],
+            'department_id' => [
+                'type' => 'TIMESTAMP',
+                'null' => true,
+            ],
+            'unit_id' => [
+                'type' => 'TIMESTAMP',
+                'null' => true,
+            ]
         ];
         $this->forge->addForeignKey('line_manager_id', 'user', 'id', '', 'CASCADE');
         $this->forge->addColumn('employee', $fields);

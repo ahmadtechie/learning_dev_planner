@@ -43,9 +43,6 @@ class AuthController extends Controller
         $email = $this->request->getPost('email');
         $password = $this->request->getPost('password');
 
-        echo $email;
-        echo $password;
-
         $userModel = new UserModel();
         $employeeModel = new EmployeeModel();
         $employeeRoleModel = new EmployeeRolesModel();
@@ -60,9 +57,16 @@ class AuthController extends Controller
             }
             session()->set('loggedInUser', $userInfo['id']);
             session()->set('loggedInEmployee', $employeeInfo['id']);
+            session()->set('first_name', $userInfo['first_name']);
+            session()->set('last_name', $userInfo['last_name']);
             session()->set('employeeRoles', $employeeRoles);
 
-            return redirect()->to('/');
+            $redirect_url = session()->get('redirect_url');
+            if (!empty($redirect_url)) {
+                return redirect()->to($redirect_url);
+            }
+             return redirect()->to(url_to('ldm.home'));
+
         } else {
             return redirect()->to(url_to('ldm.login.auth'))->with('error', 'Incorrect email or password provided');
         }

@@ -4,9 +4,13 @@ namespace App\Controllers\Employee;
 
 use App\Controllers\BaseController;
 use App\Helpers\EmailHelper;
+use App\Models\DepartmentModel;
+use App\Models\EmailTemplateModel;
 use App\Models\EmployeeModel;
 use App\Models\EmployeeRolesModel;
 use App\Models\JobModel;
+use App\Models\SiteSettingsModel;
+use App\Models\UnitModel;
 use App\Models\UserModel;
 use App\Models\UserRoleModel;
 use CodeIgniter\API\ResponseTrait;
@@ -52,7 +56,8 @@ class EmployeeController extends BaseController
         ],
     ];
 
-    public function generateRandomPassword($length = 8) {
+    public function generateRandomPassword($length = 8)
+    {
         $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         return substr(str_shuffle($chars), 0, $length);
     }
@@ -68,6 +73,8 @@ class EmployeeController extends BaseController
         $employeeModel = model(EmployeeModel::class);
         $userRoleModel = model(UserRoleModel::class);
         $employeeRolesModel = model(EmployeeRolesModel::class);
+        $departmentModel = new DepartmentModel();
+        $unitModel = new UnitModel();
 
         $jobModel = model(JobModel::class);
         $jobs = $jobModel->orderBy('job_title')->findAll();
@@ -80,6 +87,8 @@ class EmployeeController extends BaseController
             'line_managers' => $employeeRolesModel->getAllLineManagersWithUser(),
             'jobs' => $jobs,
             'page_name' => 'employees',
+            'departments' => $departmentModel->findAll(),
+            'units' => $unitModel->findAll(),
         ];
     }
 
@@ -156,20 +165,24 @@ class EmployeeController extends BaseController
             ]);
         }
 
-        $emailHelper = new EmailHelper();
-        $subject = 'Welcome to Learning and Development Planner App';
-        $user_roles = implode(',', $roles);
-        $message = $emailHelper->welcomeMessage($username, $password, $user_email, $login_url, $user_roles);
-        $from = 'aas1800216.com@buk.edu.ng';
+        $emailTemplateModel = new EmailTemplateModel();
+        $siteSettingsModel = new SiteSettingsModel();
+        $siteName = $siteSettingsModel->first()["company_name"];
+        $emailData = $emailTemplateModel->where('email_type', 'staff_created')->first();
+        $userRoles = implode(', ', $roles);
+        $find = ['{first_name}', '{username}', '{user_roles}', '{email}', '{password}', '{login_url}'];
+        $replace = [$firstName, $username, $userRoles, $user_email, $password, $login_url];
+        $emailBody = str_replace($find, $replace, $emailData['email_body']);
+        $emailSubject = str_replace('{siteName}', $siteName, $emailData['email_subject']);
 
         $email = \Config\Services::email();
         $email->setTo($user_email);
-        $email->setFrom($from, 'Ahmad Sharafudeen');
-        $email->setSubject($subject);
-        $email->setMessage($message);
+        $email->setFrom($emailData["email_from"], 'Ahmad Sharafudeen');
+        $email->setSubject($emailSubject);
+        $email->setMessage($emailBody);
 
         $session = \Config\Services::session();
-        if($email->send()) {
+        if ($email->send()) {
             $session->setFlashdata('success', "Email sent to new user $firstName successfully.");
             return redirect()->to(url_to('ldm.employee'));
         }
@@ -331,7 +344,7 @@ class EmployeeController extends BaseController
         return redirect('ldm.employee');
     }
 
-    public function getEmployeeLineManager()
+    public function getEmployeeLineManager(): \CodeIgniter\HTTP\ResponseInterface
     {
         $lineManagerId = $this->request->getPost('line_manager_id');
 
@@ -340,8 +353,80 @@ class EmployeeController extends BaseController
         return $this->response->setJSON(['subordinate_line_manager_id' => $employeeLineManagerId]);
     }
 
-    public function map($id)
+    public function map()
     {
+        $this->data['userData'] = $this->request->userData;
+        $this->data['page_name'] = 'Employee-Org Mapping';
 
+        return view('includes/head', $this->data) .
+            view('includes/navbar') .
+            view('includes/sidebar') .
+            view('includes/mini_navbar', $this->data) .
+            view('forms/employee_dept_mapping', $this->data) .
+            view('includes/footer');
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function createMapping()
+    {
+        $employeeIds = $this->request->getPost('employee_ids');
+        $department_id = $this->request->getPost('department_id');
+        $unit_id = $this->request->getPost('unit_id');
+
+        $this->data['userData'] = $this->request->userData;
+
+        $validation = [
+            'employee_ids' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'At least one employee must be selected',
+                ]
+            ],
+            'department_id' => [
+                'rules' => 'required|integer',
+                'errors' => [
+                    'required' => 'Department must be selected.',
+                    'min_length' => 'First Name must be at least 3 characters.'
+                ],
+            ],
+        ];
+
+        $session = \Config\Services::session();
+
+        if (!$this->validate($validation)) {
+            $validation = ['validation' => $this->validator];
+
+            return view('includes/head', $this->data) .
+                view('includes/navbar') .
+                view('includes/sidebar') .
+                view('includes/mini_navbar', $this->data) .
+                view('auth/employee_dept_mapping', array_merge($this->data, $validation)) .
+                view('includes/footer');
+        }
+        // Fetch user ID
+        $employeeModel = new EmployeeModel();
+
+        try {
+            foreach ($employeeIds as $employeeId) {
+                $employeeModel->update($employeeId, ['department_id' => $department_id, 'unit_id' => $unit_id]);
+            }
+
+            return redirect('ldm.map.org.create')->with('success', 'Employees mapped to respective dept/unit successfully');
+        } catch (\Exception $e) {
+            if ($e->getCode() == 1062) {
+                $validation = ['validation' =>$this->validator];
+                $session->setFlashdata('error', "Failed to map employees.");
+                return view('includes/head') .
+                    view('includes/navbar') .
+                    view('includes/sidebar') .
+                    view('includes/mini_navbar', $this->data) .
+                    view('forms/employee_dept_mapping', array_merge($this->data, $validation)) .
+                    view('includes/footer');
+            } else {
+                throw $e;
+            }
+        }
     }
 }

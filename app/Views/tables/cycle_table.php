@@ -16,6 +16,7 @@
                                 <th>End Month</th>
                                 <th>Max Competencies</th>
                                 <th>Descriptor Text</th>
+                                <th>Is Active?</th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -44,6 +45,13 @@
                                         <td><?= $months[$cycle['end_month']]; ?></td>
                                         <td><?= $cycle['max_competencies']; ?></td>
                                         <td><?= $cycle['descriptor_text']; ?></td>
+                                        <?php
+                                        if ($cycle['is_active'] == 1):
+                                            ?>
+                                            <td>Yes</td>
+                                        <?php else: ?>
+                                            <td>No</td>
+                                        <?php endif; ?>
                                         <td>
                                             <div class="btn-group">
                                                 <button type="button"

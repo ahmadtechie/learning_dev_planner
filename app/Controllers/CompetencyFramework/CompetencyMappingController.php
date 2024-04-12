@@ -35,8 +35,6 @@ class CompetencyMappingController extends BaseController
             'title' => 'Competency-Job Mapping Page | LD Planner',
             'page_name' => 'map competencies',
         ];
-        $this->data['userData'] = $this->request->userData;
-
         $jobModel = model(JobModel::class);
         $competencyModel = model(CompetencyModel::class);
         $jobCompetencyModel = new JobCompetencyModel();
@@ -47,6 +45,8 @@ class CompetencyMappingController extends BaseController
 
     public function index()
     {
+        $this->data['userData'] = $this->request->userData;
+
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -60,12 +60,14 @@ class CompetencyMappingController extends BaseController
      */
     public function create()
     {
+        $this->data['userData'] = $this->request->userData;
+
         $model = model(JobCompetencyModel::class);
         $jobModel = model(JobModel::class);
 
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
-            return view('includes/head') .
+            return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .
                 view('includes/mini_navbar', $this->data) .
@@ -92,6 +94,7 @@ class CompetencyMappingController extends BaseController
 
     public function edit($id)
     {
+        $this->data['userData'] = $this->request->userData;
 //        TODO: With the ID, fetch all rows matching the given job_id
         $jobCompetencyModel = new JobCompetencyModel();
         $jobModel = new JobModel();
@@ -111,6 +114,7 @@ class CompetencyMappingController extends BaseController
      */
     public function update($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $this->validation['job_id']['rules'] = 'required|numeric';
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
@@ -135,6 +139,8 @@ class CompetencyMappingController extends BaseController
 
     public function delete($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $jobCompetencyModel = new JobCompetencyModel();
         $jobCompetencyModel->where('job_id', $id)->delete();
 

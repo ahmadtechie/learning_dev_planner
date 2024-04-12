@@ -9,7 +9,7 @@ use CodeIgniter\Config\Services;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use ReflectionException;
 
-helper(['form']);
+helper(['form', 'url']);
 
 class CompetencyController extends BaseController
 {
@@ -41,12 +41,11 @@ class CompetencyController extends BaseController
             'competencies' => $competencies,
             'page_name' => 'competencies',
         ];
-        $this->data['userData'] = $this->request->userData;
-
     }
 
     public function index(): string
     {
+        $this->data['userData'] = $this->request->userData;
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -60,6 +59,7 @@ class CompetencyController extends BaseController
      */
     public function create()
     {
+        $this->data['userData'] = $this->request->userData;
         $jobModel = new CompetencyModel();
 
         $this->data['title'] = 'Create Competency | LD Planner';
@@ -86,6 +86,8 @@ class CompetencyController extends BaseController
 
     public function edit($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $competencyModel = new CompetencyModel();
         $competency = $competencyModel->find($id);
 
@@ -107,6 +109,8 @@ class CompetencyController extends BaseController
 
     public function update($id)
     {
+        $this->data['userData'] = $this->request->userData;
+
         $competencyModel = new CompetencyModel();
         $this->validation['competency_name']['rules'] = 'required|min_length[3]';
 
@@ -133,6 +137,7 @@ class CompetencyController extends BaseController
 
     public function delete($id)
     {
+        $this->data['userData'] = $this->request->userData;
         $jobModel = new JobModel();
         $jobModel->delete($id);
         $session = \Config\Services::session();

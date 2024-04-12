@@ -5,6 +5,7 @@ namespace App\Controllers\OrgStructure;
 use App\Controllers\BaseController;
 use App\Models\UnitModel;
 use App\Models\DepartmentModel;
+use CodeIgniter\Model;
 
 helper(['form']);
 
@@ -120,6 +121,23 @@ class UnitController extends BaseController
         $session = \Config\Services::session();
         $session->setFlashdata('success', "Unit {$validData['unit_name']} edited successfully.");
         return redirect('ldm.units.create');
+    }
+
+    public function allUnits(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $unitModel = new UnitModel();
+        $department_id = $this->request->getPost('department_id');
+        $units = $unitModel->where('department_id', $department_id)->findAll();
+
+        $formattedUnits = [];
+        foreach ($units as $unit) {
+            $formattedUnits[] = [
+                'id' => $unit['id'],
+                'unit_name' => $unit['unit_name'],
+            ];
+        }
+
+        return $this->response->setJSON($formattedUnits);
     }
 
     public function delete($id)

@@ -12,7 +12,7 @@ class EmployeeModel extends Model
     protected $returnType = 'array';
     protected $useSoftDeletes = true;
     protected $protectFields = true;
-    protected $allowedFields = ['user_id', 'job_id', 'line_manager_id', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields = ['user_id', 'job_id', 'line_manager_id', 'department_id', 'unit_id', 'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
     protected $useTimestamps = true;
@@ -53,33 +53,17 @@ class EmployeeModel extends Model
         return $this->belongsTo('UserModel', 'line_manager_id');
     }
 
-//    public function getAllEmployeesWithUserDetails(): array
-//    {
-//        // Select employee details along with user details and concatenated role IDs
-//        $employees = $this->select('employee.id AS employee_id, employee.*, user.*, GROUP_CONCAT(role.name) AS user_roles')
-//            ->join('user', 'user.id = employee.user_id')
-//            ->join('employee_roles', 'employee_roles.user_id = user.id')
-//            ->withDeleted()
-//            ->join('role', 'role.id = employee_roles.role_id')
-//            ->groupBy('employee.id')
-//            ->findAll();
-//
-//        // Convert comma-separated role names to arrays
-//        foreach ($employees as $employee) {
-//            $employee['user_roles'] = explode(',', $employee['user_roles']);
-//        }
-//
-//        return $employees;
-//    }
 
     public function getAllEmployeesWithUserDetails(): array
     {
-        // Select employee details along with user details and concatenated role IDs
-        $employees = $this->select('employee.id AS employee_id, employee.*, user.*, IFNULL(GROUP_CONCAT(role.name), "") AS user_roles')
+        // Select employee details along with user details, department, unit, and concatenated role IDs
+        $employees = $this->select('employee.id AS employee_id, employee.*, user.*, IFNULL(GROUP_CONCAT(role.name), "") AS user_roles, department.department_name, unit.unit_name')
             ->join('user', 'user.id = employee.user_id')
             ->join('employee_roles', 'employee_roles.user_id = user.id', 'left')
-            ->withDeleted()
             ->join('role', 'role.id = employee_roles.role_id', 'left')
+            ->join('department', 'department.id = employee.department_id', 'left')
+            ->join('unit', 'unit.id = employee.unit_id', 'left')
+            ->withDeleted()
             ->groupBy('employee.id')
             ->findAll();
 
@@ -129,6 +113,14 @@ class EmployeeModel extends Model
             ->join('user', 'user.id = employee.user_id')
             ->where('employee.line_manager_id', $lineManagerId)
             ->findAll();
+    }
+
+    public function getCompetenciesForEmployeeJob($employeeId): array
+    {
+        $employee = $this->find($employeeId);
+        $jobId = $employee['job_id'];
+        $jobCompetencyModel = new JobCompetencyModel();
+        return $jobCompetencyModel->getCompetenciesForJob($jobId);
     }
 
     /**

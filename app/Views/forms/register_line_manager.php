@@ -6,8 +6,28 @@
                     <div class="card-header">
                         <h3 class="card-title">Register New Employee</h3>
                     </div>
-                    <?= form_open(url_to('ldm.employee.create')) ?>
+                    <?php if (!empty(session()->getFlashdata('success'))): ?>
+                        <div id="successAlert" class="alert alert-success" role="alert">
+                            <?= session('success') ?>
+                        </div>
+                        <script>
+                            setTimeout(function () {
+                                $("#successAlert").fadeOut("slow");
+                            }, 3000);
+                        </script>
+                    <?php endif; ?>
+                    <?php if (!empty(session()->getFlashdata('error'))): ?>
+                        <div id="errorAlert" class="alert alert-danger" role="alert">
+                            <?= session('error') ?>
+                        </div>
+                        <script>
+                            setTimeout(function () {
+                                $("#errorAlert").fadeOut("slow");
+                            }, 3000);
+                        </script>
+                    <?php endif; ?>
                     <div class="card-body">
+                        <?= form_open(url_to('ldm.employee.create')) ?>
                         <div class="form-group">
                             <label for="InputEmail">Email address</label>
                             <input type="email" name="email" class="form-control" id="InputEmail" placeholder="Enter email" value="<?= set_value('email') ?>" required>

@@ -8,7 +8,7 @@ class AlterEmployeeAddDeptId extends Migration
 {
     public function up()
     {
-        //
+        $this->forge->dropColumn('employee', 'is_active');
     }
 
     public function down()

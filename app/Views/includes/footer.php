@@ -77,14 +77,15 @@
 <!-- BS-Stepper -->
 <script src="<?php echo base_url("plugins/bs-stepper/js/bs-stepper.min.js") ?>"></script>
 <!-- dropzonejs -->
-<script src="<?php echo base_url("plugins/dropzone/min/dropzone.min.js") ?>" ></script>
+<script src="<?php echo base_url("plugins/dropzone/min/dropzone.min.js") ?>"></script>
 
 <!-- AdminLTE App -->
 <script src="<?php echo base_url("dist/js/adminlte.min.js") ?>"></script>
 <!-- Page specific script -->
+
 <script>
     // Event listener for Preview button
-    document.getElementById("previewBtn").addEventListener("click", function() {
+    document.getElementById("previewBtn").addEventListener("click", function () {
         // Clear existing previews
         document.getElementById("previewTableBody").innerHTML = "";
 
@@ -113,16 +114,57 @@
 
 </script>
 
-
 <script>
     $(document).ready(function() {
+        $('.competency-select').change(function() {
+            var selectedCompetency = $(this).val();
+
+            $('.competency-select').each(function() {
+                    if (this !== event.target) {
+                    $(this).find('option[value="' + selectedCompetency + '"]').remove();
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#department_map').on('change', function () {
+            var selectedDepartmentId = $(this).val();
+            console.log(selectedDepartmentId)
+
+            $.ajax({
+                url: 'http://localhost:8080/ldm/structure/units/all',
+                type: 'POST',
+                data: {department_id: selectedDepartmentId},
+                dataType: 'json',
+                success: function (response) {
+                    units = response
+                    // Clear existing options and add new options for fetched units
+                    $('#unit').empty().append('<option>Choose Unit</option>');
+                    $.each(units, function (index, unit) {
+                        $('#unit').append('<option value="' + unit.id + '">' + unit.unit_name + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching units data:', error);
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
         let initialEmployeeOptions = $('#employee_ids').html();
+
         function filterEmployeeOptions(lineManagerId) {
             $('#employee_ids').html(initialEmployeeOptions);
             $('#employee_ids option[value="' + lineManagerId + '"]').remove();
         }
 
-        $('#line_manager').on('change', function() {
+        $('#line_manager').on('change', function () {
             let selectedLineManagerId = $(this).val();
             if (selectedLineManagerId) {
                 filterEmployeeOptions(selectedLineManagerId);
@@ -131,14 +173,15 @@
                     url: 'http://localhost:8080/ldm/employee/line-manager',
                     type: 'POST',
                     dataType: 'json',
-                    data: { line_manager_id: selectedLineManagerId },
-                    success: function(response) {
+                    data: {line_manager_id: selectedLineManagerId},
+                    success: function (response) {
                         let subordinateLineManagerId = response.subordinate_line_manager_id;
                         $('#employee_ids option[value="' + subordinateLineManagerId + '"]').remove();
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error(xhr.responseText);
-                        console.error('Error fetching line manager id.');}
+                        console.error('Error fetching line manager id.');
+                    }
                 });
             } else {
                 // If no line manager is selected, reset the employee options
@@ -178,9 +221,9 @@
         })
 
         //Datemask dd/mm/yyyy
-        $('#datemask').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' })
+        $('#datemask').inputmask('dd/mm/yyyy', {'placeholder': 'dd/mm/yyyy'})
         //Datemask2 mm/dd/yyyy
-        $('#datemask2').inputmask('mm/dd/yyyy', { 'placeholder': 'mm/dd/yyyy' })
+        $('#datemask2').inputmask('mm/dd/yyyy', {'placeholder': 'mm/dd/yyyy'})
         //Money Euro
         $('[data-mask]').inputmask()
 
@@ -190,7 +233,7 @@
         });
 
         //Date and time picker
-        $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });
+        $('#reservationdatetime').datetimepicker({icons: {time: 'far fa-clock'}});
 
         //Date range picker
         $('#reservation').daterangepicker()
@@ -205,16 +248,16 @@
         //Date range as a button
         $('#daterange-btn').daterangepicker(
             {
-                ranges   : {
-                    'Today'       : [moment(), moment()],
-                    'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
                     'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    'This Month'  : [moment().startOf('month'), moment().endOf('month')],
-                    'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                 },
                 startDate: moment().subtract(29, 'days'),
-                endDate  : moment()
+                endDate: moment()
             },
             function (start, end) {
                 $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'))
@@ -234,11 +277,11 @@
         //color picker with addon
         $('.my-colorpicker2').colorpicker()
 
-        $('.my-colorpicker2').on('colorpickerChange', function(event) {
+        $('.my-colorpicker2').on('colorpickerChange', function (event) {
             $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
         })
 
-        $("input[data-bootstrap-switch]").each(function(){
+        $("input[data-bootstrap-switch]").each(function () {
             $(this).bootstrapSwitch('state', $(this).prop('checked'));
         })
 
@@ -268,17 +311,19 @@
         clickable: ".fileinput-button" // Define the element that should be used as click trigger to select files.
     })
 
-    myDropzone.on("addedfile", function(file) {
+    myDropzone.on("addedfile", function (file) {
         // Hookup the start button
-        file.previewElement.querySelector(".start").onclick = function() { myDropzone.enqueueFile(file) }
+        file.previewElement.querySelector(".start").onclick = function () {
+            myDropzone.enqueueFile(file)
+        }
     })
 
     // Update the total progress bar
-    myDropzone.on("totaluploadprogress", function(progress) {
+    myDropzone.on("totaluploadprogress", function (progress) {
         document.querySelector("#total-progress .progress-bar").style.width = progress + "%"
     })
 
-    myDropzone.on("sending", function(file) {
+    myDropzone.on("sending", function (file) {
         // Show the total progress bar when upload starts
         document.querySelector("#total-progress").style.opacity = "1"
         // And disable the start button
@@ -286,17 +331,17 @@
     })
 
     // Hide the total progress bar when nothing's uploading anymore
-    myDropzone.on("queuecomplete", function(progress) {
+    myDropzone.on("queuecomplete", function (progress) {
         document.querySelector("#total-progress").style.opacity = "0"
     })
 
     // Setup the buttons for all transfers
     // The "add files" button doesn't need to be setup because the config
     // `clickable` has already been specified.
-    document.querySelector("#actions .start").onclick = function() {
+    document.querySelector("#actions .start").onclick = function () {
         myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED))
     }
-    document.querySelector("#actions .cancel").onclick = function() {
+    document.querySelector("#actions .cancel").onclick = function () {
         myDropzone.removeAllFiles(true)
     }
     // DropzoneJS Demo Code End

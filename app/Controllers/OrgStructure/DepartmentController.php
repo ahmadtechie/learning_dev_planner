@@ -7,6 +7,7 @@ use App\Models\DepartmentModel;
 use App\Models\GroupModel;
 
 use CodeIgniter\Config\Services;
+use CodeIgniter\Model;
 
 helper(['form']);
 

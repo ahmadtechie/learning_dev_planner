@@ -58,6 +58,7 @@ $routes->group('ldm', function ($routes) {
 
         // Unit routes
         $routes->get('units/', [UnitController::class, 'index'], ['as' => 'ldm.units']);
+        $routes->post('units/all', [UnitController::class, 'allUnits'], ['as' => 'ldm.units.all']);
         $routes->post('units/', [UnitController::class, 'create'], ['as' => 'ldm.units.create']);
         $routes->get('units/edit/(:num)/', [UnitController::class, 'edit'], ['as' => 'ldm.units.edit']);
         $routes->post('units/update/(:num)/', [UnitController::class, 'update'], ['as' => 'ldm.units.update']);
@@ -98,10 +99,14 @@ $routes->group('ldm', function ($routes) {
         $routes->get('delete/(:num)/', [EmployeeController::class, 'delete'], ['as' => 'ldm.employee.delete']);
         $routes->get('activate/(:num)/', [EmployeeController::class, 'activate'], ['as' => 'ldm.employee.activate']);
         $routes->post('line-manager/', [EmployeeController::class, 'getEmployeeLineManager'], ['as' => 'ldm.employee.line.manager']);
-        $routes->post('org/map/', [EmployeeController::class, 'map'], ['as' => 'ldm.map.org']);
+
+        $routes->group('org/map/', function ($routes) {
+            $routes->get('', [EmployeeController::class, 'map'], ['as' => 'ldm.map.org']);
+            $routes->post('', [EmployeeController::class, 'createMapping'], ['as' => 'ldm.map.org.create']);
+        });
 
         $routes->get('invite/', [EmployeeInviteController::class, 'index'], ['as' => 'ldm.employee.invite']);
-        $routes->post('invite/', [EmployeeInviteController::class, 'index'], ['as' => 'ldm.employee.invite.create']);
+        $routes->post('invite/', [EmployeeInviteController::class, 'create'], ['as' => 'ldm.employee.invite.create']);
 
         $routes->get('upload/', [EmployeeCSVController::class, 'index'], ['as' => 'ldm.employee.upload']);
         $routes->get('upload/format', [EmployeeCSVController::class, 'downloadTemplate'], ['as' => 'ldm.employee.format']);
@@ -134,11 +139,8 @@ $routes->group('ldm', function ($routes) {
         $routes->post('self/update/(:num)/', [DevelopmentRatingController::class, 'update'], ['as' => 'ldm.rating.self.update']);
         $routes->post('self/delete/(:num)/', [DevelopmentRatingController::class, 'delete'], ['as' => 'ldm.rating.self.delete']);
 
-        $routes->get('validate/', [DevelopmentRatingController::class, 'index'], ['as' => 'ldm.rating.validate']);
-        $routes->post('validate/', [DevelopmentRatingController::class, 'create'], ['as' => 'ldm.rating.validate.create']);
-        $routes->get('validate/edit/(:num)/', [DevelopmentRatingController::class, 'edit'], ['as' => 'ldm.rating.validate.edit']);
-        $routes->post('validate/update/(:num)/', [DevelopmentRatingController::class, 'update'], ['as' => 'ldm.rating.validate.update']);
-        $routes->post('validate/delete/(:num)/', [DevelopmentRatingController::class, 'delete'], ['as' => 'ldm.rating.validate.delete']);
+        $routes->get('validate/', [DevelopmentRatingController::class, 'validateRating'], ['as' => 'ldm.rating.validate']);
+        $routes->post('validate/', [DevelopmentRatingController::class, 'updateLineManagerRating'], ['as' => 'ldm.rating.validate.update']);
     });
 
     $routes->group('intervention', ['filter' => 'AuthCheck'], function ($routes) {
