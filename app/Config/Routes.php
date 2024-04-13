@@ -29,12 +29,13 @@ use CodeIgniter\Router\RouteCollection;
 $routes->group('', ['filter' => 'AuthCheck'], function ($routes) {
     $routes->get('/', [Home::class, 'index'], ['as' => 'ldm.home']);
     $routes->get('/home', [Home::class, 'index'], ['as' => 'ldm.home.dashboard']);
+    $routes->get('/access-denied', [Home::class, 'accessDenied'], ['as' => 'ldm.access_denied']);
 });
 
 
 // Define a route group for the "ldm" namespace
 $routes->group('ldm', function ($routes) {
-    $routes->group('structure', ['filter' => 'AuthCheck'], function ($routes) {
+    $routes->group('structure', ['filter' => 'LDMCheck'], function ($routes) {
         // Division routes
         $routes->get('divisions/', [DivisionController::class, 'index'], ['as' => 'ldm.divisions']);
         $routes->post('divisions/', [DivisionController::class, 'create'], ['as' => 'ldm.divisions.create']);
@@ -65,7 +66,7 @@ $routes->group('ldm', function ($routes) {
         $routes->get('units/delete/(:num)/', [UnitController::class, 'delete'], ['as' => 'ldm.units.delete']);
     });
 
-    $routes->group('competency', ['filter' => 'AuthCheck'], function ($routes) {
+    $routes->group('competency', ['filter' => 'LDMCheck'], function ($routes) {
         // Job routes
         $routes->get('jobs/', [JobController::class, 'index'], ['as' => 'ldm.jobs']);
         $routes->post('jobs/', [JobController::class, 'create'], ['as' => 'ldm.jobs.create']);
@@ -91,7 +92,7 @@ $routes->group('ldm', function ($routes) {
     });
 
     // Employee Routes
-    $routes->group('employee', ['filter' => 'AuthCheck'], function ($routes) {
+    $routes->group('employee', ['filter' => 'LDMCheck'], function ($routes) {
         $routes->get('all/', [EmployeeController::class, 'index'], ['as' => 'ldm.employee']);
         $routes->post('create/', [EmployeeController::class, 'create'], ['as' => 'ldm.employee.create']);
         $routes->get('edit/(:num)/', [EmployeeController::class, 'edit'], ['as' => 'ldm.employee.edit']);
@@ -124,7 +125,7 @@ $routes->group('ldm', function ($routes) {
     });
 
     // Development Cycles
-    $routes->group('development', ['filter' => 'AuthCheck'], function ($routes) {
+    $routes->group('development', ['filter' => 'LDMCheck'], function ($routes) {
         $routes->get('cycle/', [DevelopmentCycleController::class, 'index'], ['as' => 'ldm.cycle']);
         $routes->post('cycle/', [DevelopmentCycleController::class, 'create'], ['as' => 'ldm.cycle.create']);
         $routes->get('cycle/edit/(:num)/', [DevelopmentCycleController::class, 'edit'], ['as' => 'ldm.cycle.edit']);
@@ -132,18 +133,20 @@ $routes->group('ldm', function ($routes) {
         $routes->post('cycle/delete/(:num)/', [DevelopmentCycleController::class, 'delete'], ['as' => 'ldm.cycle.delete']);
     });
 
-    $routes->group('contracting', ['filter' => 'AuthCheck'], function ($routes) {
+    $routes->group('contracting', ['filter' => 'EmployeeCheck'], function ($routes) {
         $routes->get('self/', [DevelopmentRatingController::class, 'index'], ['as' => 'ldm.rating.self']);
         $routes->post('self/', [DevelopmentRatingController::class, 'create'], ['as' => 'ldm.rating.self.create']);
         $routes->get('self/edit/(:num)/', [DevelopmentRatingController::class, 'edit'], ['as' => 'ldm.rating.self.edit']);
         $routes->post('self/update/(:num)/', [DevelopmentRatingController::class, 'update'], ['as' => 'ldm.rating.self.update']);
         $routes->post('self/delete/(:num)/', [DevelopmentRatingController::class, 'delete'], ['as' => 'ldm.rating.self.delete']);
+    });
 
+    $routes->group('contracting', ['filter' => 'LineManagerCheck'], function ($routes) {
         $routes->get('validate/', [DevelopmentRatingController::class, 'validateRating'], ['as' => 'ldm.rating.validate']);
         $routes->post('validate/', [DevelopmentRatingController::class, 'updateLineManagerRating'], ['as' => 'ldm.rating.validate.update']);
     });
 
-    $routes->group('intervention', ['filter' => 'AuthCheck'], function ($routes) {
+    $routes->group('intervention', ['filter' => 'LDMCheck'], function ($routes) {
         $routes->get('type/', [InterventionTypeController::class, 'index'], ['as' => 'ldm.intervention.type']);
         $routes->post('type/', [InterventionTypeController::class, 'create'], ['as' => 'ldm.intervention.type.create']);
         $routes->get('type/edit/(:num)/', [InterventionTypeController::class, 'edit'], ['as' => 'ldm.intervention.type.edit']);
@@ -155,7 +158,9 @@ $routes->group('ldm', function ($routes) {
         $routes->get('assign/edit/(:num)/', [AssignInterventionController::class, 'edit'], ['as' => 'ldm.intervention.assign.edit']);
         $routes->post('assign/update/(:num)/', [AssignInterventionController::class, 'update'], ['as' => 'ldm.intervention.assign.update']);
         $routes->post('assign/delete/(:num)/', [AssignInterventionController::class, 'delete'], ['as' => 'ldm.intervention.assign.delete']);
+    });
 
+    $routes->group('intervention', ['filter' => 'TrainerCheck'], function ($routes) {
         $routes->get('attendance/', [InterventionAttendanceController::class, 'index'], ['as' => 'ldm.intervention.attendance']);
         $routes->post('attendance/', [InterventionAttendanceController::class, 'create'], ['as' => 'ldm.intervention.attendance.create']);
         $routes->get('attendance/edit/(:num)/', [InterventionAttendanceController::class, 'edit'], ['as' => 'ldm.intervention.attendance.edit']);
@@ -163,7 +168,7 @@ $routes->group('ldm', function ($routes) {
         $routes->post('attendance/delete/(:num)/', [InterventionAttendanceController::class, 'delete'], ['as' => 'ldm.intervention.attendance.delete']);
     });
 
-    $routes->group('trainer', ['filter' => 'AuthCheck'], function ($routes) {
+    $routes->group('trainer', ['filter' => 'LDMCheck'], function ($routes) {
         $routes->get('vendor/', [TrainerController::class, 'index'], ['as' => 'ldm.trainer']);
         $routes->post('vendor/', [TrainerController::class, 'create'], ['as' => 'ldm.trainer.create']);
         $routes->get('vendor/edit/(:num)/', [TrainerController::class, 'edit'], ['as' => 'ldm.trainer.edit']);

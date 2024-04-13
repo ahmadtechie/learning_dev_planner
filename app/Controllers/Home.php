@@ -23,4 +23,16 @@ class Home extends BaseController
             view('includes/footer');
     }
 
+    public function accessDenied(): string
+    {
+        $data = [
+            'title' => 'Access Denied | LD Planner',
+        ];
+        $data['userData'] = $this->request->userData;
+        return view('includes/head', $data) .
+            view('includes/navbar') .
+            view('includes/sidebar') .
+            view('includes/403') .
+            view('includes/footer');
+    }
 }

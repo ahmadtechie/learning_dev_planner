@@ -119,8 +119,6 @@ class EmployeeCSVController extends BaseController
             ];
         }
 
-        // Example validation based on model rules
-        // You can customize this based on your actual validation rules
         $validation = \Config\Services::validation();
         $validation->setRules([
             'email' => 'required|valid_email',
@@ -133,7 +131,6 @@ class EmployeeCSVController extends BaseController
             'line_manager' => 'required'
         ]);
 
-        // Set validation data
         $validation->setData([
             'email' => $rowData[0],
             'first_name' => $rowData[1],
@@ -145,9 +142,7 @@ class EmployeeCSVController extends BaseController
             'line_manager' => $rowData[7]
         ]);
 
-        // Perform validation
         if (!$validation->run()) {
-            // Validation failed, return error message
             return [
                 'success' => false,
                 'data' => null,
@@ -155,7 +150,6 @@ class EmployeeCSVController extends BaseController
             ];
         }
 
-        // Validation succeeded, return validated data
         return [
             'success' => true,
             'data' => [

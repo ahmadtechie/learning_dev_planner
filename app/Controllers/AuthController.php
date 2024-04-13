@@ -65,11 +65,10 @@ class AuthController extends Controller
             if (!empty($redirect_url)) {
                 return redirect()->to($redirect_url);
             }
-             return redirect()->to(url_to('ldm.home'));
+            return redirect()->to(url_to('ldm.home'));
 
-        } else {
-            return redirect()->to(url_to('ldm.login.auth'))->with('error', 'Incorrect email or password provided');
         }
+        return redirect()->to(url_to('ldm.login.auth'))->with('error', 'Incorrect email or password provided');
     }
 
     public function forgotPassword()
@@ -85,8 +84,9 @@ class AuthController extends Controller
     public function logout(): \CodeIgniter\HTTP\RedirectResponse
     {
         if (session()->has('loggedInUser')) {
+            session()->set('redirect_url', previous_url());
             session()->remove('loggedInUser');
         }
-        return redirect()->to(url_to('ldm.login.auth') . "?access=loggedOut")->with('error', "You are logged out");
+        return redirect()->to(url_to('ldm.login.auth'))->with('error', "You are logged out");
     }
 }

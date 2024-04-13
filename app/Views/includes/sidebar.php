@@ -268,12 +268,11 @@
                         </li>
                     </ul>
                 </li>
-                <?php
-                $learningDevRoleId = isset($userData['learningDevRoleId']);
-                $trainerRoleId = isset($userData['trainerRoleId']);
-                if ($learningDevRoleId and in_array($userData['learningDevRoleId'], session()->get('employeeRoles')) or
-                    $trainerRoleId and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))):
-                    ?>
+                <?php if (isset($userData['learningDevRoleId']) and
+                (
+                    in_array($userData['learningDevRoleId'], session()->get('employeeRoles')) or
+                    in_array($userData['trainerRoleId'], session()->get('employeeRoles'))
+                )): ?>
                     <li class="nav-item">
                         <a href="" class="nav-link">
                             <i class="nav-icon far fa-object-group"></i>
@@ -282,12 +281,13 @@
                                 <i class="fas fa-angle-left right"></i>
                             </p>
                         </a>
-                        <?php if (isset($userData['learningDevRoleId']) and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))): ?>
+
                         <ul class="nav nav-treeview">
+                            <?php if (isset($userData['learningDevRoleId']) and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))): ?>
                             <li class="nav-item">
                                 <a href="<?= url_to('ldm.intervention.type') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Intervention Types</p>
+                                    <p>Intervention Types</p>4
                                 </a>
                             </li>
                             <li class="nav-item">

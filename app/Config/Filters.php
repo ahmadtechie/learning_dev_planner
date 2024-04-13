@@ -3,6 +3,10 @@
 namespace Config;
 
 use App\Filters\AuthCheckFilter;
+use App\Filters\EmployeePermissionCheck;
+use App\Filters\LDMPermissionCheck;
+use App\Filters\LineManagerPermissionCheck;
+use App\Filters\TrainerPermissionCheck;
 use App\Filters\UserDataFilter;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Filters\CSRF;
@@ -21,13 +25,17 @@ class Filters extends BaseConfig
      *                                                     or [filter_name => [classname1, classname2, ...]]
      */
     public array $aliases = [
-        'csrf'          => CSRF::class,
-        'toolbar'       => DebugToolbar::class,
-        'honeypot'      => Honeypot::class,
-        'invalidchars'  => InvalidChars::class,
-        'secureheaders' => SecureHeaders::class,
-        'AuthCheck'     => AuthCheckFilter::class,
-        'UserData'      => UserDataFilter::class,
+        'csrf'              => CSRF::class,
+        'toolbar'           => DebugToolbar::class,
+        'honeypot'          => Honeypot::class,
+        'invalidchars'      => InvalidChars::class,
+        'secureheaders'     => SecureHeaders::class,
+        'LDMCheck'          => LDMPermissionCheck::class,
+        'TrainerCheck'      => TrainerPermissionCheck::class,
+        'LineManagerCheck'  => LineManagerPermissionCheck::class,
+        'EmployeeCheck'     => EmployeePermissionCheck::class,
+        'AuthCheck'         => AuthCheckFilter::class,
+        'UserData'          => UserDataFilter::class,
     ];
 
     /**

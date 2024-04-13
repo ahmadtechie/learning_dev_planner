@@ -100,21 +100,23 @@ class DevelopmentRatingController extends BaseController
 
         // send email notification to the employee line-manager
         $emailTemplateModel = new EmailTemplateModel();
-        $siteSettingsModel = new SiteSettingsModel();
-        $siteName = $siteSettingsModel->first()["company_name"];
         $emailData = $emailTemplateModel->where('email_type', 'validate_rating_notify')->first();
+        $validation_url = url_to("ldm.rating.validate");
+
         $find = ['{line_manager_name}', '{employee_name}', '{cycle_year}', '{validation_url}',];
-        $replace = [$lineManagerData['first_name'], $employeeData['first_name'] . " " . $employeeData['last_name'], $cycle['cycle_year'], url_to()];
+        $replace = [$lineManagerData['first_name'], $employeeData['first_name'] . " " . $employeeData['last_name'], $cycle['cycle_year'], $validation_url];
         $emailBody = str_replace($find, $replace, $emailData['email_body']);
+
         $subjectFind = ['{first_name} {last_name}'];
         $subjectReplace = [$employeeData['first_name'], $employeeData['last_name']];
         $emailSubject = str_replace($subjectFind, $subjectReplace, $emailData['email_subject']);
 
         $email = \Config\Services::email();
-        $email->setTo($user_email);
-        $email->setFrom($emailData["email_from"], 'Ahmad Sharafudeen');
+        $email->setTo($lineManagerData['email']);
+        $email->setFrom($emailData["email_from"], $emailData["email_from_name"]);
         $email->setSubject($emailSubject);
         $email->setMessage($emailBody);
+
         return redirect('ldm.rating.self')->with('success', "You've successfully rated your competencies for the " . $cycle['cycle_year'] . " cycle year.");
     }
 
