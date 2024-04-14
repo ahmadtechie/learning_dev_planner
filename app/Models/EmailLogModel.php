@@ -4,15 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class JobModel extends Model
+class EmailLogModel extends Model
 {
-    protected $table            = 'job';
+    protected $table            = 'email_logs';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['job_title', 'qualifications', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['email', 'type', 'status', 'created_at', 'updated_at'];
+
+    protected bool $allowEmptyInserts = false;
 
     // Dates
     protected $useTimestamps = true;
@@ -37,25 +39,4 @@ class JobModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
-    // Define the relationship with the Competency model
-    public function competencies()
-    {
-        return $this->belongsToMany('App\Models\CompetencyModel', 'job_competencies', 'job_id', 'competency_id');
-    }
-
-    /**
-     * @throws \ReflectionException
-     */
-    public function getOrCreate($key, $value, $data)
-    {
-        $query = $this->where($key, $value)->first();
-
-        if ($query) {
-            return $query;
-        } else {
-            $this->insert($data);
-            return $this->where($key, $value)->first();
-        }
-    }
 }

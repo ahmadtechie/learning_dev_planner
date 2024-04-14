@@ -8,7 +8,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="example1" class="table table-bordered table-striped">
+                        <table id="unitTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
                                 <th>Unit Name</th>
@@ -28,11 +28,9 @@
                                         if ($departmentData !== null && isset($departmentData['department_name'])) {
                                             $department_name = $departmentData['department_name'];
                                         } else {
-                                            // Handle the case where department data is not found or 'department_name' is not set
                                             $department_name = 'Unknown Department';
                                         }
                                     } else {
-                                        // Handle the case where 'department_id' is not set
                                         $department_name = 'No Department';
                                     }
                                     ?>

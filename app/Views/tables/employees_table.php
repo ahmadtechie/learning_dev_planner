@@ -8,15 +8,15 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="example1" class="table table-bordered table-striped">
+                        <table id="employeeTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
-                                <th>First Name</th>
-                                <th>Last Name</th>
+                                <th>Name</th>
                                 <th>Email Address</th>
                                 <th>Job</th>
                                 <th>Roles</th>
                                 <th>Line Manager</th>
+                                <th>Updated At</th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -29,25 +29,23 @@
 
                                     $jobData = $jobModel->find($employee['job_id']);
 
-                                    $lineManagerData = 'None'; // Default value
+                                    $lineManagerData = '-';
 
-                                    // Check if the line manager ID is not null and retrieve their details
                                     if ($employee['line_manager_id'] !== null) {
                                         $lineManagerDetails = $employeeModel->getEmployeeDetailsWithUser($employee['line_manager_id']);
 
-                                        // Check if line manager details are retrieved successfully
                                         if ($lineManagerDetails !== null) {
                                             $lineManagerData = $lineManagerDetails['first_name'];
                                         }
                                     }
                                     ?>
                                     <tr <?= $employee['deleted_at'] ? 'style="background-color: #f8d7da;"' : '' ?>>
-                                        <td><?= $employee['first_name'] ?? '' ?></td>
-                                        <td><?= $employee['last_name'] ?? '' ?></td>
+                                        <td><?= $employee['first_name'] . ' ' . $employee['last_name'] ?? '' ?></td>
                                         <td><?= $employee['email'] ?? '' ?></td>
                                         <td><?= $jobData['job_title'] ?? '' ?></td>
                                         <td><?= $employee['user_roles'] ?? '' ?></td>
                                         <td><?= $lineManagerData ?></td>
+                                        <td><?= $employee['updated_at'] ?? '' ?></td>
                                         <td>
                                             <div class="btn-group">
                                                 <button type="button"

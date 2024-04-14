@@ -34,7 +34,7 @@
                     <?php $selected_cycle_id = set_value('cycle_id') ?>
                     <?php if (!empty($cycles) && is_array($cycles)): ?>
                         <?php foreach ($cycles as $cycle): ?>
-                            <?php if ($cycle['id'] === $selected_cycle_id): ?>
+                            <?php if ($cycle['id'] == $selected_cycle_id): ?>
                                 <option value="<?= $cycle['id'] ?>"
                                         selected><?= $cycle['cycle_year'] ?></option>
                             <?php else: ?>
@@ -49,7 +49,7 @@
             </div>
             <div class="form-group">
                 <label for="employee_ids">Select Employees (Unselect based on need) <span>*</span></label>
-                <select id="employee_ids" data-placeholder="Select employees" name="employee_ids[]" multiple="multiple"
+                <select id="employee_ids" data-placeholder="Select employees" name="employee_emails[]" multiple="multiple"
                         required style="width: 100%; height: 200px">
                     <?php if (!empty($employees) && is_array($employees)): ?>
                         <?php foreach ($employees as $employee): ?>
@@ -64,7 +64,7 @@
                                 }
                             }
                             ?>
-                            <option value="<?= $employee['employee_id'] ?>" <?= set_select('employee_ids[]', $employee['id'], $isSelected) ?> selected>
+                            <option value="<?= $employee['email'] ?>" <?= set_select('employee_emails[]', $employee['id'], $isSelected) ?> selected>
                                 <?= "{$employee['first_name']} {$employee['last_name']}" ?>
                             </option>
                         <?php endforeach; ?>
@@ -81,9 +81,8 @@
             </div>
             <?= form_close() ?>
         </div>
-        <!-- /.card-body -->
     </div>
 </div>
 
 
-<?php include(APPPATH . 'Views/tables/employee_dept_table.php'); ?>
+<?php include(APPPATH . 'Views/tables/cycle_email_log_table.php'); ?>

@@ -1,5 +1,4 @@
 <div class="content-wrapper">
-    <?php echo session()->get('redirect_url') ?>
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <div class="container-fluid">

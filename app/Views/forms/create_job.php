@@ -9,8 +9,26 @@
         </div>
 
         <div class="card-body">
-            <?php include(APPPATH . 'Views/includes/message.php'); ?>
-
+            <?php if (!empty(session()->getFlashdata('success'))): ?>
+                <div id="successAlert" class="alert alert-success" role="alert">
+                    <?= session('success') ?>
+                </div>
+                <script>
+                    setTimeout(function () {
+                        $("#successAlert").fadeOut("slow");
+                    }, 3000);
+                </script>
+            <?php endif; ?>
+            <?php if (!empty(session()->getFlashdata('error'))): ?>
+                <div id="errorAlert" class="alert alert-danger" role="alert">
+                    <?= session('error') ?>
+                </div>
+                <script>
+                    setTimeout(function () {
+                        $("#errorAlert").fadeOut("slow");
+                    }, 3000);
+                </script>
+            <?php endif; ?>
             <?php if (isset($job)): ?>
                 <?= form_open(url_to('ldm.jobs.update', esc($job['id']))) ?>
             <?php else: ?>

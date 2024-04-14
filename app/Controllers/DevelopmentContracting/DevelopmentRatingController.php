@@ -3,12 +3,11 @@
 namespace App\Controllers\DevelopmentContracting;
 
 use App\Controllers\BaseController;
+use App\Helpers\EmailHelper;
 use App\Models\DevelopmentContractingModel;
 use App\Models\DevelopmentCycleModel;
 use App\Models\EmailTemplateModel;
 use App\Models\EmployeeModel;
-use App\Models\JobCompetencyModel;
-use App\Models\SiteSettingsModel;
 
 helper(['form', 'url']);
 
@@ -111,12 +110,8 @@ class DevelopmentRatingController extends BaseController
         $subjectReplace = [$employeeData['first_name'], $employeeData['last_name']];
         $emailSubject = str_replace($subjectFind, $subjectReplace, $emailData['email_subject']);
 
-        $email = \Config\Services::email();
-        $email->setTo($lineManagerData['email']);
-        $email->setFrom($emailData["email_from"], $emailData["email_from_name"]);
-        $email->setSubject($emailSubject);
-        $email->setMessage($emailBody);
-
+        $emailHelper = new EmailHelper();
+        $emailHelper->send_email($lineManagerData['email'], $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
         return redirect('ldm.rating.self')->with('success', "You've successfully rated your competencies for the " . $cycle['cycle_year'] . " cycle year.");
     }
 

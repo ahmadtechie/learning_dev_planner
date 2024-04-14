@@ -79,15 +79,19 @@ class LineManagerController extends BaseController
             }
         }
 
+
         $session = \Config\Services::session();
         $session->setFlashdata('success', "Line manager assignment completed successfully.");
 
         return redirect('ldm.line.manager');
     }
 
-    public function edit(): string
+    public function edit($line_manager_id): string
     {
         $this->data['userData'] = $this->request->userData;
+        $employeeModel = model(EmployeeModel::class);
+        $this->data['line_manager_employees'] = $employeeModel->getEmployeesUnderLineManager($line_manager_id);
+        $this->data['line_manager'] = $employeeModel->find($line_manager_id);
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -96,7 +100,7 @@ class LineManagerController extends BaseController
             view('includes/footer');
     }
 
-    public function update(): string
+    public function update($line_manager_id): string
     {
         $this->data['userData'] = $this->request->userData;
 

@@ -1,7 +1,8 @@
+<?php print_r($line_manager_employees) ?>
 <div class="col-md-6 mx-auto">
     <div class="card card-info">
         <div class="card-header">
-            <?php if (isset($assign)): ?>
+            <?php if (isset($line_manager)): ?>
                 <h3 class="card-title">Reassign Line Manager</h3>
             <?php else: ?>
                 <h3 class="card-title">Assign Line Manager</h3>
@@ -11,8 +12,8 @@
         <div class="card-body">
             <?php include(APPPATH . 'Views/includes/message.php'); ?>
 
-            <?php if (isset($assign)): ?>
-                <?= form_open(url_to('ldm.line.manager.update', esc($assign['id']))) ?>
+            <?php if (isset($line_manager)): ?>
+                <?= form_open(url_to('ldm.line.manager.update', esc($line_manager['id']))) ?>
             <?php else: ?>
                 <?= form_open(url_to('ldm.line.manager.create')) ?>
             <?php endif; ?>
@@ -21,7 +22,7 @@
                 <label for="line_manager">Line Manager <span>*</span></label>
                 <select id="line_manager" class="form-control" name="line_manager_id" required>
                     <option>Choose Line Manager</option>
-                    <?php $selected_line_manager_id = isset($assign) ? $assign['id'] : set_value('line_manager_id') ?>
+                    <?php $selected_line_manager_id = isset($line_manager) ? $line_manager['id'] : set_value('line_manager_id') ?>
                     <?php if (!empty($line_managers) && is_array($line_managers)): ?>
                         <?php foreach ($line_managers as $line_manager): ?>
                             <?php if ($line_manager['id'] === $selected_line_manager_id): ?>
@@ -45,9 +46,9 @@
                         <?php foreach ($employees as $employee): ?>
                             <?php
                             $isSelected = false;
-                            if (!empty($selected_employees) && is_array($selected_employees)) {
-                                foreach ($selected_employees as $selected_employee) {
-                                    if ($employee['id'] == $selected_employee['id']) {
+                            if (!empty($line_manager_employees) && is_array($line_manager_employees)) {
+                                foreach ($line_manager_employees as $line_manager_employee) {
+                                    if ($employee['id'] == $line_manager_employee['id']) {
                                         $isSelected = true;
                                         break;
                                     }

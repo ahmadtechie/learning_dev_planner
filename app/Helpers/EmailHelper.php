@@ -10,13 +10,14 @@ class EmailHelper
 
     public function __construct()
     {
-        $this->email = new Email();
-        $this->email->initialize(config('Email'));
+        $this->email = \Config\Services::email();
+
     }
 
-    public function send($to, $subject, $message)
+    public function send_email($to, $from, $from_name, $subject, $message): bool
     {
         $this->email->setTo($to);
+        $this->email->setFrom($from, $from_name);
         $this->email->setSubject($subject);
         $this->email->setMessage($message);
 
@@ -25,17 +26,5 @@ class EmailHelper
         } else {
             return false;
         }
-    }
-
-    public function welcomeMessage($username, $password, $email, $login_url, $role): string
-    {
-        $data = [
-          'username' => $username,
-          'password' => $password,
-          'email' => $email,
-          'role' => $role,
-          'login_url' => $login_url,
-        ];
-        return view('emails/welcome_email', $data);
     }
 }

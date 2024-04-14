@@ -116,6 +116,38 @@
 
 <script>
     $(document).ready(function() {
+        $('#unitTable').DataTable({
+            "order": [[ 2, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#jobCompetencyTable').DataTable({
+            "order": [[ 2, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#jobTable').DataTable({
+            "order": [[ 3, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#employeeTable').DataTable({
+            "order": [[ 5, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#lineManagerAssignTable').DataTable({
+            "order": [[ 2, "desc" ]]
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
         $('.competency-select').change(function() {
             var selectedCompetency = $(this).val();
 

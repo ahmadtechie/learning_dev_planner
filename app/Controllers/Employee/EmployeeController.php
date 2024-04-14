@@ -131,7 +131,6 @@ class EmployeeController extends BaseController
                 view('includes/footer');
         }
 
-        // Retrieve form data
         $user_email = $this->request->getPost('email');
         $firstName = $this->request->getPost('first_name');
         $lastName = $this->request->getPost('last_name');
@@ -139,7 +138,6 @@ class EmployeeController extends BaseController
         $role_ids = $this->request->getPost('role_ids');
         $line_manager_id = $this->request->getPost('line_manager_id');
 
-        // Create a user account for the employee
         $userId = $userModel->insert([
             'username' => $username,
             'email' => $user_email,
@@ -148,7 +146,6 @@ class EmployeeController extends BaseController
             'last_name' => $lastName,
         ]);
 
-        // Create an employee record
         $employeeId = $employeeModel->insert([
             'user_id' => $userId,
             'job_id' => $job_id,
@@ -175,19 +172,15 @@ class EmployeeController extends BaseController
         $emailBody = str_replace($find, $replace, $emailData['email_body']);
         $emailSubject = str_replace('{siteName}', $siteName, $emailData['email_subject']);
 
-        $email = \Config\Services::email();
-        $email->setTo($user_email);
-        $email->setFrom($emailData["email_from"], 'Ahmad Sharafudeen');
-        $email->setSubject($emailSubject);
-        $email->setMessage($emailBody);
+        $emailHelper = new EmailHelper();
+        $email = $emailHelper->send_email($user_email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
 
         $session = \Config\Services::session();
-        if ($email->send()) {
+        if ($email) {
             $session->setFlashdata('success', "Email sent to new user $firstName successfully.");
             return redirect()->to(url_to('ldm.employee'));
         }
         $session->setFlashdata('error', "Email failed!");
-        echo $email->printDebugger();
         return redirect()->to(url_to('ldm.employee'))->withInput();
     }
 

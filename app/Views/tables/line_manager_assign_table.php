@@ -8,11 +8,11 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="jobCompetencyTable" class="table table-bordered table-striped">
+                        <table id="lineManagerAssignTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
                                 <th>Line Manager</th>
-<!--                                <th>Department/Unit</th>-->
+                                <th>Job Title</th>
                                 <th>Subordinates</th>
                                 <th>Updated At</th>
                                 <th></th>
@@ -27,7 +27,7 @@
                                 ?>
                                     <tr>
                                         <td><?= "{$line_manager['first_name']} {$line_manager['last_name']}"  ?></td>
-<!--                                        <td>--><?php //= $line_manager['unit']; ?><!--</td>-->
+                                        <td><?= $line_manager['job_title']; ?></td>
                                         <td>
                                             <?php if (!empty($employees_under_manager) && is_array($employees_under_manager)): ?>
                                                 <?php foreach ($employees_under_manager as $employee_under_manager): ?>

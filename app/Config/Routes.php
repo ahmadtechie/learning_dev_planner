@@ -110,15 +110,15 @@ $routes->group('ldm', function ($routes) {
         $routes->post('invite/', [EmployeeInviteController::class, 'create'], ['as' => 'ldm.employee.invite.create']);
 
         $routes->get('upload/', [EmployeeCSVController::class, 'index'], ['as' => 'ldm.employee.upload']);
+        $routes->post('upload/', [EmployeeCSVController::class, 'previewUpload'], ['as' => 'ldm.employee.upload.preview']);
         $routes->get('upload/format', [EmployeeCSVController::class, 'downloadTemplate'], ['as' => 'ldm.employee.format']);
-        $routes->post('upload/', [EmployeeCSVController::class, 'index'], ['as' => 'ldm.employee.upload.create']);
-        $routes->post('upload/preview', [EmployeeCSVController::class, 'previewUpload'], ['as' => 'ldm.employee.upload.preview']);
+        $routes->post('upload/create', [EmployeeCSVController::class, 'bulkUpload'], ['as' => 'ldm.employee.upload.create']);
 
         // Line Manager Routes
         $routes->group('manager', function ($routes) {
             $routes->get('assign/', [LineManagerController::class, 'index'], ['as' => 'ldm.line.manager']);
             $routes->post('assign/', [LineManagerController::class, 'create'], ['as' => 'ldm.line.manager.create']);
-            $routes->post('assign/edit/(:num)/', [LineManagerController::class, 'edit'], ['as' => 'ldm.line.manager.edit']);
+            $routes->get('assign/edit/(:num)/', [LineManagerController::class, 'edit'], ['as' => 'ldm.line.manager.edit']);
             $routes->post('assign/update/(:num)/', [LineManagerController::class, 'update'], ['as' => 'ldm.line.manager.update']);
             $routes->post('assign/delete/(:num)/', [LineManagerController::class, 'delete'], ['as' => 'ldm.line.manager.delete']);
         });
@@ -136,9 +136,6 @@ $routes->group('ldm', function ($routes) {
     $routes->group('contracting', ['filter' => 'EmployeeCheck'], function ($routes) {
         $routes->get('self/', [DevelopmentRatingController::class, 'index'], ['as' => 'ldm.rating.self']);
         $routes->post('self/', [DevelopmentRatingController::class, 'create'], ['as' => 'ldm.rating.self.create']);
-        $routes->get('self/edit/(:num)/', [DevelopmentRatingController::class, 'edit'], ['as' => 'ldm.rating.self.edit']);
-        $routes->post('self/update/(:num)/', [DevelopmentRatingController::class, 'update'], ['as' => 'ldm.rating.self.update']);
-        $routes->post('self/delete/(:num)/', [DevelopmentRatingController::class, 'delete'], ['as' => 'ldm.rating.self.delete']);
     });
 
     $routes->group('contracting', ['filter' => 'LineManagerCheck'], function ($routes) {

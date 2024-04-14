@@ -3,9 +3,19 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Helpers\EmailHelper;
+use App\Models\DepartmentModel;
+use App\Models\EmailTemplateModel;
 use App\Models\EmployeeModel;
+use App\Models\EmployeeRolesModel;
+use App\Models\JobModel;
+use App\Models\SiteSettingsModel;
+use App\Models\UnitModel;
 use App\Models\UserModel;
+use App\Models\UserRoleModel;
 use CodeIgniter\HTTP\ResponseInterface;
+
+helper(['form', 'url']);
 
 class EmployeeCSVController extends BaseController
 {
@@ -19,7 +29,8 @@ class EmployeeCSVController extends BaseController
         ],
     ];
 
-    function __construct() {
+    function __construct()
+    {
         $employeeModel = model(EmployeeModel::class);
         $userModel = model(UserModel::class);
 
@@ -27,6 +38,18 @@ class EmployeeCSVController extends BaseController
             'title' => 'Employee Bulk Upload Page | LD Planner',
             'page_name' => 'Employee Bulk Upload',
         ];
+    }
+
+    public function generateRandomPassword($length = 8)
+    {
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return substr(str_shuffle($chars), 0, $length);
+    }
+
+    public function generateRandomUsername(): string
+    {
+        $randomNumber = str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
+        return 'LD' . $randomNumber;
     }
 
     public function index(): string
@@ -43,18 +66,13 @@ class EmployeeCSVController extends BaseController
 
     public function downloadTemplate()
     {
-        // Define column headers for the CSV template
-        $columns = ['email', 'first_name', 'last_name', 'job', 'employee_roles', 'department', 'unit', 'line_manager'];
-
-        // Initialize CSV data
+        $columns = ['email', 'first_name', 'last_name', 'job', 'employee_roles', 'department', 'unit', 'line_manager_username'];
         $csvData = implode(',', $columns) . "\n";
         $filename = 'employee_bulk_upload_template.csv';
 
-        // Set headers to force file download
         header('Content-Type: application/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
 
-        // Output the CSV data
         echo $csvData;
         exit;
     }
@@ -62,44 +80,50 @@ class EmployeeCSVController extends BaseController
     public function previewUpload()
     {
         $this->data['userData'] = $this->request->userData;
+        $uploadedFile = $this->request->getFile('employee_csv');
 
-        // Retrieve uploaded CSV file
-        $uploadedFile = $this->request->getFile('csv_file');
-
-        // Check if file is uploaded successfully
         if ($uploadedFile->isValid() && $uploadedFile->getExtension() === 'csv') {
-            // Parse CSV data
             $csvData = array_map('str_getcsv', file($uploadedFile->getTempName()));
 
-            // Initialize arrays to store validated data and validation errors
+            $headers = [];
             $validatedData = [];
             $validationErrors = [];
 
-            // Iterate through each row of CSV data
             foreach ($csvData as $rowNumber => $rowData) {
                 if ($rowNumber === 0) {
+                    $headers = $rowData;
                     continue;
                 }
 
-                // Validate row data
-                $validationResult = $this->validateRow($rowData);
+                $row = [];
+
+                foreach ($rowData as $index => $value) {
+                    $header = $headers[$index] ?? 'unknown';
+                    $row[$header] = $value;
+                }
+
+                $validationResult = $this->validateRow($row);
+
                 if ($validationResult['success']) {
                     $validatedData[] = $validationResult['data'];
                 } else {
                     $validationErrors[] = "Row {$rowNumber}: {$validationResult['message']}";
                 }
             }
-
-            // Pass data to the view for display
-            return view('forms/bulk_upload', [
-                'data' => $validatedData,
-                'errors' => $validationErrors
-            ]);
+            $this->data['data'] = $validatedData;
+            $this->data['errors'] = $validationErrors;
+            $this->data['uploadedFile'] = base64_encode(file_get_contents($uploadedFile->getTempName()));
+            return view('includes/head', $this->data) .
+                view('includes/navbar') .
+                view('includes/sidebar') .
+                view('includes/mini_navbar', $this->data) .
+                view('forms/bulk_upload', $this->data) .
+                view('includes/footer');
         } else {
-            // Handle invalid file format or upload failure
             return redirect()->back()->with('error', 'Invalid file format. Please upload a CSV file.');
         }
     }
+
 
     /**
      * Validate a single row of CSV data.
@@ -109,8 +133,6 @@ class EmployeeCSVController extends BaseController
      */
     private function validateRow(array $rowData): array
     {
-        $this->data['userData'] = $this->request->userData;
-        // Ensure correct number of columns
         if (count($rowData) !== 8) {
             return [
                 'success' => false,
@@ -127,22 +149,10 @@ class EmployeeCSVController extends BaseController
             'job' => 'required',
             'employee_roles' => 'required',
             'department' => 'required',
-            'unit' => 'required',
-            'line_manager' => 'required'
+            'line_manager_username' => 'required'
         ]);
 
-        $validation->setData([
-            'email' => $rowData[0],
-            'first_name' => $rowData[1],
-            'last_name' => $rowData[2],
-            'job' => $rowData[3],
-            'employee_roles' => $rowData[4],
-            'department' => $rowData[5],
-            'unit' => $rowData[6],
-            'line_manager' => $rowData[7]
-        ]);
-
-        if (!$validation->run()) {
+        if (!$validation->run($rowData)) {
             return [
                 'success' => false,
                 'data' => null,
@@ -153,17 +163,163 @@ class EmployeeCSVController extends BaseController
         return [
             'success' => true,
             'data' => [
-                'email' => $rowData[0],
-                'first_name' => $rowData[1],
-                'last_name' => $rowData[2],
-                'job' => $rowData[3],
-                'employee_roles' => $rowData[4],
-                'department' => $rowData[5],
-                'unit' => $rowData[6],
-                'line_manager' => $rowData[7]
+                'email' => $rowData['email'],
+                'first_name' => $rowData['first_name'],
+                'last_name' => $rowData['last_name'],
+                'job' => $rowData['job'],
+                'employee_roles' => $rowData['employee_roles'],
+                'department' => $rowData['department'],
+                'unit' => $rowData['unit'],
+                'line_manager_username' => $rowData['line_manager_username'],
             ],
             'message' => ''
         ];
     }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function bulkUpload()
+    {
+        $this->data['userData'] = $this->request->userData;
+        $encodedData = $this->request->getPost('encoded_data');
+        $decodedData = base64_decode($encodedData);
+        $logger = service('logger');
+
+        $tempFilePath = WRITEPATH . 'uploads/temp_file.csv';
+
+        try {
+            file_put_contents($tempFilePath, $decodedData);
+            } catch (\Exception $e) {
+            return redirect()->to(url_to('ldm.employee.upload'))->with('error', 'Unable to upload the csv file now. Try again!');
+        }
+        $uploadedFile = new \CodeIgniter\HTTP\Files\UploadedFile($tempFilePath, true);
+
+        if ($uploadedFile->getExtension() === 'csv') {
+            $csvData = array_map('str_getcsv', file($uploadedFile->getTempName()));
+            $csvEmails = array_column($csvData, 0);
+
+            $employeeModel = new EmployeeModel();
+            $userModel = new UserModel();
+            $userRoleModel = new UserRoleModel();
+            $jobModel = new JobModel();
+            $departmentModel = new DepartmentModel();
+            $unitModel = new UnitModel();
+            $employeeRoleModel = new EmployeeRolesModel();
+            $emailTemplateModel = new EmailTemplateModel();
+            $siteSettingsModel = new SiteSettingsModel();
+
+            $siteName = $siteSettingsModel->first()["company_name"];
+            $emailData = $emailTemplateModel->where('email_type', 'staff_created')->first();
+
+            $successCount = 0;
+            $errorCount = 0;
+            $errors = [];
+
+            foreach ($csvData as $rowNumber => $rowData) {
+                if ($rowNumber === 0) {
+                    continue;
+                }
+
+                $user_email = $rowData[0];
+                $first_name = $rowData[1];
+                $last_name = $rowData[2];
+                $job = $rowData[3];
+                $employee_roles = $rowData[4];
+                $department = $rowData[5];
+                $unit = $rowData[6];
+                $line_manager_username = $rowData[7];
+                $password = $this->generateRandomPassword();
+                $username = $this->generateRandomUsername();
+                $roleNames = [];
+                $login_url = url_to('ldm.login');
+
+                if (strpos($employee_roles, ',') !== false) {
+                    $roleNames = array_map('trim', explode(',', $employee_roles));
+                } else {
+                    $roleNames[] = $employee_roles;
+                }
+
+                try {
+                    $is_user_exist = $userModel->where('email', $user_email)->first();
+                    if ($is_user_exist) {
+                        continue;
+                    }
+                    $userId = $userModel->insert([
+                        'username' => $username,
+                        'email' => $user_email,
+                        'password' => password_hash($password, PASSWORD_BCRYPT),
+                        'first_name' => $first_name,
+                        'last_name' => $last_name,
+                    ]);
+                    $data = ['job_title' => $job];
+                    $job = $jobModel->getOrCreate('job_title', $job, $data);
+                    $lineManagerUserData = $userModel->where('username', $line_manager_username)->first();
+                    if ($lineManagerUserData) {
+                        $lineMngEmployeeData = $employeeModel->where('user_id', $lineManagerUserData['id'])->first();
+                        $lineManagerId = $lineMngEmployeeData['id'];
+                    } else {
+                        $lineManagerId = Null;
+                    }
+
+                    $employeeId = $employeeModel->insert([
+                        'user_id' => $userId,
+                        'job_id' => $job['id'],
+                        'line_manager_id' => $lineManagerId,
+                    ]);
+
+
+                    foreach ($roleNames as $roleName) {
+                        $role = $userRoleModel->where('name', $roleName)->first();
+
+                        if ($role) {
+                            $employeeRoleModel->insert([
+                                'user_id' => $userId,
+                                'role_id' => $role['id'],
+                                'employee_id' => $employeeId,
+                            ]);
+                        } else {
+                            $logger->warning($roleName . ' not found!');
+                        }
+                    }
+
+                    $department_id = $departmentModel->where('department_name', $department)->first()['id'] ?? Null;
+                    $unit_id = $unitModel->where('unit_name', $unit)->first()['id'] ?? Null;
+                    $employeeModel->update($employeeId, ['department_id' => $department_id, 'unit_id' => $unit_id]);
+
+                    // Send email to the new user
+                    $find = ['{first_name}', '{username}', '{user_roles}', '{email}', '{password}', '{login_url}'];
+                    $replace = [$first_name, $username, $employee_roles, $user_email, $password, $login_url];
+                    $emailBody = str_replace($find, $replace, $emailData['email_body']);
+                    $emailSubject = str_replace('{siteName}', $siteName, $emailData['email_subject']);
+
+                    $emailHelper = new EmailHelper();
+                    $emailHelper->send_email($user_email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
+
+                    $successCount++;
+                } catch
+                (\Exception $e) {
+                    $errorCount++;
+                    $errors[] = "Error on row {$rowNumber}: " . $e->getMessage();
+                }
+            }
+            $existingEmails = $userModel->select('email')->whereIn('email', $csvEmails)->get()->getResultArray();
+            $existingEmails = array_column($existingEmails, 'email');
+            $emailsNotInCSV = array_diff($existingEmails, $csvEmails);
+            $this->data['emailsNotInCSV'] = $emailsNotInCSV;
+
+            if ($successCount > 0) {
+                session()->setFlashdata('success', "$successCount employees added successfully.");
+            }
+            if ($errorCount > 0) {
+                session()->setFlashdata('error', "$errorCount errors occurred during bulk upload.");
+                session()->setFlashdata('bulk_upload_errors', $errors);
+            }
+            return redirect()->to(url_to('ldm.employee.upload'));
+        } else {
+            return redirect()->to('ldm.home');
+        }
+    }
+
 
 }
