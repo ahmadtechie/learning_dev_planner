@@ -8,7 +8,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="jobCompetencyTable" class="table table-bordered table-striped">
+                        <table id="EmployeeDeptTable" class="table table-bordered table-striped">
                             <thead>
                             <tr>
                                 <th>Employee</th>

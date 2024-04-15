@@ -6,7 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\EmployeeModel;
 use App\Models\UserModel;
 
-helper(['form']);
+helper(['form', 'url']);
 
 class LineManagerController extends BaseController
 {
@@ -25,13 +25,14 @@ class LineManagerController extends BaseController
             ],
         ]
     ];
-    function __construct() {
+
+    function __construct()
+    {
         $employeeModel = model(EmployeeModel::class);
-        $employees = $employeeModel->getUnAssignedEmployeeDetailsWithUser();
 
         $this->data = [
             'title' => 'Line Manager Page | LD Planner',
-            'employees' => $employees,
+            'employees' => $employeeModel->getUnAssignedEmployeeDetailsWithUser(),
             'line_managers' => $employeeModel->getAllLineManagers(),
             'page_name' => 'line managers',
         ];
@@ -79,7 +80,6 @@ class LineManagerController extends BaseController
             }
         }
 
-
         $session = \Config\Services::session();
         $session->setFlashdata('success', "Line manager assignment completed successfully.");
 
@@ -90,8 +90,11 @@ class LineManagerController extends BaseController
     {
         $this->data['userData'] = $this->request->userData;
         $employeeModel = model(EmployeeModel::class);
-        $this->data['line_manager_employees'] = $employeeModel->getEmployeesUnderLineManager($line_manager_id);
-        $this->data['line_manager'] = $employeeModel->find($line_manager_id);
+        $lineManagerEmployees = $employeeModel->getEmployeesUnderLineManager($line_manager_id);
+        $unAssignedEmployees = $employeeModel->getUnAssignedEmployeeDetailsWithUser();
+        $this->data['employees'] = array_merge($lineManagerEmployees, $unAssignedEmployees);
+        $this->data['line_manager_employees'] = $lineManagerEmployees;
+        $this->data['selected_line_manager'] = $employeeModel->getEmployeeDetailsWithUser($line_manager_id);
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -100,26 +103,27 @@ class LineManagerController extends BaseController
             view('includes/footer');
     }
 
-    public function update($line_manager_id): string
+    /**
+     * @throws \ReflectionException
+     */
+    public function update(): \CodeIgniter\HTTP\RedirectResponse
     {
         $this->data['userData'] = $this->request->userData;
+        $employeeModel = new EmployeeModel();
+        $line_manager_id = $this->request->getPost('line_manager_id');
+        $employee_ids = $this->request->getPost('employee_ids');
 
-        return view('includes/head', $this->data) .
-            view('includes/navbar') .
-            view('includes/sidebar') .
-            view('includes/mini_navbar', $this->data) .
-            view('forms/assign_line_managers', $this->data) .
-            view('includes/footer');
-    }
+        foreach($employee_ids as $employee_id) {
+            $employeeModel->update($employee_id, ['line_manager_id' => $line_manager_id]);
+        }
 
-    public function delete(): string
-    {
-        $this->data['userData'] = $this->request->userData;
-        return view('includes/head', $this->data) .
-            view('includes/navbar') .
-            view('includes/sidebar') .
-            view('includes/mini_navbar', $this->data) .
-            view('forms/assign_line_managers', $this->data) .
-            view('includes/footer');
+        $lineManagerEmployees = $employeeModel->getEmployeesUnderLineManager($line_manager_id);
+        foreach ($lineManagerEmployees as $lineManagerEmployee) {
+            if (!in_array($lineManagerEmployee['employee_id'], $employee_ids)) {
+                $employeeModel->update($lineManagerEmployee['employee_id'], ['line_manager_id' => null]);
+            }
+        }
+
+      return redirect()->to(url_to('ldm.line.manager'))->with('success', 'The line manager surbodinates updated successfully');
     }
 }

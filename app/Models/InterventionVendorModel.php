@@ -6,16 +6,16 @@ use CodeIgniter\Model;
 
 class InterventionVendorModel extends Model
 {
-    protected $table            = 'interventionvendor';
+    protected $table            = 'intervention_vendor';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['vendor_name', 'contact_person', 'contact_email', 'contact_phone', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['vendor_name', 'contact_person', 'contact_email', 'contact_phone', 'intervention_id', 'service_provided',  'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

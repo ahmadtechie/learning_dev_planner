@@ -46,9 +46,7 @@
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item edit-btn"
-                                                       href="<?= url_to('ldm.line.manager.edit', $line_manager['id']) ?>">Edit</a>
-                                                    <a class="dropdown-item delete-btn"
-                                                       href="<?= url_to('ldm.line.manager.delete', $line_manager['id']) ?>">Delete</a>
+                                                       href="<?= url_to('ldm.line.manager.edit', $line_manager['employee_id']) ?>">Edit</a>
                                                 </div>
                                             </div>
                                         </td>

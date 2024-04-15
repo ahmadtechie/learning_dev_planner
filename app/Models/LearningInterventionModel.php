@@ -6,16 +6,16 @@ use CodeIgniter\Model;
 
 class LearningInterventionModel extends Model
 {
-    protected $table            = 'learningintervention';
+    protected $table            = 'learning_intervention';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['vendor_id', 'cycle_id', 'intervention_type_id', 'class_name', 'start_date', 'end_date', 'venue', 'cost', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['trainer_id', 'cycle_id', 'intervention_type_id', 'cost', 'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

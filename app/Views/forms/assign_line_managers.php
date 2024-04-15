@@ -1,4 +1,4 @@
-<?php print_r($line_manager_employees) ?>
+<!--<pre>--><?php //print_r($line_manager_employees) ?><!--</pre>-->
 <div class="col-md-6 mx-auto">
     <div class="card card-info">
         <div class="card-header">
@@ -12,8 +12,8 @@
         <div class="card-body">
             <?php include(APPPATH . 'Views/includes/message.php'); ?>
 
-            <?php if (isset($line_manager)): ?>
-                <?= form_open(url_to('ldm.line.manager.update', esc($line_manager['id']))) ?>
+            <?php if (isset($selected_line_manager)): ?>
+                <?= form_open(url_to('ldm.line.manager.update')) ?>
             <?php else: ?>
                 <?= form_open(url_to('ldm.line.manager.create')) ?>
             <?php endif; ?>
@@ -22,10 +22,10 @@
                 <label for="line_manager">Line Manager <span>*</span></label>
                 <select id="line_manager" class="form-control" name="line_manager_id" required>
                     <option>Choose Line Manager</option>
-                    <?php $selected_line_manager_id = isset($line_manager) ? $line_manager['id'] : set_value('line_manager_id') ?>
+                    <?php $selected_line_manager_id = isset($selected_line_manager) ? $selected_line_manager['employee_id'] : set_value('line_manager_id') ?>
                     <?php if (!empty($line_managers) && is_array($line_managers)): ?>
                         <?php foreach ($line_managers as $line_manager): ?>
-                            <?php if ($line_manager['id'] === $selected_line_manager_id): ?>
+                            <?php if ($line_manager['employee_id'] === $selected_line_manager_id): ?>
                                 <option value="<?= $line_manager['employee_id'] ?>"
                                         selected><?= "{$line_manager['first_name']} {$line_manager['last_name']}" ?></option>
                             <?php else: ?>
@@ -40,23 +40,23 @@
             </div>
             <div class="form-group">
                 <label for="employee_ids">Select Employees <span>*</span></label>
-                <select id="employee_ids" data-placeholder="Select employees" name="employee_ids[]" multiple="multiple"
-                        required style="width: 100%; height: 120px">
+                <select id="employee_ids" class="select2" data-placeholder="Select employees" name="employee_ids[]" multiple="multiple"
+                        required style="width: 100%; height: 200px">
                     <?php if (!empty($employees) && is_array($employees)): ?>
                         <?php foreach ($employees as $employee): ?>
                             <?php
                             $isSelected = false;
                             if (!empty($line_manager_employees) && is_array($line_manager_employees)) {
                                 foreach ($line_manager_employees as $line_manager_employee) {
-                                    if ($employee['id'] == $line_manager_employee['id']) {
+                                    if ($employee['employee_id'] == $line_manager_employee['employee_id']) {
                                         $isSelected = true;
                                         break;
                                     }
                                 }
                             }
                             ?>
-                            <option value="<?= $employee['employee_id'] ?>" <?= set_select('employee_ids[]', $employee['id'], $isSelected) ?>>
-                                <?= "{$employee['first_name']} {$employee['last_name']}" ?>
+                            <option value="<?= $employee['employee_id'] ?>" <?= set_select('employee_ids[]', $employee['employee_id'], $isSelected) ?>>
+                                <?= "{$employee['first_name']} {$employee['last_name']} - {$employee['username']}" ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

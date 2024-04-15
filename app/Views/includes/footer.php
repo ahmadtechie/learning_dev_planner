@@ -144,6 +144,42 @@
             "order": [[ 2, "desc" ]]
         });
     });
+
+    $(document).ready(function() {
+        $('#DepartmentTable').DataTable({
+            "order": [[ 3, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#DivisionTable').DataTable({
+            "order": [[ 2, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#EmployeeDeptTable').DataTable({
+            "order": [[ 3, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#EmployeeRatingsTable').DataTable({
+            "order": [[ 4, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#GroupTable').DataTable({
+            "order": [[ 3, "desc" ]]
+        });
+    });
+
+    $(document).ready(function() {
+        $('#GroupTable').DataTable({
+            "order": [[ 3, "desc" ]]
+        });
+    });
 </script>
 
 <script>

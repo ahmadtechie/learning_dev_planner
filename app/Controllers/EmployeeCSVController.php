@@ -315,6 +315,9 @@ class EmployeeCSVController extends BaseController
                 session()->setFlashdata('error', "$errorCount errors occurred during bulk upload.");
                 session()->setFlashdata('bulk_upload_errors', $errors);
             }
+            if ($successCount == 0 and $errorCount == 0) {
+                session()->setFlashdata('success', "All employee data has previously been registered.");
+            }
             return redirect()->to(url_to('ldm.employee.upload'));
         } else {
             return redirect()->to('ldm.home');

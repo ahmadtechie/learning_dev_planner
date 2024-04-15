@@ -48,16 +48,16 @@
                 </span>
             </div>
             <div class="form-group">
-                <label for="employee_ids">Select Employees (Unselect based on need) <span>*</span></label>
-                <select id="employee_ids" data-placeholder="Select employees" name="employee_emails[]" multiple="multiple"
-                        required style="width: 100%; height: 200px">
+                <label for="employee_ids">Select Employees (Unselect employee usernames based on need) <span>*</span></label>
+                <select id="employee_ids" class="select2" data-placeholder="Select employees" name="employee_emails[]" multiple="multiple"
+                        required style="width: 100%;">
                     <?php if (!empty($employees) && is_array($employees)): ?>
                         <?php foreach ($employees as $employee): ?>
                             <?php
                             $isSelected = false;
                             if (!empty($selected_employees) && is_array($selected_employees)) {
                                 foreach ($selected_employees as $selected_employee) {
-                                    if ($employee['id'] == $selected_employee['id']) {
+                                    if ($employee['employee_id'] == $selected_employee['employee_id']) {
                                         $isSelected = true;
                                         break;
                                     }
@@ -65,7 +65,7 @@
                             }
                             ?>
                             <option value="<?= $employee['email'] ?>" <?= set_select('employee_emails[]', $employee['id'], $isSelected) ?> selected>
-                                <?= "{$employee['first_name']} {$employee['last_name']}" ?>
+                                <?= "{$employee['username']}" ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

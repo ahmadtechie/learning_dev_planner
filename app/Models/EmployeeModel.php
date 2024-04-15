@@ -109,7 +109,7 @@ class EmployeeModel extends Model
 
     public function getEmployeesUnderLineManager(int $lineManagerId): array
     {
-        return $this->select('employee.*, user.*',)
+        return $this->select('employee.id AS employee_id, employee.*, user.*')
             ->join('user', 'user.id = employee.user_id')
             ->where('employee.line_manager_id', $lineManagerId)
             ->findAll();
@@ -137,6 +137,18 @@ class EmployeeModel extends Model
 
         // Restore the soft-deleted employee by setting the 'deleted_at' field to NULL
         return $this->update($employeeId, ['deleted_at' => null]);
+    }
+
+    public function getTrainerEmployeesDetails(int $roleId): array
+    {
+        return $this->select('employee.id AS employee_id, employee.*, user.*, job.job_title as job_title, CONCAT(line_manager.first_name, " ", line_manager.last_name) as line_manager_name')
+            ->join('user', 'user.id = employee.user_id')
+            ->join('job', 'job.id = employee.job_id')
+            ->join('user as line_manager', 'line_manager.id = employee.line_manager_id', 'left')
+            ->join('employee_roles', 'employee_roles.employee_id = employee.id')
+            ->join('role', 'role.id = employee_roles.role_id')
+            ->where('role.id', $roleId)
+            ->findAll();
     }
 }
 

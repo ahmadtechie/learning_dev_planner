@@ -237,7 +237,7 @@
                         </ul>
                     </li>
                 <?php endif; ?>
-                <li class="nav-item">
+                <li class="nav-item <?= strpos(uri_string(), "contracting") ? 'menu-open' : ''; ?>">
                     <a href="" class="nav-link">
                         <i class="nav-icon far fa-calendar-alt"></i>
                         <p>
@@ -268,12 +268,8 @@
                         </li>
                     </ul>
                 </li>
-                <?php if (isset($userData['learningDevRoleId']) and
-                (
-                    in_array($userData['learningDevRoleId'], session()->get('employeeRoles')) or
-                    in_array($userData['trainerRoleId'], session()->get('employeeRoles'))
-                )): ?>
-                    <li class="nav-item">
+                <?php if (isset($userData['learningDevRoleId']) and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))): ?>
+                    <li class="nav-item <?= strpos(uri_string(), "intervention") ? 'menu-open' : ''; ?>">
                         <a href="" class="nav-link">
                             <i class="nav-icon far fa-object-group"></i>
                             <p>
@@ -283,11 +279,34 @@
                         </a>
 
                         <ul class="nav nav-treeview">
-                            <?php if (isset($userData['learningDevRoleId']) and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))): ?>
+                            <li class="nav-item">
+                                <a href="<?= url_to('ldm.learning.intervention') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Learning Interventions</p>
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a href="<?= url_to('ldm.intervention.type') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Intervention Types</p>4
+                                    <p>Intervention Types</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= url_to('ldm.intervention.content') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Intervention Vendors</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= url_to('ldm.intervention.class') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Intervention Classes</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= url_to('ldm.trainer') ?>" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Intervention Contents</p>
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -296,17 +315,14 @@
                                     <p>Assign Interventions</p>
                                 </a>
                             </li>
-                            <?php endif; ?>
-                            <li class="nav-item">
-                                <a href="<?= url_to('ldm.intervention.attendance') ?>" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Intervention Attendance</p>
-                                </a>
-                            </li>
                         </ul>
                     </li>
                 <?php endif; ?>
-                <?php if (isset($userData['learningDevRoleId']) and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))): ?>
+                <?php if (isset($userData['learningDevRoleId']) and
+                    (
+                        in_array($userData['learningDevRoleId'], session()->get('employeeRoles')) or
+                        in_array($userData['trainerRoleId'], session()->get('employeeRoles'))
+                    )): ?>
                     <li class="nav-item">
                         <a href="" class="nav-link">
                             <i class="nav-icon far fa-object-group"></i>
@@ -317,17 +333,19 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= url_to('ldm.trainer') ?>" class="nav-link">
+                                <a href="<?= url_to('ldm.intervention.attendance') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Add Trainer/Consultant</p>
+                                    <p>Training Attendance</p>
                                 </a>
                             </li>
+                            <?php if (isset($userData['learningDevRoleId']) and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))): ?>
                             <li class="nav-item">
                                 <a href="<?= url_to('ldm.trainer') ?>" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Trainer-Intervention Mapping</p>
                                 </a>
                             </li>
+                            <?php endif; ?>
                         </ul>
                     </li>
                 <?php endif; ?>

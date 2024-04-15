@@ -121,12 +121,9 @@ class DivisionController extends BaseController
         $this->data['userData'] = $this->request->userData;
 
         $model = new DivisionModel();
-
+        $model->delete($id);
         $session = \Config\Services::session();
         $session->setFlashdata('deleted', "Division deleted successfully.");
-
-        // Delete the division from the database
-        $model->delete($id);
 
         return redirect('ldm.divisions.create');
     }

@@ -4,18 +4,20 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class CompetencyDescriptorModel extends Model
+class InterventionClassModel extends Model
 {
-    protected $table            = 'competency_descriptor';
+    protected $table            = 'intervention_class';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['competency_id', 'descriptor_text', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['intervention_id', 'class_name', 'start_date', 'end_date', 'venue', 'created_at', 'updated_at', 'deleted_at'];
+
+    protected bool $allowEmptyInserts = false;
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
@@ -37,9 +39,4 @@ class CompetencyDescriptorModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
-    public function competency()
-    {
-        return $this->belongsTo('CompetencyModel', 'competency_id');
-    }
 }

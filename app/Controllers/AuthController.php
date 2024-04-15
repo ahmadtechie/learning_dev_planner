@@ -18,7 +18,6 @@ class AuthController extends Controller
 
     public function login()
     {
-//        validating user input
         $validated = $this->validate([
             'email' => [
                 'rules' => 'required|valid_email',
@@ -39,7 +38,6 @@ class AuthController extends Controller
             return view('auth/login', ['validation' => $this->validator]);
         }
 
-        // checking user details in the DB
         $email = $this->request->getPost('email');
         $password = $this->request->getPost('password');
 
