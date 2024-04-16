@@ -29,7 +29,7 @@
                                 }, 3000);
                             </script>
                         <?php endif; ?>
-                        <table id="example1" class="table table-bordered table-striped">
+                        <table id="example1" class="table table-bordered table-striped validateRatingsTable">
                             <thead>
                             <tr>
                                 <th>Dev Cycle Year</th>
@@ -37,6 +37,7 @@
                                 <th>Competency</th>
                                 <th>Employee Rating</th>
                                 <th>Line Manager Rating</th>
+                                <th hidden="hidden">updated_at</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -82,6 +83,7 @@
                                             <input type="hidden" name="employee_ids[]"
                                                    value="<?= $cycle_competency['employee_id'] ?>">
                                         </td>
+                                        <td hidden="hidden"><?= $cycle_competency['updated_at'] ?></td>
                                     </tr>
                                 <?php endif; ?>
                             <?php endforeach; ?>
@@ -96,3 +98,15 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(function() {
+        $("#example1, .validateRatingsTable").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print"],
+            "order": [[ 5, "desc" ]]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

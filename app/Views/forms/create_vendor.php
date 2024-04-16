@@ -30,9 +30,9 @@
                 </script>
             <?php endif; ?>
             <?php if (isset($vendor)): ?>
-                <?= form_open(url_to('ldm.trainer.update', esc($vendor['id']))) ?>
+                <?= form_open(url_to('ldm.vendor.update', esc($vendor['id']))) ?>
             <?php else: ?>
-                <?= form_open(url_to('ldm.trainer.create')) ?>
+                <?= form_open(url_to('ldm.vendor.create')) ?>
             <?php endif; ?>
 
             <div class="form-group">
@@ -41,13 +41,11 @@
                     <option value="">Select Intervention</option>
                     <?php foreach ($interventions as $intervention): ?>
                         <?php
-                            $cycleModel = model(\App\Models\DevelopmentCycleModel::class);
-                            $employeeModel = model(\App\Models\EmployeeModel::class);
-                            $cycle = $cycleModel->find($intervention['cycle_id']);
-                            $employee = $employeeModel->getEmployeeDetailsWithUser($intervention['trainer_id']);
+                            $interventionModel = model(\App\Models\LearningInterventionModel::class);
+                            $intervention = $interventionModel->find($intervention['id'])
                         ?>
                         <option value="<?= $intervention['id'] ?>" <?= (isset($vendor) && $vendor['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
-                            <?= $employee['first_name'] . ' ' . $employee['last_name'] . ' - '  . $cycle['cycle_year']  ?>
+                            <?= $intervention['intervention_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

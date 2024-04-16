@@ -1,7 +1,7 @@
 <div class="col-md-6 mx-auto">
     <div class="card card-info">
         <div class="card-header">
-            <h3 class="card-title">Create Intervention Class</h3>
+            <h3 class="card-title">Create Intervention Content</h3>
         </div>
         <!-- /.card-header -->
         <div class="card-body">
@@ -25,18 +25,14 @@
                     }, 3000);
                 </script>
             <?php endif; ?>
-            <?php if (isset($intervention_class)): ?>
-                <?= form_open(url_to('ldm.intervention.class.update', esc($intervention_class['id']))) ?>
-            <?php else: ?>
-                <?= form_open(url_to('ldm.intervention.class.create')) ?>
-            <?php endif; ?>
+            <?= form_open(url_to('ldm.intervention.content.create')) ?>
 
             <div class="form-group">
                 <label for="intervention_id">Learning Intervention</label>
                 <select id="intervention_id" name="intervention_id" class="form-control" required>
                     <option value="">Select Intervention</option>
                     <?php foreach ($interventions as $intervention): ?>
-                        <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_class) && $intervention_class['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
+                        <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_content) && $intervention_content['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
                             <?= $intervention['intervention_name']  ?>
                         </option>
                     <?php endforeach; ?>
@@ -47,34 +43,18 @@
             </div>
 
             <div class="form-group">
-                <label for="class_name">Class Name</label>
-                <input type="text" id="class_name" name="class_name" class="form-control" value="<?= isset($intervention_class) ? esc($intervention_class['class_name']) : set_value('class_name') ?>" required>
+                <label for="module_title">Module Title</label>
+                <input type="text" id="module_title" name="module_title" class="form-control" value="<?= isset($intervention_content) ? esc($intervention_content['module_title']) : set_value('module_title') ?>" required>
                 <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('class_name')) ? $validation->getError('class_name') : '' ?>
+                    <?= (isset($validation) && $validation->hasError('module_title')) ? $validation->getError('module_title') : '' ?>
                 </span>
             </div>
 
             <div class="form-group">
-                <label for="start_date">Start Date</label>
-                <input type="date" id="start_date" name="start_date" class="form-control" value="<?= isset($intervention_class) ? esc($intervention_class['start_date']) : set_value('start_date') ?>" required>
+                <label for="sub_topic">Sub Topic</label>
+                <input type="text" id="sub_topic" name="sub_topic" class="form-control" value="<?= isset($intervention_content) ? esc($intervention_content['sub_topic']) : set_value('sub_topic') ?>" required>
                 <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('start_date')) ? $validation->getError('start_date') : '' ?>
-                </span>
-            </div>
-
-            <div class="form-group">
-                <label for="end_date">End Date</label>
-                <input type="date" id="end_date" name="end_date" class="form-control" value="<?= isset($intervention_class) ? esc($intervention_class['end_date']) : set_value('end_date') ?>" required>
-                <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('end_date')) ? $validation->getError('end_date') : '' ?>
-                </span>
-            </div>
-
-            <div class="form-group">
-                <label for="venue">Venue</label>
-                <input type="text" id="venue" name="venue" class="form-control" value="<?= isset($intervention_class) ? esc($intervention_class['venue']) : set_value('venue') ?>" required>
-                <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('venue')) ? $validation->getError('venue') : '' ?>
+                    <?= (isset($validation) && $validation->hasError('sub_topic')) ? $validation->getError('sub_topic') : '' ?>
                 </span>
             </div>
 
@@ -89,7 +69,5 @@
         <!-- /.card-body -->
     </div>
 </div>
-<?php include(APPPATH . 'Views/tables/intervention_classes_table.php'); ?>
-
-
+<?php include(APPPATH . 'Views/tables/intervention_content_table.php'); ?>
 

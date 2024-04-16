@@ -8,7 +8,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="DepartmentTable" class="table table-bordered table-striped">
+                        <table id="example1" class="table table-bordered table-striped departmentTable">
                             <thead>
                             <tr>
                                 <th>Department Name</th>
@@ -29,11 +29,10 @@
                                             $group_name = $groupData['group_name'];
                                         } else {
                                             // Handle the case where division data is not found or 'division_name' is not set
-                                            $group_name = 'Unknown Group';
+                                            $group_name = '-';
                                         }
                                     } else {
-                                        // Handle the case where 'division_id' is not set
-                                        $group_name = 'No Group';
+                                        $group_name = '-';
                                     }
                                     ?>
                                     <tr>
@@ -69,3 +68,15 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(function() {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print"],
+            "order": [[ 3, "desc" ]]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

@@ -36,6 +36,15 @@
             <?php endif; ?>
 
             <div class="form-group">
+                <label for="intervention_name">Intervention Name</label>
+                <input type="text" id="intervention_name" name="intervention_name" class="form-control"
+                       value="<?= isset($intervention) ? esc($intervention['intervention_name']) : set_value('intervention_name') ?>" required>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('intervention_name')) ? $validation->getError('intervention_name') : '' ?>
+                </span>
+            </div>
+
+            <div class="form-group">
                 <label for="trainer_id">Trainer/Provider</label>
                 <select id="trainer_id" name="trainer_id" class="form-control" required>
                     <option value="">Select Trainer</option>
@@ -47,6 +56,21 @@
                 </select>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('trainer_id')) ? $validation->getError('trainer_id') : '' ?>
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label for="competency_id">Competency</label>
+                <select id="competency_id" name="competency_id" class="form-control" required>
+                    <option value="">Select Competency</option>
+                    <?php foreach ($competencies as $competency): ?>
+                        <option value="<?= $competency['id'] ?>" <?= (isset($intervention) && $intervention['competency_id'] == $competency['id']) ? 'selected' : '' ?>>
+                            <?= $competency['competency_name'] ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('competency_id')) ? $validation->getError('competency_id') : '' ?>
                 </span>
             </div>
 

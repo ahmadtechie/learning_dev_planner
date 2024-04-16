@@ -8,7 +8,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="InterventionVendorTable" class="table table-bordered table-striped">
+                        <table id="example1" class="table table-bordered table-striped interventionVendorTable">
                             <thead>
                             <tr>
                                 <th>Vendor Name</th>
@@ -36,9 +36,9 @@
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item"
-                                                       href="<?= url_to('ldm.trainer.edit', $vendor['id']) ?>">Edit</a>
+                                                       href="<?= url_to('ldm.vendor.edit', $vendor['id']) ?>">Edit</a>
                                                     <a class="dropdown-item"
-                                                       href="<?= url_to('ldm.trainer.delete', $vendor['id']) ?>">Delete</a>
+                                                       href="<?= url_to('ldm.vendor.delete', $vendor['id']) ?>">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -54,3 +54,15 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(function() {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print"],
+            "order": [[ 4, "desc" ]]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

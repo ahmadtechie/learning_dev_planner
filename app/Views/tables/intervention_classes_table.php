@@ -8,7 +8,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="interventionClassTable" class="table table-bordered table-striped">
+                        <table id="example1" class="table table-bordered table-striped interventionClassTable">
                             <thead>
                             <tr>
                                 <th>Intervention ID</th>
@@ -16,7 +16,6 @@
                                 <th>Start Date</th>
                                 <th>End Date</th>
                                 <th>Venue</th>
-                                <th>Created At</th>
                                 <th>Updated At</th>
                                 <th>Actions</th>
                             </tr>
@@ -24,27 +23,16 @@
                             <tbody>
                             <?php foreach ($interventionClasses as $class): ?>
                                 <?php
-                                $intervention_str = '-';
-                                if (!empty($class['intervention_id'])) {
-                                    $interventionModel = new \App\Models\LearningInterventionModel();
-                                    $intervention = $interventionModel->find($class['intervention_id']);
-                                    if (!empty($intervention)) {
-                                        $cycleModel = model(\App\Models\DevelopmentCycleModel::class);
-                                        $employeeModel = model(\App\Models\EmployeeModel::class);
-                                        $cycle = $cycleModel->find($intervention['cycle_id']);
-                                        $employee = $employeeModel->getEmployeeDetailsWithUser($intervention['trainer_id']);
-                                        $intervention_str = $employee['first_name'] . ' ' . $employee['last_name'] . ' - ' . $cycle['cycle_year'];
-                                    }
-                                }
+                                $interventionModel = new \App\Models\LearningInterventionModel();
+                                $intervention = $interventionModel->find($class['intervention_id']);
                                 ?>
 
                                 <tr>
-                                    <td><?= $intervention_str ?></td>
+                                    <td><?= $intervention['intervention_name'] ?></td>
                                     <td><?= $class['class_name']; ?></td>
                                     <td><?= $class['start_date']; ?></td>
                                     <td><?= $class['end_date']; ?></td>
                                     <td><?= $class['venue']; ?></td>
-                                    <td><?= $class['created_at']; ?></td>
                                     <td><?= $class['updated_at']; ?></td>
                                     <td>
                                         <div class="btn-group">
@@ -71,3 +59,15 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(function() {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print"],
+            "order": [[ 5, "desc" ]]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

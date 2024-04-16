@@ -4,7 +4,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Employee Data Preview</h3>
+                        <h3 class="card-title">Attendance Data Preview</h3>
                     </div>
                     <div class="card-body">
                         <?php if (!empty($errors)) : ?>
@@ -23,27 +23,23 @@
                             <table id="example1" class="table table-bordered table-striped">
                                 <thead>
                                 <tr>
-                                    <th>Email</th>
-                                    <th>First Name</th>
-                                    <th>Last Name</th>
-                                    <th>Job</th>
-                                    <th>Employee Roles</th>
-                                    <th>Department</th>
-                                    <th>Unit</th>
-                                    <th>Line Manager</th>
+                                    <th>Employee ID</th>
+                                    <th>Intervention ID</th>
+                                    <th>Attendance Date</th>
+                                    <th>Attendance Status</th>
+                                    <th>Session Duration</th>
+                                    <th>Remarks</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <?php foreach ($data as $row) : ?>
                                     <tr>
-                                        <td><?= esc($row['email']) ?? '' ?></td>
-                                        <td><?= esc($row['first_name']) ?? '' ?></td>
-                                        <td><?= esc($row['last_name']) ?? '' ?></td>
-                                        <td><?= esc($row['job']) ?? ''  ?></td>
-                                        <td><?= esc($row['employee_roles']) ?? ''  ?></td>
-                                        <td><?= esc($row['department']) ?? ''  ?></td>
-                                        <td><?= esc($row['unit']) ?? ''  ?></td>
-                                        <td><?= esc($row['line_manager_username']) ?? ''  ?></td>
+                                        <td><?= esc($row['employee_id']) ?? '' ?></td>
+                                        <td><?= esc($row['intervention_id']) ?? '' ?></td>
+                                        <td><?= esc($row['attendance_date']) ?? '' ?></td>
+                                        <td><?= esc($row['attendance_status']) ?? ''  ?></td>
+                                        <td><?= esc($row['session_duration']) ?? ''  ?></td>
+                                        <td><?= esc($row['remarks']) ?? ''  ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>

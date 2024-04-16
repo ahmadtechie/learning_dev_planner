@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\Employee;
 
 use App\Controllers\BaseController;
 use App\Helpers\EmailHelper;
@@ -13,7 +13,6 @@ use App\Models\SiteSettingsModel;
 use App\Models\UnitModel;
 use App\Models\UserModel;
 use App\Models\UserRoleModel;
-use CodeIgniter\HTTP\ResponseInterface;
 
 helper(['form', 'url']);
 
@@ -31,9 +30,6 @@ class EmployeeCSVController extends BaseController
 
     function __construct()
     {
-        $employeeModel = model(EmployeeModel::class);
-        $userModel = model(UserModel::class);
-
         $this->data = [
             'title' => 'Employee Bulk Upload Page | LD Planner',
             'page_name' => 'Employee Bulk Upload',

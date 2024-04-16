@@ -5,10 +5,10 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">All Created Divisions</h3>
-                    </div>x
+                    </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="DivisionTable" class="table table-bordered table-striped">
+                        <table id="example1" class="table table-bordered table-striped divisionTable">
                             <thead>
                             <tr>
                                 <th>Division Name</th>
@@ -52,3 +52,15 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(function() {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print"],
+            "order": [[ 2, "desc" ]]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

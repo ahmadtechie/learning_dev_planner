@@ -8,7 +8,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="employeeTable" class="table table-bordered table-striped">
+                        <table id="example1" class="table table-bordered table-striped employeeTable">
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -83,3 +83,15 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(function() {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print"],
+            "order": [[ 5, "desc" ]]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

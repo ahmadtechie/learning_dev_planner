@@ -17,7 +17,6 @@
 <!-- jQuery -->
 <!-- jQuery UI 1.11.4 -->
 <!--<script  src="https://code.jquery.com/jquery-3.5.1.min.js"></script>-->
-<script type="text/javascript" src="<?php echo base_url("plugins/jquery/jquery.min.js") ?>"></script>
 <script src="<?php echo base_url("plugins/jquery-ui/jquery-ui.min.js") ?>"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 <script>
@@ -116,74 +115,6 @@
 
 <script>
     $(document).ready(function() {
-        $('#unitTable').DataTable({
-            "order": [[ 2, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#jobCompetencyTable').DataTable({
-            "order": [[ 2, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#jobTable').DataTable({
-            "order": [[ 3, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#employeeTable').DataTable({
-            "order": [[ 5, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#lineManagerAssignTable').DataTable({
-            "order": [[ 2, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#DepartmentTable').DataTable({
-            "order": [[ 3, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#DivisionTable').DataTable({
-            "order": [[ 2, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#EmployeeDeptTable').DataTable({
-            "order": [[ 3, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#EmployeeRatingsTable').DataTable({
-            "order": [[ 4, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#GroupTable').DataTable({
-            "order": [[ 3, "desc" ]]
-        });
-    });
-
-    $(document).ready(function() {
-        $('#GroupTable').DataTable({
-            "order": [[ 3, "desc" ]]
-        });
-    });
-</script>
-
-<script>
-    $(document).ready(function() {
         $('.competency-select').change(function() {
             var selectedCompetency = $(this).val();
 
@@ -262,10 +193,6 @@
 
 <script>
     $(function () {
-        $("#example1").DataTable({
-            "responsive": true, "lengthChange": false, "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"]
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
         $('#example2').DataTable({
             "paging": true,
             "lengthChange": false,

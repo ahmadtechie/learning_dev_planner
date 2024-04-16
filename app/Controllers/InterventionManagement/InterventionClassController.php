@@ -22,7 +22,8 @@ class InterventionClassController extends BaseController
         'venue' => 'max_length[255]'
     ];
 
-    function __construct() {
+    function __construct()
+    {
         $learningInterventionModel = model(LearningInterventionModel::class);
         $model = model(InterventionClassModel::class);
 
@@ -68,5 +69,56 @@ class InterventionClassController extends BaseController
         return redirect('ldm.intervention.class');
     }
 
+    public function edit($id)
+    {
+        $this->data['userData'] = $this->request->userData;
+        $model = model(InterventionClassModel::class);
+        $intervention_class = $model->find($id);
+        $this->data['intervention_class'] = $intervention_class;
 
+        $this->data['title'] = 'LD Planner | Edit Intervention Class';
+
+        if ($intervention_class === null) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException("Intervention Class with ID $id not found.");
+        }
+
+        return view('includes/head', $this->data) .
+            view('includes/navbar') .
+            view('includes/sidebar') .
+            view('includes/mini_navbar', $this->data) .
+            view('forms/create_intervention_class', $this->data) .
+            view('includes/footer');
+    }
+
+    public function update($id)
+    {
+        $this->data['userData'] = $this->request->userData;
+
+        $model = model(InterventionClassModel::class);
+
+        if (!$this->validate($this->validation)) {
+            $validation = ['validation' => $this->validator];
+            return view('includes/head', $this->data) .
+                view('includes/navbar') .
+                view('includes/sidebar') .
+                view('includes/mini_navbar', $this->data) .
+                view('forms/create_intervention_class', array_merge($this->data, $validation)) .
+                view('includes/footer');
+        }
+
+        $validData = $this->request->getPost();
+        $model->update($id, $validData);
+
+        $session = \Config\Services::session();
+        $session->setFlashdata('success', "Intervention Class updated successfully.");
+        return redirect('ldm.intervention.class');
+    }
+
+    public function delete($id) {
+        $this->data['userData'] = $this->request->userData;
+        $model = new LearningInterventionModel();
+        $model->delete($id);
+
+        return redirect('ldm.learning.intervention')->with('error', 'Intervention Class deleted successfully.');
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Controllers\InterventionManagement;
 
 use App\Controllers\BaseController;
+use App\Models\CompetencyModel;
 use App\Models\DevelopmentCycleModel;
 use App\Models\EmployeeModel;
 use App\Models\InterventionTypeModel;
@@ -19,6 +20,12 @@ class LearningInterventionController extends BaseController
             'rules' => 'required|integer',
             'errors' => [
                 'integer' => 'A vendor must be selected.',
+            ],
+        ],
+        'competency_id' => [
+            'rules' => 'required|integer',
+            'errors' => [
+                'integer' => 'A competency must be selected.',
             ],
         ],
         'cycle_id' => [
@@ -42,6 +49,7 @@ class LearningInterventionController extends BaseController
         $userRoleModel = model(UserRoleModel::class);
         $employeeModel = model(EmployeeModel::class);
         $cycleModel = model(DevelopmentCycleModel::class);
+        $competencyModel = model(CompetencyModel::class);
         $interventionTypeModel = model(InterventionTypeModel::class);
 
         $trainerRoleId = $userRoleModel->where('name', 'Trainer')->first()['id'];
@@ -49,6 +57,7 @@ class LearningInterventionController extends BaseController
         $this->data = [
             'title' => 'Learning Intervention | LD Planner',
             'trainers' => $employeeModel->getTrainerEmployeesDetails($trainerRoleId),
+            'competencies' => $competencyModel->findAll(),
             'cycles' => $cycleModel->findAll(),
             'intervention_types' => $interventionTypeModel->findAll(),
             'page_name' => 'Learning Intervention',

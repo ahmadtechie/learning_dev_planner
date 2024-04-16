@@ -52,5 +52,6 @@
         <!-- /.card-body -->
     </div>
 </div>
+
 <?php include(APPPATH . 'Views/tables/unit_table.php'); ?>
 

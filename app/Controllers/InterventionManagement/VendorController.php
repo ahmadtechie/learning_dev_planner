@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers\Trainer;
+namespace App\Controllers\InterventionManagement;
 
 use App\Controllers\BaseController;
 use App\Models\InterventionVendorModel;
