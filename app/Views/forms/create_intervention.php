@@ -37,7 +37,7 @@
 
             <div class="form-group">
                 <label for="intervention_name">Intervention Name</label>
-                <input type="text" id="intervention_name" name="intervention_name" class="form-control"
+                <input id="intervention_name" type="text" name="intervention_name" class="form-control"
                        value="<?= isset($intervention) ? esc($intervention['intervention_name']) : set_value('intervention_name') ?>" required>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('intervention_name')) ? $validation->getError('intervention_name') : '' ?>
@@ -49,7 +49,7 @@
                 <select id="trainer_id" name="trainer_id" class="form-control" required>
                     <option value="">Select Trainer</option>
                     <?php foreach ($trainers as $trainer): ?>
-                        <option value="<?= $trainer['employee_id'] ?>" <?= (isset($intervention) && $intervention['trainer_id'] == $trainer['employee_id']) ? 'selected' : '' ?>>
+                        <option value="<?= $trainer['employee_id'] ?>" <?= (isset($intervention) && $intervention['trainer_id'] == $trainer['trainer_id']) ? 'selected' : '' ?>>
                             <?= $trainer['first_name']  . ' ' . $trainer['last_name'] ?>
                         </option>
                     <?php endforeach; ?>

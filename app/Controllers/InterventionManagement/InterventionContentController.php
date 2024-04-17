@@ -25,12 +25,8 @@ class InterventionContentController extends BaseController
                 'required' => 'A module title must.',
             ],
         ],
-        'sub_topic' => [
-            'rules' => 'required',
-            'errors' => [
-                'integer' => 'An sub-topic must is required.',
-            ],
-        ],
+        'sub_topics' => 'permit_empty',
+        'objectives' => 'permit_empty',
     ];
 
     function __construct()
@@ -75,9 +71,7 @@ class InterventionContentController extends BaseController
 
         $validData = $this->validator->getValidated();
         $model->save($validData);
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "New Intervention Content added successfully.");
-        return redirect('ldm.intervention.content');
+        return redirect('ldm.intervention.content')->with('success', "New Intervention Content added successfully.");
     }
 
     public function edit($id) {
@@ -116,10 +110,7 @@ class InterventionContentController extends BaseController
 
         $validData = $this->request->getPost();
         $model->update($id, $validData);
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Intervention Content updated successfully.");
-        return redirect('ldm.intervention.content');
+        return redirect('ldm.intervention.content')->with('success', "Intervention Content updated successfully.");
     }
 
     public function delete($id) {

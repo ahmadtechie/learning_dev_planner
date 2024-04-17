@@ -1,4 +1,4 @@
-<div class="col-md-6 mx-auto">
+<div class="col-md-8 mx-auto">
     <div class="card card-info">
         <div class="card-header">
             <h3 class="card-title">Create Intervention Content</h3>
@@ -33,7 +33,7 @@
                     <option value="">Select Intervention</option>
                     <?php foreach ($interventions as $intervention): ?>
                         <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_content) && $intervention_content['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
-                            <?= $intervention['intervention_name']  ?>
+                            <?= $intervention['intervention_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -44,17 +44,30 @@
 
             <div class="form-group">
                 <label for="module_title">Module Title</label>
-                <input type="text" id="module_title" name="module_title" class="form-control" value="<?= isset($intervention_content) ? esc($intervention_content['module_title']) : set_value('module_title') ?>" required>
+                <input type="text" id="module_title" name="module_title" class="form-control"
+                       value="<?= isset($intervention_content) ? esc($intervention_content['module_title']) : set_value('module_title') ?>"
+                       required>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('module_title')) ? $validation->getError('module_title') : '' ?>
                 </span>
             </div>
 
             <div class="form-group">
-                <label for="sub_topic">Sub Topic</label>
-                <input type="text" id="sub_topic" name="sub_topic" class="form-control" value="<?= isset($intervention_content) ? esc($intervention_content['sub_topic']) : set_value('sub_topic') ?>" required>
+                <label for="summernote">Sub Topic(s)</label>
+                <textarea id="summernote" name="sub_topics">
+                    <?= isset($intervention_content) ? esc($intervention_content['sub_topics']) : set_value('sub_topics') ?>
+                </textarea>
                 <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('sub_topic')) ? $validation->getError('sub_topic') : '' ?>
+                    <?= (isset($validation) && $validation->hasError('sub_topics')) ? $validation->getError('sub_topics') : '' ?>
+                </span>
+            </div>
+            <div class="form-group">
+                <label for="summernote">Objectives</label>
+                <textarea id="summernote1" name="objectives">
+                    <?= isset($intervention_content) ? esc($intervention_content['objectives']) : set_value('objectives') ?>
+              </textarea>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('objectives')) ? $validation->getError('objectives') : '' ?>
                 </span>
             </div>
 

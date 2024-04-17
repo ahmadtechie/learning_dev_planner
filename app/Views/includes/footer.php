@@ -80,7 +80,32 @@
 
 <!-- AdminLTE App -->
 <script src="<?php echo base_url("dist/js/adminlte.min.js") ?>"></script>
+
 <!-- Page specific script -->
+
+<script>
+    $(function () {
+        // Summernote
+        $('#summernote').summernote()
+
+        // CodeMirror
+        CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+            mode: "htmlmixed",
+            theme: "monokai"
+        });
+    })
+
+    $(function () {
+        // Summernote
+        $('#summernote1').summernote()
+
+        // CodeMirror
+        CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+            mode: "htmlmixed",
+            theme: "monokai"
+        });
+    })
+</script>
 
 <script>
     // Event listener for Preview button

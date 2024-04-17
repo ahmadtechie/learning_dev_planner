@@ -16,6 +16,12 @@ class LearningInterventionController extends BaseController
 {
     public array $data;
     public array $validation = [
+        'intervention_name' => [
+            'rules' => 'required',
+            'errors' => [
+                'required' => 'An intervention name must be provided.',
+            ],
+        ],
         'trainer_id' => [
             'rules' => 'required|integer',
             'errors' => [
@@ -92,11 +98,9 @@ class LearningInterventionController extends BaseController
                 view('includes/footer');
         }
 
-        $validData = $this->validator->getValidated();
-        $model->save($validData);
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "New Learning Intervention created successfully.");
-        return redirect('ldm.learning.intervention');
+        $validData = $this->request->getPost();
+        $model->insert($validData);
+        return redirect('ldm.learning.intervention')->with('success', "New Learning Intervention created successfully.");
     }
 
     public function edit($id) {

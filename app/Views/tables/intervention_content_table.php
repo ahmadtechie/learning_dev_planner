@@ -10,7 +10,7 @@
                 <tr>
                     <th>Intervention Name</th>
                     <th>Module Title</th>
-                    <th>Sub Topic</th>
+                    <th>Created At</th>
                     <th>Updated At</th>
                     <th>Action</th>
                 </tr>
@@ -27,7 +27,7 @@
                         <tr>
                             <td><?= $intervention['intervention_name'] ?></td>
                             <td><?= $content['module_title'] ?></td>
-                            <td><?= $content['sub_topic'] ?></td>
+                            <td><?= $content['created_at']  ?></td>
                             <td><?= $content['updated_at'] ?></td>
                             <td>
                                 <div class="btn-group">
