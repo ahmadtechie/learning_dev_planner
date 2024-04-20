@@ -15,20 +15,21 @@
                                 <th>Group Name</th>
                                 <th>Created At</th>
                                 <th>Updated At</th>
-                                <th></th>
+                                <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <?php if (!empty($departments) && is_array($departments)): ?>
+                            <?php use App\Models\GroupModel;
+
+                            if (!empty($departments) && is_array($departments)): ?>
                                 <?php foreach ($departments as $department): ?>
                                     <?php
-                                    $model = new \App\Models\GroupModel();
+                                    $model = new GroupModel();
                                     if ($department['group_id']) {
                                         $groupData = $model->find($department['group_id']);
                                         if ($groupData !== null && isset($groupData['group_name'])) {
                                             $group_name = $groupData['group_name'];
                                         } else {
-                                            // Handle the case where division data is not found or 'division_name' is not set
                                             $group_name = '-';
                                         }
                                     } else {
@@ -51,8 +52,8 @@
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item edit-btn"
                                                        href="<?= url_to('ldm.departments.edit', $department['id']) ?>">Edit</a>
-                                                    <a class="dropdown-item delete-btn"
-                                                       href="<?= url_to('ldm.departments.delete', $department['id']) ?>">Delete</a>
+                                                    <a class="dropdown-item"
+                                                       href="#" onclick="confirmDelete(<?= $department['id'] ?>)">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -70,13 +71,48 @@
 </section>
 
 <script>
-    $(function() {
+    function confirmDelete(departmentId) {
+        if (confirm("Are you sure you want to delete this department?")) {
+            window.location.href = "<?= url_to('ldm.departments.delete') ?>?department_id=" + departmentId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 3, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[3, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

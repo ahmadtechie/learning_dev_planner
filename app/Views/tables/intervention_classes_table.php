@@ -11,8 +11,9 @@
                         <table id="example1" class="table table-bordered table-striped interventionClassTable">
                             <thead>
                             <tr>
-                                <th>Intervention ID</th>
+                                <th>Learning Intervention</th>
                                 <th>Class Name</th>
+                                <th>Cycle Year</th>
                                 <th>Start Date</th>
                                 <th>End Date</th>
                                 <th>Venue</th>
@@ -21,15 +22,21 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <?php foreach ($interventionClasses as $class): ?>
-                                <?php
-                                $interventionModel = new \App\Models\LearningInterventionModel();
-                                $intervention = $interventionModel->find($class['intervention_id']);
-                                ?>
+                            <?php use App\Models\DevelopmentCycleModel;
+                            use App\Models\LearningInterventionModel;
 
+                            if (!empty($interventionClasses) && is_array($interventionClasses)):
+                            foreach ($interventionClasses as $class): ?>
+                                <?php
+                                $interventionModel = new LearningInterventionModel();
+                                $intervention = $interventionModel->find($class['intervention_id']);
+                                $cycleModel = new DevelopmentCycleModel();
+                                $cycle = $cycleModel->find($intervention['cycle_id']);
+                                ?>
                                 <tr>
                                     <td><?= $intervention['intervention_name'] ?></td>
                                     <td><?= $class['class_name']; ?></td>
+                                    <td><?= $cycle['cycle_year']; ?></td>
                                     <td><?= $class['start_date']; ?></td>
                                     <td><?= $class['end_date']; ?></td>
                                     <td><?= $class['venue']; ?></td>
@@ -44,12 +51,13 @@
                                                 <a class="dropdown-item"
                                                    href="<?= url_to('ldm.intervention.class.edit', $class['id']) ?>">Edit</a>
                                                 <a class="dropdown-item"
-                                                   href="<?= url_to('ldm.intervention.class.delete', $class['id']) ?>">Delete</a>
+                                                   href="#" onclick="confirmDelete(<?= $class['id'] ?>)">Delete</a>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
+                            <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -61,13 +69,48 @@
 </section>
 
 <script>
-    $(function() {
+    function confirmDelete(interventionClassId) {
+        if (confirm("Are you sure you want to delete intervention class?")) {
+            window.location.href = "<?= url_to('ldm.intervention.class.delete') ?>?intervention_class_id=" + interventionClassId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 5, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[0, "asc"], [6, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

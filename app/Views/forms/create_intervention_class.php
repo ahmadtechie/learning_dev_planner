@@ -35,11 +35,13 @@
                 <label for="intervention_id">Learning Intervention</label>
                 <select id="intervention_id" name="intervention_id" class="form-control" required>
                     <option value="">Select Intervention</option>
-                    <?php foreach ($interventions as $intervention): ?>
-                        <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_class) && $intervention_class['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
-                            <?= $intervention['intervention_name']  ?>
-                        </option>
-                    <?php endforeach; ?>
+                    <?php if (!empty($interventions)): ?>
+                        <?php foreach ($interventions as $intervention): ?>
+                            <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_class) && $intervention_class['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
+                                <?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id']  . ']' ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('intervention_id')) ? $validation->getError('intervention_id') : '' ?>
@@ -48,7 +50,9 @@
 
             <div class="form-group">
                 <label for="class_name">Class Name</label>
-                <input type="text" id="class_name" name="class_name" class="form-control" value="<?= isset($intervention_class) ? esc($intervention_class['class_name']) : set_value('class_name') ?>" required>
+                <input type="text" id="class_name" name="class_name" class="form-control"
+                       value="<?= isset($intervention_class) ? esc($intervention_class['class_name']) : set_value('class_name') ?>"
+                       required>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('class_name')) ? $validation->getError('class_name') : '' ?>
                 </span>
@@ -56,7 +60,9 @@
 
             <div class="form-group">
                 <label for="start_date">Start Date</label>
-                <input type="date" id="start_date" name="start_date" class="form-control" value="<?= isset($intervention_class) ? esc($intervention_class['start_date']) : set_value('start_date') ?>" required>
+                <input type="date" id="start_date" name="start_date" class="form-control"
+                       value="<?= isset($intervention_class) ? esc($intervention_class['start_date']) : set_value('start_date') ?>"
+                       required>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('start_date')) ? $validation->getError('start_date') : '' ?>
                 </span>
@@ -64,7 +70,9 @@
 
             <div class="form-group">
                 <label for="end_date">End Date</label>
-                <input type="date" id="end_date" name="end_date" class="form-control" value="<?= isset($intervention_class) ? esc($intervention_class['end_date']) : set_value('end_date') ?>" required>
+                <input type="date" id="end_date" name="end_date" class="form-control"
+                       value="<?= isset($intervention_class) ? esc($intervention_class['end_date']) : set_value('end_date') ?>"
+                       required>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('end_date')) ? $validation->getError('end_date') : '' ?>
                 </span>
@@ -72,7 +80,9 @@
 
             <div class="form-group">
                 <label for="venue">Venue</label>
-                <input type="text" id="venue" name="venue" class="form-control" value="<?= isset($intervention_class) ? esc($intervention_class['venue']) : set_value('venue') ?>" required>
+                <input type="text" id="venue" name="venue" class="form-control"
+                       value="<?= isset($intervention_class) ? esc($intervention_class['venue']) : set_value('venue') ?>"
+                       required>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('venue')) ? $validation->getError('venue') : '' ?>
                 </span>

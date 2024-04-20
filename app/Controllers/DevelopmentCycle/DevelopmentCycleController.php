@@ -89,14 +89,9 @@ class DevelopmentCycleController extends BaseController
         } elseif ($is_active_cycle_exists > 0 and $is_new_active == 1) {
             return redirect('ldm.cycle')->withInput()->with('error', "You can only have one active development cycle at a time. Deactivate previous cycle!");
         }
-        // Validation successful
         $validData = $this->validator->getValidated();
-
         $cycleModel->save($validData);
-
-        $session = Services::session();
-        $session->setFlashdata('success', "Development Cycle for {$validData['cycle_year']} set successfully.");
-        return redirect()->to(url_to('ldm.cycle'));
+        return redirect()->to(url_to('ldm.cycle'))->with('success', "Development Cycle for {$validData['cycle_year']} set successfully.");
     }
 
     public function edit($id)
@@ -129,8 +124,8 @@ class DevelopmentCycleController extends BaseController
         $this->data['userData'] = $this->request->userData;
         $cycleModel = new DevelopmentCycleModel();
         $this->validation['cycle_year']['rules'] = 'required|integer';
-        $is_active_cycle_exists = $cycleModel->where('is_active', 1)->countAllResults();
-        $this->data['is_active_cycle_exists'] = $is_active_cycle_exists;
+        $cycle_id = $this->request->getPost('cycle_id');
+        $is_active_cycle_exists = $cycleModel->where('is_active', 1)->whereNotIn('id', [$cycle_id])->countAllResults();
         $is_new_active = $this->request->getPost('is_active');
 
         if (!$this->validate($this->validation)) {
@@ -148,8 +143,6 @@ class DevelopmentCycleController extends BaseController
 
         $validData = $this->request->getPost();
         $cycleModel->update($id, $validData);
-        $session = Services::session();
-        $session->setFlashdata('success', "Cycle {$validData['cycle_year']} updated successfully.");
-        return redirect()->to(url_to('ldm.cycle'));
+        return redirect()->to(url_to('ldm.cycle'))->with('success', "Cycle {$validData['cycle_year']} updated successfully.");
     }
 }

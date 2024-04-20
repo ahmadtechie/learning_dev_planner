@@ -15,27 +15,26 @@
                                 <th>Division Name</th>
                                 <th>Created At</th>
                                 <th>Updated At</th>
-                                <th></th>
+                                <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <?php if (!empty($groups) && is_array($groups)): ?>
+                            <?php use App\Models\DivisionModel;
+
+                            if (!empty($groups) && is_array($groups)): ?>
                                 <?php foreach ($groups as $group): ?>
                                     <?php
-                                    $model = new \App\Models\DivisionModel();
+                                    $model = new DivisionModel();
                                     if ($group['division_id']) {
                                         $divisionData = $model->find($group['division_id']);
                                         if ($divisionData !== null && isset($divisionData['division_name'])) {
                                             $division_name = $divisionData['division_name'];
                                         } else {
-                                            // Handle the case where division data is not found or 'division_name' is not set
-                                            $division_name = 'Unknown Division';
+                                            $division_name = '-';
                                         }
                                     } else {
-                                        // Handle the case where 'division_id' is not set
-                                        $division_name = 'No Division';
+                                        $division_name = '-';
                                     }
-//                                    $division_name = $model->find($group['division_id'])['division_name'];
                                     ?>
                                     <tr>
                                         <td><?= $group['group_name']; ?></td>
@@ -54,7 +53,7 @@
                                                     <a class="dropdown-item edit-btn"
                                                        href="<?= url_to('ldm.groups.edit', $group['id']) ?>">Edit</a>
                                                     <a class="dropdown-item delete-btn"
-                                                       href="<?= url_to('ldm.groups.delete', $group['id']) ?>">Delete</a>
+                                                       href="#" onclick="confirmDelete(<?= $group['id'] ?>)">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -72,13 +71,48 @@
 </section>
 
 <script>
-    $(function() {
+    function confirmDelete(groupId) {
+        if (confirm("Are you sure you want to delete this group?")) {
+            window.location.href = "<?= url_to('ldm.groups.delete') ?>?group_id=" + groupId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 3, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[3, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

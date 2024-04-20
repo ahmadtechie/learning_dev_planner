@@ -107,6 +107,17 @@ class EmployeeModel extends Model
             ->findAll();
     }
 
+    public function getEmployeesForLineManagerRating($loggedInLineMngId): array
+    {
+        return $this
+            ->select('employee.*, user.*, employee.id AS employee_id, employee.updated_at AS last_rating_updated_at')
+            ->join('user', 'user.id = employee.user_id')
+            ->join('development_rating', 'development_rating.employee_id = employee.id', 'left')
+            ->where('employee.line_manager_id', $loggedInLineMngId)
+            ->groupBy('employee.id')
+            ->findAll();
+    }
+
     public function getEmployeesUnderLineManager(int $lineManagerId): array
     {
         return $this->select('employee.id AS employee_id, employee.*, user.*')

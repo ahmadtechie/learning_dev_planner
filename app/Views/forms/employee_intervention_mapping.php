@@ -10,30 +10,20 @@
             include(APPPATH . 'Views/includes/message.php'); ?>
             <?= form_open(url_to('ldm.intervention.map.create')) ?>
             <div class="form-group">
-                <label for="employee_ids">Select Employees <span>*</span></label>
-                <select id="employee_ids" data-placeholder="Select employees" name="employee_ids[]" multiple="multiple"
-                        required style="width: 100%; height: 150px">
-                    <?php if (!empty($employees) && is_array($employees)): ?>
-                        <?php foreach ($employees as $employee): ?>
-                            <?php
-                            $isSelected = false;
-                            if (!empty($selected_employees) && is_array($selected_employees)) {
-                                foreach ($selected_employees as $selected_employee) {
-                                    if ($employee['id'] == $selected_employee['id']) {
-                                        $isSelected = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            ?>
-                            <option value="<?= $employee['employee_id'] ?>" <?= set_select('employee_ids[]', $employee['id'], $isSelected) ?>>
-                                <?= "{$employee['first_name']} {$employee['last_name']} [{$employee['username']}]" ?>
+                <label for="cycle_id">Development Cycle</label>
+                <select id="cycle_id" name="cycle_id" class="form-control" required>
+                    <option value="">Select Cycle</option>
+                    <?php if (!empty($cycles) && is_array($cycles)): ?>
+                        <?php foreach ($cycles as $cycle): ?>
+                            <option value="<?= $cycle['id'] ?>" <?= (isset($intervention) && $intervention['cycle_id'] == $cycle['id']) ? 'selected' : '' ?>>
+                                <?= $cycle['cycle_year'] ?>
                             </option>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-
+                    <?php endif ?>
                 </select>
-                <span class="text-danger"><?= isset($validation) && $validation->hasError('employee_ids[]') ? $validation->getError('employee_ids[]') : '' ?></span>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('cycle_id')) ? $validation->getError('cycle_id') : '' ?>
+                </span>
             </div>
             <div class="form-group">
                 <label for="intervention_id">Learning Intervention <span>*</span></label>
@@ -58,6 +48,58 @@
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('intervention_id')) ? $validation->getError('intervention_id') : '' ?>
                 </span>
+            </div>
+            <div class="form-group">
+                <label for="class_ids">Select Classes <span>*</span></label>
+                <select id="class_ids" class="select2" data-placeholder="Select classes" name="class_ids[]" multiple="multiple"
+                        required style="width: 100%; height: 150px">
+                    <?php if (!empty($classes) && is_array($classes)): ?>
+                        <?php foreach ($classes as $class): ?>
+                            <?php
+                            $isSelected = false;
+                            if (!empty($selected_classes) && is_array($selected_classes)) {
+                                foreach ($selected_classes as $selected_class) {
+                                    if ($class['id'] == $selected_class['id']) {
+                                        $isSelected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            ?>
+                            <option value="<?= $class['id'] ?>" <?= set_select('class_ids[]', $class['id'], $isSelected) ?>>
+                                <?= $class['class_name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+
+                </select>
+                <span class="text-danger"><?= isset($validation) && $validation->hasError('class_ids[]') ? $validation->getError('class_ids[]') : '' ?></span>
+            </div>
+            <div class="form-group">
+                <label for="employee_ids">Select Employees <span>*</span></label>
+                <select id="employee_ids"  data-placeholder="Select employees" name="employee_ids[]" multiple="multiple"
+                        required style="width: 100%; height: 150px">
+                    <?php if (!empty($employees) && is_array($employees)): ?>
+                        <?php foreach ($employees as $employee): ?>
+                            <?php
+                            $isSelected = false;
+                            if (!empty($selected_employees) && is_array($selected_employees)) {
+                                foreach ($selected_employees as $selected_employee) {
+                                    if ($employee['id'] == $selected_employee['id']) {
+                                        $isSelected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            ?>
+                            <option value="<?= $employee['employee_id'] ?>" <?= set_select('employee_ids[]', $employee['id'], $isSelected) ?>>
+                                <?= "{$employee['first_name']} {$employee['last_name']} [{$employee['username']}]" ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+
+                </select>
+                <span class="text-danger"><?= isset($validation) && $validation->hasError('employee_ids[]') ? $validation->getError('employee_ids[]') : '' ?></span>
             </div>
             <div class="item form-group">
                 <div class="col-md-6 col-sm-6 offset-md-3">

@@ -4,19 +4,19 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class AlterEmployeeInterventionsMapping extends Migration
+class AlterEmployeeInterventionAddCycleId extends Migration
 {
     public function up()
     {
         $fields = [
-            'class_id' => [
+            'cycle_id' => [
                 'type' => 'INT',
                 'unsigned' => true,
                 'null' => true,
             ],
         ];
         $this->forge->addColumn('employee_interventions', $fields);
-        $this->forge->addForeignKey('class_id', 'intervention_class', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('cycle_id', 'development_cycle', 'id', 'CASCADE', 'CASCADE');
     }
 
     public function down()

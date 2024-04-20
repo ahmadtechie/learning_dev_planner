@@ -39,31 +39,6 @@ class UserModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function verifyEmail($email)
-    {
-        $builder = $this->db->table( 'user' );
-        $builder->select( 'id,is_admin,password' );
-        $builder->where( 'email', $email );
-        $result = $builder->get();
-        if ($result->getNumRows() == 1) {
-            return $result->getRow();
-        } else {
-            return false;
-        }
-    }
-
-    public function userLoggedIn($id)
-    {
-        $builder = $this->db->table('user');
-        $builder->where('id',$id);
-        $result = $builder->get();
-        if ($result->getNumRows()==1){
-            return $result->getRow();
-        }else{
-            return false;
-        }
-    }
-
     /**
      * @throws \ReflectionException
      */
@@ -78,5 +53,22 @@ class UserModel extends Model
 
         // Restore the soft-deleted employee by setting the 'deleted_at' field to NULL
         return $this->update($userId, ['deleted_at' => null]);
+    }
+
+    public function generateUniqueRandomUsername(): string
+    {
+        do {
+            $randomNumber = str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            $username = 'LD' . $randomNumber;
+            $existingUser = $this->where('username', $username)->first();
+        } while ($existingUser);
+
+        return $username;
+    }
+
+    public function generateRandomPassword($length = 8)
+    {
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return substr(str_shuffle($chars), 0, $length);
     }
 }

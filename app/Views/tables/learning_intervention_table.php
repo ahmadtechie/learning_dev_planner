@@ -21,7 +21,6 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <!-- Loop through learning interventions and populate table rows -->
                             <?php use App\Models\CompetencyModel;
                             use App\Models\DevelopmentCycleModel;
                             use App\Models\InterventionTypeModel;
@@ -43,19 +42,18 @@
                                     <tr>
                                         <td><?= $intervention['intervention_name'] ?></td>
                                         <td><?= $trainer['first_name'] . ' ' . $trainer['last_name'] ?></td>
-                                        <td><?= $competency['competency_name'] ?></td>
+                                        <td><?php if($competency) echo $competency['competency_name']; else echo '-' ?></td>
                                         <td><?= $cycle['cycle_year'] ?></td>
-                                        <td><?= $intervention_type['name']; ?></td>
+                                        <td><?php if ($intervention_type) echo $intervention_type['name']; else echo '-'?></td>
                                         <td><?= $intervention['cost']; ?></td>
                                         <td>
-                                            <!-- Add action buttons for editing and deleting -->
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     Action
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item" href="<?= url_to('ldm.learning.intervention.edit', $intervention['id']) ?>">Edit</a>
-                                                    <a class="dropdown-item" href="<?= url_to('ldm.learning.intervention.delete', $intervention['id']) ?>">Delete</a>
+                                                    <a class="dropdown-item" href="#" onclick="confirmDelete(<?= $intervention['id'] ?>)">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -73,13 +71,48 @@
 </section>
 
 <script>
-    $(function() {
+    function confirmDelete(learningInterventionId) {
+        if (confirm("Are you sure you want to delete this learning intervention?")) {
+            window.location.href = "<?= url_to('ldm.learning.intervention.delete') ?>?learning_intervention_id=" + learningInterventionId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 3, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[3, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

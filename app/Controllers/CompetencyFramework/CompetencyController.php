@@ -7,6 +7,7 @@ use App\Models\CompetencyModel;
 use App\Models\JobModel;
 use CodeIgniter\Config\Services;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use CodeIgniter\HTTP\RedirectResponse;
 use ReflectionException;
 
 helper(['form', 'url']);
@@ -14,6 +15,7 @@ helper(['form', 'url']);
 class CompetencyController extends BaseController
 {
     public array $data;
+    public CompetencyModel $competencyModel;
     public array $validation = [
         'competency_name' => [
             'rules' => 'required|min_length[3]|validateCompetencyUnique[competency.competency_name]',
@@ -33,8 +35,8 @@ class CompetencyController extends BaseController
 
     function __construct()
     {
-        $model = new CompetencyModel();
-        $competencies = $model->orderBy('created_at', 'DESC')->findAll();
+        $this->competencyModel = new CompetencyModel();
+        $competencies = $this->competencyModel->orderBy('created_at', 'DESC')->findAll();
 
         $this->data = [
             'title' => 'Competency Page | LD Planner',
@@ -60,12 +62,9 @@ class CompetencyController extends BaseController
     public function create()
     {
         $this->data['userData'] = $this->request->userData;
-        $jobModel = new CompetencyModel();
-
         $this->data['title'] = 'Create Competency | LD Planner';
 
         if (!$this->validate($this->validation)) {
-            // Validation failed
             $validation = ['validation' =>$this->validator];
             return view('includes/head', $this->data) .
                 view('includes/navbar') .
@@ -74,26 +73,17 @@ class CompetencyController extends BaseController
                 view('forms/create_competency', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-        // Validation successful
         $validData = $this->validator->getValidated();
-
-        $jobModel->save($validData);
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Competency {$validData['competency_name']} created successfully.");
-        return redirect()->to(url_to('ldm.competencies'));
+        $this->competencyModel->save($validData);
+        return redirect()->to(url_to('ldm.competencies'))->with('success', "Competency {$validData['competency_name']} created successfully.");
     }
 
-    public function edit($id)
+    public function edit($competency_id)
     {
         $this->data['userData'] = $this->request->userData;
-
-        $competencyModel = new CompetencyModel();
-        $competency = $competencyModel->find($id);
-
-
+        $competency = $this->competencyModel->find($competency_id);
         if ($competency === null) {
-            throw new PageNotFoundException("Competency with ID $id not found.");
+            throw new PageNotFoundException("Competency with ID $competency_id not found.");
         }
 
         $this->data['title'] = 'Edit Competency | LD Planner';
@@ -107,15 +97,15 @@ class CompetencyController extends BaseController
             view('includes/footer');
     }
 
-    public function update($id)
+    /**
+     * @throws ReflectionException
+     */
+    public function update($competency_id)
     {
         $this->data['userData'] = $this->request->userData;
-
-        $competencyModel = new CompetencyModel();
         $this->validation['competency_name']['rules'] = 'required|min_length[3]';
 
         if (!$this->validate($this->validation)) {
-            // Validation failed
             $validation = ['validation' => $this->validator];
 
             return view('includes/head', $this->data) .
@@ -126,24 +116,16 @@ class CompetencyController extends BaseController
                 view('includes/footer');
         }
 
-        // Validation successful
         $validData = $this->request->getPost();
-
-        $competencyModel->update($id, $validData);
-        $session = \Config\Services::session();
-            $session->setFlashdata('success', "Competency {$validData['competency_name']} edited successfully.");
-        return redirect()->to(url_to('ldm.competencies'));
+        $this->competencyModel->update($competency_id, $validData);
+        return redirect()->to(url_to('ldm.competencies'))->with("success", "Competency {$validData['competency_name']} edited successfully.");
     }
 
-    public function delete($id)
+    public function delete(): RedirectResponse
     {
         $this->data['userData'] = $this->request->userData;
-        $jobModel = new JobModel();
-        $jobModel->delete($id);
-        $session = \Config\Services::session();
-        $session->setFlashdata('deleted', "Competency deleted successfully.");
-        return redirect()->to(url_to('ldm.competencies'));
+        $competency_id = $this->request->getVar('content_id');
+        $this->competencyModel->delete($competency_id);
+        return redirect()->to(url_to('ldm.competencies'))->with('deleted', "Competency deleted successfully.");
     }
-
-
 }

@@ -51,7 +51,7 @@
                                                     <a class="dropdown-item edit-btn"
                                                        href="<?= url_to('ldm.units.edit', $unit['id']) ?>">Edit</a>
                                                     <a class="dropdown-item delete-btn"
-                                                       href="<?= url_to('ldm.units.delete', $unit['id']) ?>">Delete</a>
+                                                       href="#" onclick="confirmDelete(<?= $unit['id']?>)">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -69,13 +69,48 @@
 </section>
 
 <script>
-    $(function() {
+    function confirmDelete(unitId) {
+        if (confirm("Are you sure you want to delete this unit?")) {
+            window.location.href = "<?= url_to('ldm.units.delete') ?>?unit_id=" + unitId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 3, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[3, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

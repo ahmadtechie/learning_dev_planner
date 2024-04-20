@@ -5,6 +5,8 @@ namespace App\Controllers\OrgStructure;
 use App\Controllers\BaseController;
 use App\Models\UnitModel;
 use App\Models\DepartmentModel;
+use CodeIgniter\HTTP\RedirectResponse;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Model;
 
 helper(['form']);
@@ -12,6 +14,8 @@ helper(['form']);
 class UnitController extends BaseController
 {
     public array $data;
+    public UnitModel $unitModel;
+    public DepartmentModel $departmentModel;
     public array $validation = [
         'unit_name' => [
             'rules' => 'required|min_length[3]|validateUnitUnique[unit.unit_name]',
@@ -34,10 +38,10 @@ class UnitController extends BaseController
             'title' => 'Unit Page | LD Planner',
             'page_name' => 'units',
         ];
-        $departmentModel = model(DepartmentModel::class);
-        $unitModel = model(UnitModel::class);
-        $this->data['departments'] = $departmentModel->orderBy('created_at', 'DESC')->findAll();
-        $this->data['units'] = $unitModel->orderBy('created_at', 'DESC')->findAll();
+        $this->departmentModel = model(DepartmentModel::class);
+        $this->unitModel = model(UnitModel::class);
+        $this->data['departments'] = $this->departmentModel->orderBy('created_at', 'DESC')->findAll();
+        $this->data['units'] = $this->unitModel->orderBy('created_at', 'DESC')->findAll();
     }
 
     public function index(): string
@@ -52,10 +56,12 @@ class UnitController extends BaseController
             view('includes/footer');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function create()
     {
         $this->data['userData'] = $this->request->userData;
-        $model = model(UnitModel::class);
 
         if (!$this->validate($this->validation)) {
             $validation = ['validation' =>$this->validator];
@@ -66,30 +72,17 @@ class UnitController extends BaseController
                 view('forms/create_unit', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-
-        // Validation successful
         $validData = $this->validator->getValidated();
-        $model->save($validData);
+        $this->unitModel->save($validData);
 
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Unit {$validData['unit_name']} created successfully.");
-
-        return redirect('ldm.units');
+        return redirect('ldm.units')->with('success', "Unit {$validData['unit_name']} created successfully.");
     }
 
-    public function edit($id)
+    public function edit($id): string
     {
         $this->data['userData'] = $this->request->userData;
-
-        $unitModel = model(UnitModel::class);
-        $unit = $unitModel->find($id);
-
-        $this->data['unit'] = $unit;
+        $this->data['unit'] = $this->unitModel->find($id);
         $this->data['title'] = 'Unit Page | Edit Unit';
-
-        if ($unit === null) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Unit with ID $id not found.");
-        }
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
@@ -99,10 +92,12 @@ class UnitController extends BaseController
             view('includes/footer');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function update($id)
     {
         $this->data['userData'] = $this->request->userData;
-        $model = new UnitModel();
         $this->validation['unit_name']['rules'] = 'required|min_length[3]';
 
         if (!$this->validate($this->validation)) {
@@ -114,16 +109,12 @@ class UnitController extends BaseController
                 view('forms/create_unit', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-
         $validData = $this->request->getPost();
-        $model->update($id, $validData);
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Unit {$validData['unit_name']} edited successfully.");
-        return redirect('ldm.units.create');
+        $this->unitModel->update($id, $validData);
+        return redirect('ldm.units.create')->with('success', "Unit {$validData['unit_name']} edited successfully.");
     }
 
-    public function allUnits(): \CodeIgniter\HTTP\ResponseInterface
+    public function allUnits(): ResponseInterface
     {
         $unitModel = new UnitModel();
         $department_id = $this->request->getPost('department_id');
@@ -140,15 +131,11 @@ class UnitController extends BaseController
         return $this->response->setJSON($formattedUnits);
     }
 
-    public function delete($id)
+    public function delete(): RedirectResponse
     {
         $this->data['userData'] = $this->request->userData;
-        $model = new UnitModel();
-        $model->delete($id);
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('deleted', "Unit deleted successfully.");
-
-        return redirect('ldm.units');
+        $unit_id = $this->request->getVar('unit_id');
+        $this->unitModel->delete($unit_id);
+        return redirect()->to(url_to('ldm.units'))->with( 'deleted', "Unit deleted successfully.");
     }
 }

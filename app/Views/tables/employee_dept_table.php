@@ -15,13 +15,13 @@
                                 <th>Department</th>
                                 <th>Unit</th>
                                 <th>Updated At</th>
-                                </tr>
+                            </tr>
                             </thead>
                             <tbody>
                             <?php if (!empty($employees) && is_array($employees)): ?>
                                 <?php foreach ($employees as $employee): ?>
                                     <tr>
-                                        <td><?= "{$employee['first_name']} {$employee['last_name']} [{$employee['username']}]"  ?></td>
+                                        <td><?= "{$employee['first_name']} {$employee['last_name']} [{$employee['username']}]" ?></td>
                                         <td><?= $employee['department_name']; ?></td>
                                         <td><?= $employee['unit_name']; ?></td>
                                         <td><?= $employee['updated_at']; ?></td>
@@ -43,13 +43,40 @@
 </section>
 
 <script>
-    $(function() {
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 3, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[3, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

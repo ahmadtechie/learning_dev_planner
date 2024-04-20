@@ -23,8 +23,7 @@
     $.widget.bridge('uibutton', $.ui.button)
 </script>
 <!-- Bootstrap 4 -->
-<script src="<?php echo base_url("plugins/bootstrap/js/bootstrap.bundle.min.js") ?>">
-</script>
+<script src="<?php echo base_url("plugins/bootstrap/js/bootstrap.bundle.min.js") ?>"></script>
 <!-- ChartJS -->
 <script src="<?php echo base_url("plugins/chart.js/Chart.min.js"); ?>"></script>
 <!-- Sparkline -->
@@ -367,6 +366,62 @@
     // DropzoneJS Demo Code End
 </script>
 
+<script>
+    $(document).ready(function() {
+        $('#cycle_id').on('change', function() {
+            updateInterventions($(this).val());
+        });
 
+        $('#intervention_id').on('change', function() {
+            updateClasses($(this).val());
+        });
+    });
+
+    function updateInterventions(cycleId) {
+        $.ajax({
+            url: 'http://localhost:8080/ldm/intervention/fetch-interventions/',
+            method: 'POST',
+            data: { cycle_id: cycleId },
+            success: function(data) {
+                $('#intervention_id').html(data);
+                $('#intervention_id').trigger('change');
+            }
+        });
+    }
+
+    // Function to update classes based on intervention_id
+    function updateClasses(interventionId) {
+        $.ajax({
+            url: 'http://localhost:8080/ldm/intervention/fetch-classes/',
+            method: 'POST',
+            data: { intervention_id: interventionId },
+            success: function(data) {
+                $('#class_ids').html(data);
+                $('#class_ids').select2();
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('#intervention_id').on('change', function() {
+            updateEmployees();
+        });
+    });
+
+    function updateEmployees() {
+        let interventionId = $('#intervention_id').val();
+        $.ajax({
+            url: 'http://localhost:8080/ldm/intervention/fetch-employees/',
+            method: 'POST',
+            data: {
+                intervention_id: interventionId,
+            },
+            success: function(data) {
+                console.log(data)
+                $('#employee_ids').html(data);
+            }
+        });
+    }
+</script>
 </body>
 </html>

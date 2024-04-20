@@ -14,16 +14,16 @@
                                 <th>Job Title</th>
                                 <th>Competencies</th>
                                 <th>Updated At</th>
-                                <th></th>
+                                <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
                             <?php if (!empty($jobCompetencies) && is_array($jobCompetencies)): ?>
-                                <?php foreach ($jobCompetencies as $job): ?>
+                                <?php foreach ($jobCompetencies as $jobCompetency): ?>
                                     <tr>
-                                        <td><?= $job['job_title'] ?></td>
-                                        <td><?= $job['competencies'] ?></td>
-                                        <td><?= $job['updated_at']; ?></td>
+                                        <td><?= $jobCompetency['job_title'] ?></td>
+                                        <td><?= $jobCompetency['competencies'] ?></td>
+                                        <td><?= $jobCompetency['updated_at']; ?></td>
                                         <td>
                                             <div class="btn-group">
                                                 <button type="button"
@@ -34,9 +34,9 @@
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item edit-btn"
-                                                       href="<?= url_to('ldm.competencies.mapping.edit', $job['job_id']) ?>">Edit</a>
+                                                       href="<?= url_to('ldm.competencies.mapping.edit', $jobCompetency['job_id']) ?>">Edit</a>
                                                     <a class="dropdown-item delete-btn"
-                                                       href="<?= url_to('ldm.competencies.mapping.delete', $job['job_id']) ?>">Delete</a>
+                                                       href="#" onclick="confirmDelete(<?= $jobCompetency['job_id'] ?>)">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -58,13 +58,48 @@
 </section>
 
 <script>
-    $(function() {
+    function confirmDelete(jobId) {
+        if (confirm("Are you sure you want to delete this job-competencies?")) {
+            window.location.href = "<?= url_to('ldm.competencies.mapping.delete') ?>?job_id=" + jobId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 3, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[2, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

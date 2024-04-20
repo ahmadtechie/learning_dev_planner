@@ -48,11 +48,13 @@
                 <label for="trainer_id">Trainer/Provider</label>
                 <select id="trainer_id" name="trainer_id" class="form-control" required>
                     <option value="">Select Trainer</option>
-                    <?php foreach ($trainers as $trainer): ?>
-                        <option value="<?= $trainer['employee_id'] ?>" <?= (isset($intervention) && $intervention['trainer_id'] == $trainer['trainer_id']) ? 'selected' : '' ?>>
-                            <?= $trainer['first_name']  . ' ' . $trainer['last_name'] ?>
-                        </option>
-                    <?php endforeach; ?>
+                    <?php if (!empty($trainers)): ?>
+                        <?php foreach ($trainers as $trainer): ?>
+                            <option value="<?= $trainer['employee_id'] ?>" <?= (isset($intervention) && $intervention['trainer_id'] == $trainer['employee_id']) ? 'selected' : '' ?>>
+                                <?= $trainer['first_name']  . ' ' . $trainer['last_name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('trainer_id')) ? $validation->getError('trainer_id') : '' ?>
@@ -63,11 +65,13 @@
                 <label for="competency_id">Competency</label>
                 <select id="competency_id" name="competency_id" class="form-control" required>
                     <option value="">Select Competency</option>
-                    <?php foreach ($competencies as $competency): ?>
-                        <option value="<?= $competency['id'] ?>" <?= (isset($intervention) && $intervention['competency_id'] == $competency['id']) ? 'selected' : '' ?>>
-                            <?= $competency['competency_name'] ?>
-                        </option>
-                    <?php endforeach; ?>
+                    <?php if (!empty($competencies)): ?>
+                        <?php foreach ($competencies as $competency): ?>
+                            <option value="<?= $competency['id'] ?>" <?= (isset($intervention) && $intervention['competency_id'] == $competency['id']) ? 'selected' : '' ?>>
+                                <?= $competency['competency_name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('competency_id')) ? $validation->getError('competency_id') : '' ?>
@@ -78,26 +82,29 @@
                 <label for="cycle_id">Development Cycle</label>
                 <select id="cycle_id" name="cycle_id" class="form-control" required>
                     <option value="">Select Cycle</option>
-                    <?php foreach ($cycles as $cycle): ?>
-                        <option value="<?= $cycle['id'] ?>" <?= (isset($intervention) && $intervention['cycle_id'] == $cycle['id']) ? 'selected' : '' ?>>
-                            <?= $cycle['cycle_year'] ?>
-                        </option>
-                    <?php endforeach; ?>
+                    <?php if (!empty($cycles)): ?>
+                        <?php foreach ($cycles as $cycle): ?>
+                            <option value="<?= $cycle['id'] ?>" <?= (isset($intervention) && $intervention['cycle_id'] == $cycle['id']) ? 'selected' : '' ?>>
+                                <?= $cycle['cycle_year'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('cycle_id')) ? $validation->getError('cycle_id') : '' ?>
                 </span>
             </div>
-
             <div class="form-group">
                 <label for="intervention_type_id">Intervention Type</label>
                 <select id="intervention_type_id" name="intervention_type_id" class="form-control" required>
                     <option value="">Select Intervention Type</option>
-                    <?php foreach ($intervention_types as $intervention_type): ?>
-                        <option value="<?= $intervention_type['id'] ?>" <?= (isset($intervention) && $intervention['intervention_type_id'] == $intervention_type['id']) ? 'selected' : '' ?>>
-                            <?= $intervention_type['name'] ?>
-                        </option>
-                    <?php endforeach; ?>
+                    <?php if (!empty($intervention_types)): ?>
+                        <?php foreach ($intervention_types as $intervention_type): ?>
+                            <option value="<?= $intervention_type['id'] ?>" <?= (isset($intervention) && $intervention['intervention_type_id'] == $intervention_type['id']) ? 'selected' : '' ?>>
+                                <?= $intervention_type['name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif ?>
                 </select>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('intervention_type_id')) ? $validation->getError('intervention_type_id') : '' ?>

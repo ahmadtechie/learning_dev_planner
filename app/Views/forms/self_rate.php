@@ -45,9 +45,11 @@
                                         <label for="competency<?php echo $i; ?>">Competency <?php echo $i; ?> <span>*</span></label>
                                         <select class="form-control competency-select" id="competency<?php echo $i; ?>" name="competency<?php echo $i; ?>" required>
                                             <option value="">Select Competency</option>
-                                            <?php foreach ($competencies as $competency): ?>
-                                                <option value="<?php echo $competency['id']; ?>"><?php echo $competency['competency_name']; ?></option>
-                                            <?php endforeach; ?>
+                                            <?php if (!empty($competencies)): ?>
+                                                <?php foreach ($competencies as $competency): ?>
+                                                    <option value="<?php echo $competency['id']; ?>"><?php echo $competency['competency_name']; ?></option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6">

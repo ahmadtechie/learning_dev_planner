@@ -7,6 +7,8 @@ use App\Models\DepartmentModel;
 use App\Models\GroupModel;
 
 use CodeIgniter\Config\Services;
+use CodeIgniter\Exceptions\PageNotFoundException;
+use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Model;
 
 helper(['form']);
@@ -14,6 +16,8 @@ helper(['form']);
 class DepartmentController extends BaseController
 {
     public array $data;
+    public DepartmentModel $departmentModel;
+    public GroupModel $groupModel;
     public array $validation = [
         'department_name' => [
             'rules' => 'required|min_length[3]|validateDepartmentUnique[department.department_name]',
@@ -23,25 +27,18 @@ class DepartmentController extends BaseController
                 'validateDepartmentUnique' => 'A department with this name already registered'
             ]
         ],
-//        'group_id' => [
-//            'rules' => 'required|integer',
-//            'errors' => [
-//                'integer' => 'A group must be selected!',
-//            ],
-//        ]
+        'group_id' => "permit_empty|integer"
     ];
 
-    function __construct() {
-        $departmentModel = model(DepartmentModel::class);
-        $departments = $departmentModel->orderBy('created_at', 'DESC')->findAll();
-
-        $groupModel = model(GroupModel::class);
-        $groups = $groupModel->orderBy('created_at', 'DESC')->findAll();
+    function __construct()
+    {
+        $this->departmentModel = model(DepartmentModel::class);
+        $this->groupModel = model(GroupModel::class);
 
         $this->data = [
             'title' => 'Department Page | LD Planner',
-            'departments' => $departments,
-            'groups' => $groups,
+            'departments' => $this->departmentModel->orderBy('created_at', 'DESC')->findAll(),
+            'groups' => $this->groupModel->orderBy('created_at', 'DESC')->findAll(),
             'page_name' => 'departments',
         ];
     }
@@ -57,14 +54,14 @@ class DepartmentController extends BaseController
             view('includes/footer');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function create()
     {
         $this->data['userData'] = $this->request->userData;
-
-        $departmentModel = model(DepartmentModel::class);
-
         if (!$this->validate($this->validation)) {
-            $validation = ['validation' =>$this->validator];
+            $validation = ['validation' => $this->validator];
             return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .
@@ -72,59 +69,35 @@ class DepartmentController extends BaseController
                 view('forms/create_department', array_merge($validation, $this->data)) .
                 view('includes/footer');
         }
-        // Validation successful
         $validData = $this->validator->getValidated();
-
-        try {
-            $departmentModel->save($validData);
-            $session = \Config\Services::session();
-            $session->setFlashdata('success', "Department {$validData['department_name']} created successfully.");
-            return redirect()->to(url_to('ldm.departments'));
-        } catch (\Exception $e) {
-            if ($e->getCode() == 1062) {
-                $validation = ['validation' => $this->validator];
-
-                return view('includes/head', $this->data) .
-                    view('includes/navbar') .
-                    view('includes/sidebar') .
-                    view('includes/mini_navbar', $this->data) .
-                    view('forms/create_department', array_merge($validation, $this->data)) .
-                    view('includes/footer');
-            } else {
-                throw $e;
-            }
-        }
+        $this->departmentModel->save($validData);
+        return redirect()->to(url_to('ldm.departments', 'success', "Department {$validData['department_name']} created successfully."));
     }
 
-    public function edit($id)
+    public function edit($id): string
     {
         $this->data['userData'] = $this->request->userData;
-
-        $departmentModel = model(DepartmentModel::class);
-        $department = $departmentModel->find($id);
-
+        $this->data['department'] = $this->departmentModel->find($id);
         $this->data['title'] = 'LD Planner | Edit Department';
-
-        if ($department === null) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Department with ID $id not found.");
-        }
 
         return view('includes/head') .
             view('includes/navbar') .
             view('includes/sidebar') .
-            view('includes/mini_navbar', $this->data + ['department' => $department]) .
-            view('forms/create_department', $this->data + ['department' => $department]) .
+            view('includes/mini_navbar', $this->data) .
+            view('forms/create_department', $this->data) .
             view('includes/footer');
     }
 
-    public function update($id)
+    /**
+     * @throws \ReflectionException
+     */
+    public function update($department_id)
     {
         $this->data['userData'] = $this->request->userData;
-        $departmentModel = new DepartmentModel();
 
         $this->validation['department_name']['rules'] = 'required|min_length[3]';
         if (!$this->validate($this->validation)) {
-            $validation = ['validation' =>$this->validator];
+            $validation = ['validation' => $this->validator];
             return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .
@@ -133,35 +106,16 @@ class DepartmentController extends BaseController
                 view('includes/footer');
         }
         $validData = $this->request->getPost();
-
-        try {
-            $departmentModel->update($id, $validData);
-            $session = \Config\Services::session();
-            $session->setFlashdata('success', "Department {$validData['department_name']} edited successfully.");
-            return redirect()->to(url_to('ldm.departments'));
-        } catch (\Exception $e) {
-            if ($e->getCode() == 1062) {
-                $validation = ['validation' =>$this->validator];
-                return view('includes/head') .
-                    view('includes/navbar') .
-                    view('includes/sidebar') .
-                    view('includes/mini_navbar', $this->data) .
-                    view('forms/create_department', array_merge($this->data, $validation)) .
-                    view('includes/footer');
-            } else {
-                throw $e;
-            }
-        }
+        $this->departmentModel->update($department_id, $validData);
+        return redirect()->to(url_to('ldm.departments'))->with('success', "Department {$validData['department_name']} edited successfully.");
     }
 
-    public function delete($id)
+    public function delete(): RedirectResponse
     {
         $this->data['userData'] = $this->request->userData;
-        $model = new DepartmentModel();
-        $model->delete($id);
-        $session = \Config\Services::session();
-        $session->setFlashdata('deleted', "Department deleted successfully.");
-        return redirect()->to(url_to('ldm.departments'));
+        $department_id = $this->request->getVar('department_id');
+        $this->departmentModel->delete($department_id);
+        return redirect()->to(url_to('ldm.departments'))->with('deleted', "Department deleted successfully.");
     }
 }
 

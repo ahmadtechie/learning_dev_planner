@@ -10,6 +10,7 @@ use App\Models\EmailTemplateModel;
 use App\Models\EmployeeModel;
 use App\Models\SiteSettingsModel;
 use App\Models\UserModel;
+use CodeIgniter\HTTP\RedirectResponse;
 use Couchbase\User;
 
 helper(['form', 'url']);
@@ -18,6 +19,11 @@ helper(['form', 'url']);
 class EmployeeInviteController extends BaseController
 {
     public array $data;
+    public UserModel $userModel;
+    public DevelopmentCycleModel $devCycleModel;
+    public EmployeeModel $employeeModel;
+    public EmailLogModel $emailLogsModel;
+    public EmailTemplateModel $emailTemplateModel;
     public array $validation = [
         'employee_ids' => [
             'rules' => 'required',
@@ -34,20 +40,21 @@ class EmployeeInviteController extends BaseController
     ];
 
     function __construct() {
-        $devCycleModel = model(DevelopmentCycleModel::class);
-        $employeeModel = model(EmployeeModel::class);
-        $emailLogsModel = model(EmailLogModel::class);
+        $this->devCycleModel = model(DevelopmentCycleModel::class);
+        $this->employeeModel = model(EmployeeModel::class);
+        $this->emailLogsModel = model(EmailLogModel::class);
+        $this->userModel = model(UserModel::class);
 
         $this->data = [
             'title' => 'Dev Cycle Invite | LD Planner',
             'page_name' => 'Dev Cycle Invite',
-            'cycles' => array($devCycleModel->orderBy('created_at', 'DESC')->where('is_active', true)->first()),
-            'employees' => $employeeModel->getAllEmployeesWithUserDetails(),
-            'email_logs' => $emailLogsModel->where('type', 'cycle_invite')->findAll(),
+            'cycles' => array($this->devCycleModel->orderBy('created_at', 'DESC')->where('is_active', true)->first()),
+            'employees' => $this->employeeModel->getAllEmployeesWithUserDetails(),
+            'email_logs' => $this->emailLogsModel->where('type', 'cycle_invite')->findAll(),
         ];
     }
 
-    public function index()
+    public function index(): string
     {
         $this->data['userData'] = $this->request->userData;
         return view('includes/head', $this->data) .
@@ -58,22 +65,23 @@ class EmployeeInviteController extends BaseController
             view('includes/footer');
     }
 
-    public function create() {
-        $devCycleModel = new DevelopmentCycleModel();
-        $userModel = new UserModel();
-        $emailLogModel = new EmailLogModel();
+    /**
+     * @throws \ReflectionException
+     */
+    public function create(): RedirectResponse
+    {
+        $this->data['userData'] = $this->request->userData;
         $employee_emails = $this->request->getPost('employee_emails');
         $cycle_id = $this->request->getPost('cycle_id');
-        $cycleData = $devCycleModel->find($cycle_id);
+        $cycleData = $this->devCycleModel->find($cycle_id);
         $selfRatingUrl = url_to('ldm.rating.self');
 
-        $emailTemplateModel = new EmailTemplateModel();
-        $emailData = $emailTemplateModel->where('email_type', 'sef_rating_invite')->first();
+        $emailData = $this->emailTemplateModel->where('email_type', 'sef_rating_invite')->first();
         $find = ['{employee_name}', '{cycle_year}', '{self_rating_url}'];
 
         $emailHelper = new EmailHelper();
         foreach($employee_emails as $email) {
-            $employeeUserData = $userModel->where('email', $email)->first();
+            $employeeUserData = $this->userModel->where('email', $email)->first();
             if (!$employeeUserData) {
                 continue;
             }
@@ -84,9 +92,9 @@ class EmployeeInviteController extends BaseController
             $emailSubject = str_replace($emailSubjectFind, $emailSubjectReplace, $emailData['email_subject']);
             $is_email_sent = $emailHelper->send_email($email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
             if ($is_email_sent) {
-                $emailLogModel->insert(['email' => $email, 'type' => 'cycle_invite', 'status' => 'success']);
+                $this->emailLogsModel->insert(['email' => $email, 'type' => 'cycle_invite', 'status' => 'success']);
             } else {
-                $emailLogModel->insert(['email' => $email, 'type' => 'cycle_invite', 'status' => 'failed']);
+                $this->emailLogsModel->insert(['email' => $email, 'type' => 'cycle_invite', 'status' => 'failed']);
             }
         }
         return redirect('ldm.employee.invite');

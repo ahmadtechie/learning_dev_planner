@@ -17,7 +17,7 @@
                                 <th>Max Competencies</th>
                                 <th>Descriptor Text</th>
                                 <th>Is Active?</th>
-                                <th></th>
+                                <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -63,8 +63,6 @@
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item edit-btn"
                                                        href="<?= url_to('ldm.cycle.edit', $cycle['id']) ?>">Edit</a>
-                                                    <a class="dropdown-item delete-btn"
-                                                       href="<?= url_to('ldm.cycle.delete', $cycle['id']) ?>">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -82,13 +80,40 @@
 </section>
 
 <script>
-    $(function() {
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 0, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[0, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

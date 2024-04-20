@@ -3,8 +3,10 @@
 namespace App\Controllers\InterventionManagement;
 
 use App\Controllers\BaseController;
+use App\Models\DevelopmentCycleModel;
 use App\Models\EmployeeInterventionsModel;
 use App\Models\EmployeeModel;
+use App\Models\InterventionClassModel;
 use App\Models\LearningInterventionModel;
 
 helper(['form', 'url']);
@@ -12,6 +14,12 @@ helper(['form', 'url']);
 class EmployeeInterventionMappingController extends BaseController
 {
     public array $data;
+    public EmployeeModel $employeeModel;
+    public LearningInterventionModel $learningInterventionModel;
+    public InterventionClassModel $interventionClassModel;
+    public DevelopmentCycleModel $cycleModel;
+    public EmployeeInterventionsModel $employeeInterventionsModel;
+
     public array $validation = [
         'employee_ids' => [
             'rules' => 'required',
@@ -29,18 +37,23 @@ class EmployeeInterventionMappingController extends BaseController
 
     function __construct()
     {
-        $employeeModel = model(EmployeeModel::class);
-        $learningInterventionModel = model(LearningInterventionModel::class);
+        $this->employeeModel = model(EmployeeModel::class);
+        $this->learningInterventionModel = model(LearningInterventionModel::class);
+        $this->interventionClassModel = model(InterventionClassModel::class);
+        $this->cycleModel = model(DevelopmentCycleModel::class);
+        $this->employeeInterventionsModel = model(EmployeeInterventionsModel::class);
 
         $this->data = [
             'title' => 'Employee Intervention Mapping | LD Planner',
-            'employees' => $employeeModel->getAllEmployeesWithUserDetails(),
-            'interventions' => $learningInterventionModel->orderBy('created_at', 'DESC')->findAll(),
+            'employees' => $this->employeeModel->getAllEmployeesWithUserDetails(),
+            'cycles' => $this->cycleModel->orderBy('created_at', 'DESC')->findAll(),
+            'interventions' => $this->learningInterventionModel->orderBy('created_at', 'DESC')->findAll(),
+            'classes' => $this->interventionClassModel->orderBy('created_at', 'DESC')->findAll(),
             'page_name' => 'Employee-Intervention Mapping',
         ];
     }
 
-    public function index()
+    public function index(): string
     {
         $this->data['userData'] = $this->request->userData;
         return view('includes/head', $this->data) .
@@ -54,8 +67,6 @@ class EmployeeInterventionMappingController extends BaseController
     public function create()
     {
         $this->data['userData'] = $this->request->userData;
-        $model = model(EmployeeInterventionsModel::class);
-
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
             return view('includes/head', $this->data) .
@@ -69,8 +80,48 @@ class EmployeeInterventionMappingController extends BaseController
         $intervention_id = $this->request->getPost('intervention_id');
 
         foreach ($employeeIds as $employeeId) {
-            $model->insert(['employee_id' => $employeeId, 'intervention_id' => $intervention_id]);
+            $this->employeeInterventionsModel->insert(['employee_id' => $employeeId, 'intervention_id' => $intervention_id]);
         }
         return redirect('ldm.intervention.map')->with('success', 'The selected employees have been mapped to the intervention.');
+    }
+
+    public function fetchInterventions()
+    {
+        $cycleId = $this->request->getPost('cycle_id');
+        $interventionsData = $this->learningInterventionModel->where('cycle_id', $cycleId)->findAll();
+
+        $options = '<option value="">Choose Intervention</option>';
+        foreach ($interventionsData as $intervention) {
+            $options .= '<option value="' . $intervention['id'] . '">' . $intervention['intervention_name'] . '</option>';
+        }
+
+        echo $options;
+    }
+
+    public function fetchClasses()
+    {
+        $interventionId = $this->request->getPost('intervention_id');
+        $classesData = $this->interventionClassModel->where('intervention_id', $interventionId)->findAll();
+        $options = '';
+        foreach ($classesData as $class) {
+            $options .= '<option value="' . $class['id'] . '">' . $class['class_name'] . '</option>';
+        }
+        echo $options;
+    }
+
+    public function fetchEligibleEmployees($interventionId)
+    {
+//        $interventionId = $this->request->getPost('intervention_id');
+        $eligibleEmployees = $this->employeeInterventionsModel->whereNotIn('intervention_id', [$interventionId])->findAll();
+        $employeeIds = array_column($eligibleEmployees, 'employee_id');
+
+        $options = '';
+        foreach ($employeeIds as $employeeId) {
+            $employee = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
+            if ($employee) {
+                $options .= '<option value="' . $employee['employee_id'] . '">' . $employee['first_name'] . ' ' . $employee['last_name'] . ' [' . $employee['username'] . ']' . '</option>';
+            }
+        }
+        echo $options;
     }
 }

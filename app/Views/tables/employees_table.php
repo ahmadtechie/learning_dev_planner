@@ -17,15 +17,18 @@
                                 <th>Roles</th>
                                 <th>Line Manager</th>
                                 <th>Updated At</th>
-                                <th></th>
+                                <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <?php if (!empty($employees) && is_array($employees)): ?>
+                            <?php use App\Models\EmployeeModel;
+                            use App\Models\JobModel;
+
+                            if (!empty($employees) && is_array($employees)): ?>
                                 <?php foreach ($employees as $employee): ?>
                                     <?php
-                                    $jobModel = new \App\Models\JobModel();
-                                    $employeeModel = new \App\Models\EmployeeModel();
+                                    $jobModel = new JobModel();
+                                    $employeeModel = new EmployeeModel();
 
                                     $jobData = $jobModel->find($employee['job_id']);
 
@@ -64,7 +67,7 @@
                                                         </a>
                                                     <?php else: ?>
                                                         <a class="dropdown-item delete-btn"
-                                                           href="<?= url_to('ldm.employee.delete', $employee['employee_id']) ?>">
+                                                           href="#" onclick="confirmDelete(<?= $employee['employee_id'] ?>)">
                                                             Deactivate
                                                         </a>
                                                     <?php endif; ?>
@@ -85,13 +88,48 @@
 </section>
 
 <script>
-    $(function() {
+    function confirmDelete(employeeId) {
+        if (confirm("Are you sure you want to deactivate this user?")) {
+            window.location.href = "<?= url_to('ldm.employee.delete') ?>?employee_id=" + employeeId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 5, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[5, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

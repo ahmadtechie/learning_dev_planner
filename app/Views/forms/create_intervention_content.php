@@ -25,17 +25,23 @@
                     }, 3000);
                 </script>
             <?php endif; ?>
-            <?= form_open(url_to('ldm.intervention.content.create')) ?>
+            <?php if (isset($intervention_content)): ?>
+                <?= form_open(url_to('ldm.learning.intervention.update', esc($intervention_content['id']))) ?>
+            <?php else: ?>
+                <?= form_open(url_to('ldm.intervention.content.create')) ?>
+            <?php endif; ?>
 
             <div class="form-group">
                 <label for="intervention_id">Learning Intervention</label>
                 <select id="intervention_id" name="intervention_id" class="form-control" required>
                     <option value="">Select Intervention</option>
-                    <?php foreach ($interventions as $intervention): ?>
-                        <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_content) && $intervention_content['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
-                            <?= $intervention['intervention_name'] ?>
-                        </option>
-                    <?php endforeach; ?>
+                    <?php if (!empty($interventions)): ?>
+                        <?php foreach ($interventions as $intervention): ?>
+                            <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_content) && $intervention_content['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
+                                <?= $intervention['intervention_name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif ?>
                 </select>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('intervention_id')) ? $validation->getError('intervention_id') : '' ?>
@@ -62,7 +68,7 @@
                 </span>
             </div>
             <div class="form-group">
-                <label for="summernote">Objectives</label>
+                <label for="summernote1">Objectives</label>
                 <textarea id="summernote1" name="objectives">
                     <?= isset($intervention_content) ? esc($intervention_content['objectives']) : set_value('objectives') ?>
               </textarea>

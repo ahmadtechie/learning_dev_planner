@@ -35,10 +35,8 @@
                                                     Action
                                                 </button>
                                                 <div class="dropdown-menu">
-                                                    <a class="dropdown-item"
-                                                       href="<?= url_to('ldm.vendor.edit', $vendor['id']) ?>">Edit</a>
-                                                    <a class="dropdown-item"
-                                                       href="<?= url_to('ldm.vendor.delete', $vendor['id']) ?>">Delete</a>
+                                                    <a class="dropdown-item edit-btn" href="<?= url_to('ldm.vendor.edit', $vendor['id']) ?>">Edit</a>
+                                                    <a class="dropdown-item delete-btn" href="#" onclick="confirmDelete(<?= $vendor['id'] ?>)">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -56,13 +54,48 @@
 </section>
 
 <script>
-    $(function() {
+    function confirmDelete(interventionVendorId) {
+        if (confirm("Are you sure you want to delete this intervention vendor?")) {
+            window.location.href = "<?= url_to('ldm.vendor.delete') ?>?intervention_vendor_id=" + interventionVendorId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 4, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[4, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

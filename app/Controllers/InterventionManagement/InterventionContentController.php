@@ -6,12 +6,15 @@ use App\Controllers\BaseController;
 use App\Models\InterventionClassModel;
 use App\Models\InterventionContentModel;
 use App\Models\LearningInterventionModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 helper(['form', 'url']);
 
 class InterventionContentController extends BaseController
 {
     public array $data;
+    public InterventionContentModel $interventionContentModel;
+    public LearningInterventionModel $learningInterventionModel;
     public array $validation = [
         'intervention_id' => [
             'rules' => 'required|integer',
@@ -31,18 +34,18 @@ class InterventionContentController extends BaseController
 
     function __construct()
     {
-        $interventionContentModel = model(InterventionContentModel::class);
-        $learningInterventionModel = model(LearningInterventionModel::class);
+        $this->interventionContentModel = model(InterventionContentModel::class);
+        $this->learningInterventionModel = model(LearningInterventionModel::class);
 
         $this->data = [
             'title' => 'Learning Intervention | LD Planner',
-            'interventionContent' => $interventionContentModel->findAll(),
-            'interventions' => $learningInterventionModel->orderBy('created_at', 'DESC')->findAll(),
+            'interventionContent' => $this->interventionContentModel->findAll(),
+            'interventions' => $this->learningInterventionModel->orderBy('created_at', 'DESC')->findAll(),
             'page_name' => 'Learning Intervention Content',
         ];
     }
 
-    public function index()
+    public function index(): string
     {
         $this->data['userData'] = $this->request->userData;
         return view('includes/head', $this->data) .
@@ -53,11 +56,12 @@ class InterventionContentController extends BaseController
             view('includes/footer');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function create()
     {
         $this->data['userData'] = $this->request->userData;
-        $model = model(InterventionContentModel::class);
-
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
 
@@ -70,22 +74,20 @@ class InterventionContentController extends BaseController
         }
 
         $validData = $this->validator->getValidated();
-        $model->save($validData);
+        $this->interventionContentModel->save($validData);
         return redirect('ldm.intervention.content')->with('success', "New Intervention Content added successfully.");
     }
 
-    public function edit($id) {
+    public function edit($id): string
+    {
         $this->data['userData'] = $this->request->userData;
-        $model = model(InterventionContentModel::class);
-        $intervention_content = $model->find($id);
+        $intervention_content = $this->interventionContentModel->find($id);
         $this->data['intervention_content'] = $intervention_content;
-
         $this->data['title'] = 'LD Planner | Edit Learning Intervention';
 
         if ($intervention_content === null) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Intervention Content with ID $id not found.");
+            throw new PageNotFoundException("Intervention Content with ID $id not found.");
         }
-
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -94,10 +96,11 @@ class InterventionContentController extends BaseController
             view('includes/footer');
     }
 
-    public function update($id) {
+    /**
+     * @throws \ReflectionException
+     */
+    public function update($intervention_content_id) {
         $this->data['userData'] = $this->request->userData;
-        $model = model(InterventionContentModel::class);
-
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
             return view('includes/head', $this->data) .
@@ -109,14 +112,14 @@ class InterventionContentController extends BaseController
         }
 
         $validData = $this->request->getPost();
-        $model->update($id, $validData);
+        $this->interventionContentModel->update($intervention_content_id, $validData);
         return redirect('ldm.intervention.content')->with('success', "Intervention Content updated successfully.");
     }
 
-    public function delete($id) {
+    public function delete() {
         $this->data['userData'] = $this->request->userData;
-        $model = new InterventionContentModel();
-        $model->delete($id);
+        $content_id = $this->request->getVar('content_id');
+        $this->interventionContentModel->delete($content_id);
 
         return redirect('ldm.intervention.content')->with('error', 'Intervention Content deleted successfully.');
     }

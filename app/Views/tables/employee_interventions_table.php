@@ -13,6 +13,7 @@
                             <tr>
                                 <th>Employee</th>
                                 <th>Interventions</th>
+                                <th>Classes</th>
                                 <th>Updated At</th>
                             </tr>
                             </thead>
@@ -32,9 +33,15 @@
                                         <td><?php if (!empty($employeeInterventions)): ?>
                                                 <?php foreach ($employeeInterventions as $employeeIntervention): ?>
                                                     <?php $intervention = $interventionModel->find($employeeIntervention['intervention_id']) ?>
-                                                    <?= $intervention['intervention_name'] . ', ' ?>
+                                                    <?php if ($intervention): ?>
+                                                        <?= $intervention['intervention_name'] . ', ' ?>
+                                                    <?php else: ?>
+                                                        <?php continue; ?>
+                                                    <?php endif; ?>
                                                 <?php endforeach; ?>
-                                            <?php endif; ?></td>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td></td>
                                         <td><?= $employee['updated_at']; ?></td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -53,14 +60,41 @@
     </div>
 </section>
 
-<script>
-    $(function() {
+<<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 3, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[3, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

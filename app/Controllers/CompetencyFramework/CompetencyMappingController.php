@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\CompetencyModel;
 use App\Models\JobCompetencyModel;
 use App\Models\JobModel;
+use CodeIgniter\HTTP\RedirectResponse;
 
 helper(['form', 'url']);
 
@@ -13,6 +14,10 @@ class CompetencyMappingController extends BaseController
 {
 
     public array $data;
+    public JobModel $jobModel;
+    public CompetencyModel $competencyModel;
+    public JobCompetencyModel $jobCompetencyModel;
+
     public array $validation = [
         'job_id' => [
             'rules' => 'required|numeric|validateJobCompetencyUnique[job_competencies.job_id]',
@@ -35,15 +40,15 @@ class CompetencyMappingController extends BaseController
             'title' => 'Competency-Job Mapping Page | LD Planner',
             'page_name' => 'map competencies',
         ];
-        $jobModel = model(JobModel::class);
-        $competencyModel = model(CompetencyModel::class);
-        $jobCompetencyModel = new JobCompetencyModel();
-        $this->data['jobs'] = $jobModel->orderBy('created_at', 'DESC')->findAll();
-        $this->data['competencies'] = $competencyModel->orderBy('created_at', 'DESC')->findAll();
-        $this->data['jobCompetencies'] = $jobCompetencyModel->getJobsWithCompetencies();
+        $this->jobModel = model(JobModel::class);
+        $this->competencyModel = model(CompetencyModel::class);
+        $this->jobCompetencyModel = new JobCompetencyModel();
+        $this->data['jobs'] = $this->jobModel->orderBy('created_at', 'DESC')->findAll();
+        $this->data['competencies'] = $this->competencyModel->orderBy('created_at', 'DESC')->findAll();
+        $this->data['jobCompetencies'] = $this->jobCompetencyModel->getJobsWithCompetencies();
     }
 
-    public function index()
+    public function index(): string
     {
         $this->data['userData'] = $this->request->userData;
 
@@ -62,9 +67,6 @@ class CompetencyMappingController extends BaseController
     {
         $this->data['userData'] = $this->request->userData;
 
-        $model = model(JobCompetencyModel::class);
-        $jobModel = model(JobModel::class);
-
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
             return view('includes/head', $this->data) .
@@ -79,27 +81,20 @@ class CompetencyMappingController extends BaseController
         $competencyIds = $this->request->getPost('competency_ids');
 
         foreach ($competencyIds as $competencyId) {
-            $model->insert([
+            $this->jobCompetencyModel->insert([
                 'job_id' => $jobId,
                 'competency_id' => $competencyId,
             ]);
         }
-        $job = $jobModel->find($jobId);
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Competencies mapped with Job '{$job['job_title']}' role successfully.");
-
-        return redirect('ldm.competencies.mapping');
+        $job = $this->jobModel->find($jobId);
+        return redirect('ldm.competencies.mapping')->with('success', "Competencies mapped with Job '{$job['job_title']}' role successfully.");
     }
 
-    public function edit($id)
+    public function edit($job_id): string
     {
         $this->data['userData'] = $this->request->userData;
-//        TODO: With the ID, fetch all rows matching the given job_id
-        $jobCompetencyModel = new JobCompetencyModel();
-        $jobModel = new JobModel();
-        $this->data['job_competencies'] = $jobCompetencyModel->getCompetenciesForJob($id);
-        $this->data['job'] = $jobModel->find($id);
+        $this->data['job_competencies'] = $this->jobCompetencyModel->getCompetenciesForJob($job_id);
+        $this->data['job'] = $this->jobModel->find($job_id);
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
@@ -126,27 +121,17 @@ class CompetencyMappingController extends BaseController
                 view('includes/footer');
         }
         $competencyIds = $this->request->getPost('competency_ids');
-
-        // Perform the update operation
-        $jobCompetencyModel = new JobCompetencyModel();
-        if ($jobCompetencyModel->updateJobCompetencies($id, $competencyIds)) {
-            // Update successful
+        if ($this->jobCompetencyModel->updateJobCompetencies($id, $competencyIds)) {
             return redirect()->to(url_to('ldm.competencies.mapping'))->with('success', 'Job competencies updated successfully.');
         }
-        // Update failed
         return redirect()->back()->withInput()->with('error', 'Failed to update job competencies. Please try again.');
     }
 
-    public function delete($id)
+    public function delete(): RedirectResponse
     {
         $this->data['userData'] = $this->request->userData;
-
-        $jobCompetencyModel = new JobCompetencyModel();
-        $jobCompetencyModel->where('job_id', $id)->delete();
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('deleted', "Job Competencies deleted successfully.");
-
-        return redirect('ldm.competencies.mapping');
+        $job_id = $this->request->getVar('job_id');
+        $this->jobCompetencyModel->where('job_id', $job_id)->delete();
+        return redirect('ldm.competencies.mapping')->with('deleted', "Job Competencies deleted successfully.");
     }
 }

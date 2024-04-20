@@ -14,7 +14,7 @@ use App\Models\UnitModel;
 use App\Models\UserModel;
 use App\Models\UserRoleModel;
 use CodeIgniter\API\ResponseTrait;
-use Config\Email;
+use CodeIgniter\HTTP\ResponseInterface;
 use ReflectionException;
 
 helper(['form']);
@@ -23,6 +23,18 @@ class EmployeeController extends BaseController
 {
     public array $data;
     use ResponseTrait;
+
+    public EmployeeModel $employeeModel;
+    public UserModel $userModel;
+    public UserRoleModel $userRoleModel;
+    public EmployeeRolesModel $employeeRolesModel;
+    public DepartmentModel $departmentModel;
+    public UnitModel $unitModel;
+    public JobModel $jobModel;
+    public EmailTemplateModel $emailTemplateModel;
+    public SiteSettingsModel $siteSettingsModel;
+    public EmailHelper $emailHelper;
+
 
     public int $employee_role_id;
     public array $validation = [
@@ -56,39 +68,31 @@ class EmployeeController extends BaseController
         ],
     ];
 
-    public function generateRandomPassword($length = 8)
-    {
-        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        return substr(str_shuffle($chars), 0, $length);
-    }
-
-    public function generateRandomUsername(): string
-    {
-        $randomNumber = str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
-        return 'LD' . $randomNumber;
-    }
-
     function __construct()
     {
-        $employeeModel = model(EmployeeModel::class);
-        $userRoleModel = model(UserRoleModel::class);
-        $employeeRolesModel = model(EmployeeRolesModel::class);
-        $departmentModel = new DepartmentModel();
-        $unitModel = new UnitModel();
+        $this->employeeModel = model(EmployeeModel::class);
+        $this->userRoleModel = model(UserRoleModel::class);
+        $this->employeeRolesModel = model(EmployeeRolesModel::class);
+        $this->departmentModel = model(DepartmentModel::class);
+        $this->unitModel = model(UnitModel::class);
+        $this->jobModel = model(JobModel::class);
+        $this->userModel = model(UserModel::class);
+        $this->emailTemplateModel = new EmailTemplateModel();
+        $this->siteSettingsModel = new SiteSettingsModel();
+        $this->emailHelper = new EmailHelper();
 
-        $jobModel = model(JobModel::class);
-        $jobs = $jobModel->orderBy('job_title')->findAll();
-        $this->employee_role_id = $userRoleModel->where('name', 'Employee')->first()['id'];
+        $jobs = $this->jobModel->orderBy('job_title')->findAll();
+        $this->employee_role_id = $this->userRoleModel->where('name', 'Employee')->first()['id'];
 
         $this->data = [
             'title' => 'Employee Page | LD Planner',
-            'employees' => $employeeModel->getAllEmployeesWithUserDetails(),
-            'roles' => $userRoleModel->findAll(),
-            'line_managers' => $employeeRolesModel->getAllLineManagersWithUser(),
+            'employees' => $this->employeeModel->getAllEmployeesWithUserDetails(),
+            'roles' => $this->userRoleModel->findAll(),
+            'line_managers' => $this->employeeRolesModel->getAllLineManagersWithUser(),
             'jobs' => $jobs,
             'page_name' => 'employees',
-            'departments' => $departmentModel->findAll(),
-            'units' => $unitModel->findAll(),
+            'departments' => $this->departmentModel->findAll(),
+            'units' => $this->unitModel->findAll(),
         ];
     }
 
@@ -109,13 +113,8 @@ class EmployeeController extends BaseController
     public function create()
     {
         $this->data['userData'] = $this->request->userData;
-
-        $userModel = new UserModel();
-        $employeeModel = new EmployeeModel();
-        $employeeRoleModel = new EmployeeRolesModel();
-        $userRoleModel = new UserRoleModel();
-        $password = $this->generateRandomPassword();
-        $username = $this->generateRandomUsername();
+        $password = $this->userModel->generateRandomPassword();
+        $username = $this->userModel->generateUniqueRandomUsername();
         $login_url = url_to('ldm.login');
 
         $roles = [];
@@ -138,7 +137,7 @@ class EmployeeController extends BaseController
         $role_ids = $this->request->getPost('role_ids');
         $line_manager_id = $this->request->getPost('line_manager_id');
 
-        $userId = $userModel->insert([
+        $userId = $this->userModel->insert([
             'username' => $username,
             'email' => $user_email,
             'password' => password_hash($password, PASSWORD_BCRYPT),
@@ -146,53 +145,43 @@ class EmployeeController extends BaseController
             'last_name' => $lastName,
         ]);
 
-        $employeeId = $employeeModel->insert([
+        $employeeId = $this->employeeModel->insert([
             'user_id' => $userId,
             'job_id' => $job_id,
             'line_manager_id' => $line_manager_id,
         ]);
 
-        // create employee role(s)
         foreach ($role_ids as $role_id) {
-            $roles[] = $userRoleModel->find($role_id)['name'];
-            $employeeRoleModel->insert([
+            $roles[] = $this->userRoleModel->find($role_id)['name'];
+            $this->employeeRolesModel->insert([
                 'user_id' => $userId,
                 'role_id' => $role_id,
                 'employee_id' => $employeeId,
             ]);
         }
-
-        $emailTemplateModel = new EmailTemplateModel();
-        $siteSettingsModel = new SiteSettingsModel();
-        $siteName = $siteSettingsModel->first()["company_name"];
-        $emailData = $emailTemplateModel->where('email_type', 'staff_created')->first();
+        $siteName = $this->siteSettingsModel->first()["company_name"];
+        $emailData = $this->emailTemplateModel->where('email_type', 'staff_created')->first();
         $userRoles = implode(', ', $roles);
         $find = ['{first_name}', '{username}', '{user_roles}', '{email}', '{password}', '{login_url}'];
         $replace = [$firstName, $username, $userRoles, $user_email, $password, $login_url];
         $emailBody = str_replace($find, $replace, $emailData['email_body']);
         $emailSubject = str_replace('{siteName}', $siteName, $emailData['email_subject']);
 
-        $emailHelper = new EmailHelper();
-        $email = $emailHelper->send_email($user_email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
 
-        $session = \Config\Services::session();
+        $email = $this->emailHelper->send_email($user_email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
+
         if ($email) {
-            $session->setFlashdata('success', "Email sent to new user $firstName successfully.");
-            return redirect()->to(url_to('ldm.employee'));
+            return redirect()->to(url_to('ldm.employee'))->with('success', "Email sent to new user $firstName successfully.");
         }
-        $session->setFlashdata('error', "Email failed!");
-        return redirect()->to(url_to('ldm.employee'))->withInput();
+        return redirect()->to(url_to('ldm.employee'))->with('error', "Email failed!")->withInput();
     }
 
-    public function edit($employeeId)
+    public function edit($employeeId): string
     {
         $this->data['userData'] = $this->request->userData;
-
-        $model = new EmployeeModel();
-        $employeeRoleModel = new EmployeeRolesModel();
-        $employee = $model->getEmployeeDetailsWithUser($employeeId);
+        $employee = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
         $this->data['employee'] = $employee;
-        $this->data['selected_roles'] = $employeeRoleModel->where('employee_id', $employeeId)->findAll();
+        $this->data['selected_roles'] = $this->employeeModel->where('employee_id', $employeeId)->findAll();
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
@@ -208,9 +197,7 @@ class EmployeeController extends BaseController
     public function update($employeeId)
     {
         $this->data['userData'] = $this->request->userData;
-
         $this->validation['email']['rules'] = 'required|min_length[3]';
-        $session = \Config\Services::session();
 
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
@@ -222,83 +209,55 @@ class EmployeeController extends BaseController
                 view('auth/register_employee', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-        // Fetch user ID
-        $employeeModel = new EmployeeModel();
-        $employeeData = $employeeModel->find($employeeId);
+        $employeeData = $this->employeeModel->find($employeeId);
         $userId = $employeeData['user_id'];
-
         $roleIds = $this->request->getPost('role_ids');
 
-        // Update employee roles
-        $empRoleModel = new EmployeeRolesModel();
-        if (!$empRoleModel->updateRoles($employeeId, $userId, $roleIds)) {
-            $session->setFlashdata('error', "Failed to update user roles.");
+        if (!$this->employeeRolesModel->updateRoles($employeeId, $userId, $roleIds)) {
+            return redirect()->back()->with('error', "Failed to update user roles.");
         }
 
-        // Update user data
-        $userModel = new UserModel();
         $userData = [
             'first_name' => $this->request->getPost('first_name'),
             'last_name' => $this->request->getPost('last_name')
         ];
-        if (!$userModel->update($userId, $userData)) {
-            $session->setFlashdata('error', "Failed to update user fields.");
-            return redirect()->back()->withInput();
+        if (!$this->userModel->update($userId, $userData)) {
+            return redirect()->back()->with('error', "Failed to update user fields.")->withInput();
         }
 
-        // Update employee data
         $employeeData = [
             'job_id' => $this->request->getPost('job_id'),
             'line_manager_id' => $this->request->getPost('line_manager_id')
         ];
-        if (!$employeeModel->update($employeeId, $employeeData)) {
-            $session->setFlashdata('error', "Failed to update employee fields.");
-            return redirect()->back()->withInput();
+        if (!$this->employeeModel->update($employeeId, $employeeData)) {
+            return redirect()->back()->with('error', "Failed to update employee fields.")->withInput();
         }
-
-        // Success message
-        $session->setFlashdata('success', "Staff data updated successfully!");
-        return redirect('ldm.employee');
+        return redirect('ldm.employee')->with('success', "Staff data updated successfully!");
     }
 
 
-    public function delete($employeeId)
+    public function delete()
     {
         $this->data['userData'] = $this->request->userData;
-
-        $session = \Config\Services::session();
-
-        // Fetch user ID
-        $employeeModel = new EmployeeModel();
-        $employeeData = $employeeModel->find($employeeId);
+        $employeeId = $this->request->getVar('employee_id');
+        $employeeData = $this->employeeModel->find($employeeId);
         if (!$employeeData) {
-            $session->setFlashdata('error', "Employee not found!");
-            return redirect()->back();
+            return redirect()->back()->with('error', "Employee not found!");
         }
+
         $userId = $employeeData['user_id'];
-
-        // Delete employee roles
-        $empRoleModel = new EmployeeRolesModel();
-        if (!$empRoleModel->deleteRoles($employeeId)) {
-            $session->setFlashdata('error', "Failed to delete user roles.");
+        if (!$this->employeeRolesModel->deleteRoles($employeeId)) {
+            return redirect()->back()->with('error', "Failed to delete user roles.");
         }
 
-        // Delete user data
-        $userModel = new UserModel();
-        if (!$userModel->delete($userId)) {
-            $session->setFlashdata('error', "Failed to delete user.");
-            return redirect()->back();
+        if (!$this->userModel->delete($userId)) {
+            return redirect()->back()->with('error', "Failed to delete user.");
         }
 
-        // Delete employee data
-        if (!$employeeModel->delete($employeeId)) {
-            $session->setFlashdata('error', "Failed to delete employee.");
-            return redirect()->back();
+        if (!$this->employeeModel->delete($employeeId)) {
+            return redirect()->back()->with('error', "Failed to delete employee.");
         }
-
-        // Success message
-        $session->setFlashdata('success', "Staff data deactivated successfully!");
-        return redirect('ldm.employee');
+        return redirect('ldm.employee')->with('success', "Staff data deactivated successfully!");
     }
 
     /**
@@ -307,46 +266,28 @@ class EmployeeController extends BaseController
     public function activate($employeeId)
     {
         $this->data['userData'] = $this->request->userData;
-
-        $session = \Config\Services::session();
-
-        // Fetch user ID
-        $employeeModel = new EmployeeModel();
-        $employeeData = $employeeModel->withDeleted()->find($employeeId); // Include soft-deleted records
+        $employeeData = $this->employeeModel->withDeleted()->find($employeeId);
         if (!$employeeData) {
-            $session->setFlashdata('error', "Employee not found!");
-            return redirect()->back();
+            return redirect()->back()->with('error', "Employee not found!");
         }
         $userId = $employeeData['user_id'];
-
-        // Restore employee data
-        if (!$employeeModel->withDeleted()->restoreEmployee($employeeId)) {
-            $session->setFlashdata('error', "Failed to activate employee.");
-            return redirect()->back();
+        if (!$this->employeeModel->withDeleted()->restoreEmployee($employeeId)) {
+            return redirect()->back()->with('error', "Failed to activate employee.");
         }
-
-        // Restore user data
-        $userModel = new UserModel();
-        if (!$userModel->withDeleted()->restoreUser($userId)) {
-            $session->setFlashdata('error', "Failed to activate user.");
-            return redirect()->back();
+        if (!$this->userModel->withDeleted()->restoreUser($userId)) {
+            return redirect()->back()->with('error', "Failed to activate user.");
         }
-
-        // Success message
-        $session->setFlashdata('success', "Employee activated successfully!");
-        return redirect('ldm.employee');
+        return redirect('ldm.employee')->with('success', "Employee activated successfully!");
     }
 
-    public function getEmployeeLineManager(): \CodeIgniter\HTTP\ResponseInterface
+    public function getEmployeeLineManager(): ResponseInterface
     {
         $lineManagerId = $this->request->getPost('line_manager_id');
-
-        $employeeModel = new EmployeeModel();
-        $employeeLineManagerId = $employeeModel->find($lineManagerId)['line_manager_id'];
+        $employeeLineManagerId = $this->employeeModel->find($lineManagerId)['line_manager_id'];
         return $this->response->setJSON(['subordinate_line_manager_id' => $employeeLineManagerId]);
     }
 
-    public function map()
+    public function map(): string
     {
         $this->data['userData'] = $this->request->userData;
         $this->data['page_name'] = 'Employee-Org Mapping';
@@ -364,11 +305,10 @@ class EmployeeController extends BaseController
      */
     public function createMapping()
     {
+        $this->data['userData'] = $this->request->userData;
         $employeeIds = $this->request->getPost('employee_ids');
         $department_id = $this->request->getPost('department_id');
         $unit_id = $this->request->getPost('unit_id');
-
-        $this->data['userData'] = $this->request->userData;
 
         $validation = [
             'employee_ids' => [
@@ -386,8 +326,6 @@ class EmployeeController extends BaseController
             ],
         ];
 
-        $session = \Config\Services::session();
-
         if (!$this->validate($validation)) {
             $validation = ['validation' => $this->validator];
 
@@ -398,28 +336,10 @@ class EmployeeController extends BaseController
                 view('auth/employee_dept_mapping', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-        // Fetch user ID
-        $employeeModel = new EmployeeModel();
 
-        try {
-            foreach ($employeeIds as $employeeId) {
-                $employeeModel->update($employeeId, ['department_id' => $department_id, 'unit_id' => $unit_id]);
-            }
-
-            return redirect('ldm.map.org.create')->with('success', 'Employees mapped to respective dept/unit successfully');
-        } catch (\Exception $e) {
-            if ($e->getCode() == 1062) {
-                $validation = ['validation' =>$this->validator];
-                $session->setFlashdata('error', "Failed to map employees.");
-                return view('includes/head') .
-                    view('includes/navbar') .
-                    view('includes/sidebar') .
-                    view('includes/mini_navbar', $this->data) .
-                    view('forms/employee_dept_mapping', array_merge($this->data, $validation)) .
-                    view('includes/footer');
-            } else {
-                throw $e;
-            }
+        foreach ($employeeIds as $employeeId) {
+            $this->employeeModel->update($employeeId, ['department_id' => $department_id, 'unit_id' => $unit_id]);
         }
+        return redirect('ldm.map.org.create')->with('success', 'Employees mapped to respective dept/unit successfully');
     }
 }

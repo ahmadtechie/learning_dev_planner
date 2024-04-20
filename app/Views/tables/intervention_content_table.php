@@ -8,7 +8,7 @@
             <table id="example1" class="table table-bordered table-striped interventionContentTable">
                 <thead>
                 <tr>
-                    <th>Intervention Name</th>
+                    <th>Learning Intervention</th>
                     <th>Module Title</th>
                     <th>Created At</th>
                     <th>Updated At</th>
@@ -25,7 +25,7 @@
                         $intervention = $interventionModel->find($content['intervention_id']);
                         ?>
                         <tr>
-                            <td><?= $intervention['intervention_name'] ?></td>
+                            <td><?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id']  . ']'?></td>
                             <td><?= $content['module_title'] ?></td>
                             <td><?= $content['created_at']  ?></td>
                             <td><?= $content['updated_at'] ?></td>
@@ -39,7 +39,7 @@
                                         <a class="dropdown-item"
                                            href="<?= url_to('ldm.intervention.content.edit', $content['id']) ?>">Edit</a>
                                         <a class="dropdown-item"
-                                           href="<?= url_to('ldm.intervention.content.delete', $content['id']) ?>">Delete</a>
+                                           href="#" onclick="confirmDelete(<?= $content['id'] ?>)">Delete</a>
                                     </div>
                                 </div>
                             </td>
@@ -59,13 +59,48 @@
 </div>
 
 <script>
-    $(function() {
+    function confirmDelete(contentId) {
+        if (confirm("Are you sure you want to delete this content?")) {
+            window.location.href = "<?= url_to('ldm.intervention.content.delete') ?>?content_id=" + contentId;
+        }
+    }
+</script>
+
+<script>
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 3, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[3, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>

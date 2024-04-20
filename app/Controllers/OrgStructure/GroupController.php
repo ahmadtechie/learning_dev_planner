@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\DivisionModel;
 use App\Models\GroupModel;
 use CodeIgniter\Config\Services;
+use CodeIgniter\Exceptions\PageNotFoundException;
+use CodeIgniter\HTTP\RedirectResponse;
 
 helper(['form']);
 
@@ -13,6 +15,8 @@ helper(['form']);
 class GroupController extends BaseController
 {
     public array $data;
+    public GroupModel $groupModel;
+    public DivisionModel $divisionModel;
     public array $validation = [
         'group_name' => [
             'rules' => 'required|min_length[3]|validateGroupUnique[group.group_name]',
@@ -30,17 +34,14 @@ class GroupController extends BaseController
         ]
     ];
 
-    function __construct() {
-        $group_model = model(GroupModel::class);
-        $groups = $group_model->orderBy('created_at', 'DESC')->findAll();
-
-        $division_model = model(DivisionModel::class);
-        $divisions = $division_model->orderBy('created_at', 'DESC')->findAll();
-
+    function __construct()
+    {
+        $this->groupModel = model(GroupModel::class);
+        $this->divisionModel = model(DivisionModel::class);
         $this->data = [
             'title' => 'Group Page | LD Planner',
-            'groups' => $groups,
-            'divisions' => $divisions,
+            'groups' => $this->groupModel->orderBy('created_at', 'DESC')->findAll(),
+            'divisions' => $this->divisionModel->orderBy('created_at', 'DESC')->findAll(),
             'page_name' => 'groups',
         ];
     }
@@ -57,11 +58,12 @@ class GroupController extends BaseController
             view('includes/footer');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function create()
     {
-        $model = model(GroupModel::class);
         $this->data['userData'] = $this->request->userData;
-
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
 
@@ -72,33 +74,19 @@ class GroupController extends BaseController
                 view('forms/create_group', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-        // the validation was successful
-        // get the validated data
         $validData = $this->validator->getValidated();
-
-        $model->save([
+        $this->groupModel->save([
             'group_name' => $validData['group_name'],
             'division_id' => $validData['division_id']
         ]);
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Group {$validData['group_name']} created successfully.");
-        return redirect('ldm.groups');
+        return redirect('ldm.groups')->with('success', "Group {$validData['group_name']} created successfully.");
     }
 
-    public function edit($id)
+    public function edit($id): string
     {
         $this->data['userData'] = $this->request->userData;
-
-        $model = model(GroupModel::class);
-        $group = $model->find($id);
-
         $this->data['title'] = 'Edit Group | LD Planner';
-        $this->data['group'] = $group;
-
-        if ($group === null) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Group with ID $id not found.");
-        }
+        $this->data['group'] = $this->groupModel->find($id);
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
@@ -108,17 +96,16 @@ class GroupController extends BaseController
             view('includes/footer');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function update($id)
     {
         $this->data['userData'] = $this->request->userData;
-
-        $model = new GroupModel();
         $this->validation['group_name']['rules'] = 'required|min_length[3]';
 
-        // Validate the request
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
-
             return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .
@@ -127,33 +114,17 @@ class GroupController extends BaseController
                 view('includes/footer');
         }
 
-        // Get the validated data
         $validData = $this->request->getPost();
-
-        try {
-            // Update the division in the database
-            $session = \Config\Services::session();
-            // Set the success message
-            $session->setFlashdata('success', "Group {$validData['group_name']} edited successfully.");
-            $model->update($id, $validData);
-            return redirect()->to(url_to('ldm.groups.create'));
-        } catch (\Exception $e) {
-            // Handle exceptions if necessary
-            throw $e;
-        }
+        $this->groupModel->update($id, $validData);
+        return redirect()->to(url_to('ldm.groups.create'))->with('success', "Group {$validData['group_name']} edited successfully.");
     }
 
-    public function delete($id)
+    public function delete(): RedirectResponse
     {
         $this->data['userData'] = $this->request->userData;
-        $model = new GroupModel();
-
-        // Delete the division from the database
-        $model->delete($id);
-        $session = \Config\Services::session();
-        $session->setFlashdata('deleted', "Group deleted successfully.");
-
-        return redirect('ldm.groups');
+        $group_id = $this->request->getVar('group_id');
+        $this->groupModel->delete($group_id);
+        return redirect('ldm.groups')->with('deleted', "Group deleted successfully.");
     }
 
 }

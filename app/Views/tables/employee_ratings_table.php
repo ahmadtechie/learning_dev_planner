@@ -21,10 +21,12 @@
                             <tbody>
                             <?php
 
+                            use App\Models\CompetencyModel;
                             use App\Models\DevelopmentContractingModel;
+                            use App\Models\DevelopmentCycleModel;
 
-                            $competencyModel = new \App\Models\CompetencyModel();
-                            $cycles = new \App\Models\DevelopmentCycleModel();
+                            $competencyModel = new CompetencyModel();
+                            $cycles = new DevelopmentCycleModel();
 
                             $ratingModel = new DevelopmentContractingModel();
                             $employee_id = session()->get('loggedInEmployee');
@@ -65,21 +67,49 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- /.card-body -->
                 </div>
             </div>
         </div>
     </div>
 </section>
 
+<!-- /.card-body -->
 <script>
-    $(function() {
+    $(function () {
         $("#example1").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-            "order": [[ 4, "desc" ]]
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[4, "desc"]],
+
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });
 </script>
+

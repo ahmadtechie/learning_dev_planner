@@ -4,6 +4,8 @@ namespace App\Controllers\OrgStructure;
 
 use App\Controllers\BaseController;
 use App\Models\DivisionModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
+use CodeIgniter\HTTP\RedirectResponse;
 
 
 helper(['form']);
@@ -11,6 +13,7 @@ helper(['form']);
 class DivisionController extends BaseController
 {
     public array $data;
+    public DivisionModel $divisionModel;
     public array $validation = [
         'division_name' => [
             'rules' => 'required|min_length[3]|validateDivisionUnique[division.division_name]',
@@ -24,8 +27,8 @@ class DivisionController extends BaseController
 
     function __construct()
     {
-        $model = model(DivisionModel::class);
-        $divisions = $model->orderBy('created_at', 'DESC')->findAll();
+        $this->divisionModel = model(DivisionModel::class);
+        $divisions = $this->divisionModel->orderBy('created_at', 'DESC')->findAll();
 
         $this->data = [
             'title' => 'Division Page | LD Planner',
@@ -46,10 +49,12 @@ class DivisionController extends BaseController
             view('includes/footer');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function create()
     {
         $this->data['userData'] = $this->request->userData;
-        $model = model(DivisionModel::class);
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
 
@@ -61,40 +66,32 @@ class DivisionController extends BaseController
                 view('includes/footer');
         }
         $validData = $this->validator->getValidated();
-        $model->save($validData);
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Division {$validData['division_name']} created successfully.");
-        return redirect('ldm.divisions');
+        $this->divisionModel->save($validData);
+        return redirect('ldm.divisions')->with('success', "Division {$validData['division_name']} created successfully.");
     }
 
-    public function edit($num)
+    public function edit($num): string
     {
         $this->data['userData'] = $this->request->userData;
-
-        $model = model(DivisionModel::class);
-        $division = $model->find($num);
+        $this->data['division'] = $this->divisionModel->find($num);
         $this->data['title'] = 'LD Planner | Edit Division';
-
-        if ($division === null) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Division with ID $num not found.");
-        }
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
             view('includes/mini_navbar', $this->data) .
-            view('forms/create_division', $this->data + ['division' => $division]) .
+            view('forms/create_division', $this->data) .
             view('includes/footer');
     }
 
-    public function update($id)
+    /**
+     * @throws \ReflectionException
+     */
+    public function update($division_id)
     {
         $this->data['userData'] = $this->request->userData;
-
-        $model = new DivisionModel();
         $this->validation['division_name']['rules'] = 'required|min_length[3]';
 
-        // Validate the request
         if (!$this->validate($this->validation)) {
             $validation = ['validation' => $this->validator];
             return view('includes/head', $this->data) .
@@ -104,27 +101,16 @@ class DivisionController extends BaseController
                 view('forms/create_division', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-
-        // Get the validated data
         $validData = $this->request->getPost();
-
-        // Update the division in the database
-        $model->update($id, $validData);
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Division {$validData['division_name']} edited successfully.");
-        return redirect('ldm.divisions.create');
+        $this->divisionModel->update($division_id, $validData);
+        return redirect('ldm.divisions.create')->with('success', "Division {$validData['division_name']} edited successfully.");
     }
 
-    public function delete($id)
+    public function delete(): RedirectResponse
     {
         $this->data['userData'] = $this->request->userData;
-
-        $model = new DivisionModel();
-        $model->delete($id);
-        $session = \Config\Services::session();
-        $session->setFlashdata('deleted', "Division deleted successfully.");
-
-        return redirect('ldm.divisions.create');
+        $division_id = $this->request->getVar('division_id');
+        $this->divisionModel->delete($division_id);
+        return redirect('ldm.divisions.create')->with('deleted', "Division deleted successfully.");
     }
 }

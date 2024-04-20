@@ -1,7 +1,9 @@
 <div class="col-md-6 mx-auto">
     <div class="card card-info">
         <div class="card-header">
-            <?php if (isset($vendor)): ?>
+            <?php use App\Models\LearningInterventionModel;
+
+            if (isset($vendor)): ?>
                 <h3 class="card-title">Edit Vendor</h3>
             <?php else: ?>
                 <h3 class="card-title">Create Vendor</h3>
@@ -39,15 +41,17 @@
                 <label for="intervention_id">Learning Intervention</label>
                 <select id="intervention_id" name="intervention_id" class="form-control" required>
                     <option value="">Select Intervention</option>
-                    <?php foreach ($interventions as $intervention): ?>
-                        <?php
-                            $interventionModel = model(\App\Models\LearningInterventionModel::class);
-                            $intervention = $interventionModel->find($intervention['id'])
-                        ?>
-                        <option value="<?= $intervention['id'] ?>" <?= (isset($vendor) && $vendor['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
-                            <?= $intervention['intervention_name'] ?>
-                        </option>
-                    <?php endforeach; ?>
+                    <?php if (!empty($interventions)): ?>
+                        <?php foreach ($interventions as $intervention): ?>
+                            <?php
+                                $interventionModel = model(LearningInterventionModel::class);
+                                $intervention = $interventionModel->find($intervention['id'])
+                            ?>
+                            <option value="<?= $intervention['id'] ?>" <?= (isset($vendor) && $vendor['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
+                                <?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id']  . ']' ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('intervention_id')) ? $validation->getError('intervention_id') : '' ?>
