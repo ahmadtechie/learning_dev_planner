@@ -38,7 +38,7 @@
                                         $lineManagerDetails = $employeeModel->getEmployeeDetailsWithUser($employee['line_manager_id']);
 
                                         if ($lineManagerDetails !== null) {
-                                            $lineManagerData = $lineManagerDetails['first_name'];
+                                            $lineManagerData = $lineManagerDetails['first_name'] . ' ' . $lineManagerDetails['last_name'];
                                         }
                                     }
                                     ?>

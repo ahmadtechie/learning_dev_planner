@@ -41,7 +41,7 @@
                                     ?>
                                     <tr>
                                         <td><?= $intervention['intervention_name'] ?></td>
-                                        <td><?= $trainer['first_name'] . ' ' . $trainer['last_name'] ?></td>
+                                        <td><?php if ($trainer)echo $trainer['first_name'] . ' ' . $trainer['last_name']; else echo '-' ?></td>
                                         <td><?php if($competency) echo $competency['competency_name']; else echo '-' ?></td>
                                         <td><?= $cycle['cycle_year'] ?></td>
                                         <td><?php if ($intervention_type) echo $intervention_type['name']; else echo '-'?></td>

@@ -26,6 +26,16 @@
                         }, 3000);
                     </script>
                 <?php endif; ?>
+                <?php if (!empty(session()->getFlashdata('bulk_upload_errors'))): ?>
+                    <div id="errorAlert" class="alert alert-danger" role="alert">
+                        <?php echo print_r(session('bulk_upload_errors'), true) ?>
+                    </div>
+                    <script>
+                        setTimeout(function () {
+                            $("#errorAlert").fadeOut("slow");
+                        }, 3000);
+                    </script>
+                <?php endif; ?>
                 <div class="form-group">
                     <label for="csv_file">Select CSV File</label>
                     <input type="file" class="form-control-file" id="csv_file" name="attendance_csv" accept=".csv">
@@ -33,7 +43,6 @@
             </div>
             <!-- /.card-body -->
             <div class="card-footer">
-                <!--                <button id="previewBtn" class="btn btn-info">Preview</button>-->
                 <button id="submitBtn" class="btn btn-success">Preview</button>
                 Download the CSV format to be used for the upload <a href="<?= url_to('ldm.intervention.attendance.format') ?>">intervention_attendance_bulk_upload_template.csv</a>
             </div>
@@ -45,9 +54,10 @@
 <div class="row mt-3">
     <div class="col-md-8 mx-auto">
         <div class="alert alert-info" role="alert">
-            <strong>Hint:</strong> Repeat the rows for the number of times the respective employee attended an intervention.
+            <strong>Hint:</strong> The InterventionID is needed for a successful employee-intervention attendance mapping.
         </div>
     </div>
 </div>
 
 <?php include(APPPATH . 'Views/tables/attendance_bulk_upload_preview.php'); ?>
+

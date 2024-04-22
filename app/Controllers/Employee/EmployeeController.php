@@ -35,7 +35,6 @@ class EmployeeController extends BaseController
     public SiteSettingsModel $siteSettingsModel;
     public EmailHelper $emailHelper;
 
-
     public int $employee_role_id;
     public array $validation = [
         'email' => [

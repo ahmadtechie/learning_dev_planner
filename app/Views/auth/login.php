@@ -22,7 +22,6 @@
             <img src="<?php echo base_url("images/favicon.png") ?>" alt="LIM Logo" class="brand-image img-circle elevation-3" style="opacity: .8; width: 40px; height: 40px; margin-right: 10px;">
             <b>LD Planner</b>
         </a>
-        <?php echo session()->get('redirect_url') ?>
     </div>
     <!-- /.login-logo -->
     <div class="card">
@@ -69,17 +68,9 @@
                     </div>
                 </div>
             <span class="text-danger"><?= isset($validation) && $validation->hasError('password') ? $validation->getError('password') : '' ?></span>
-            <div class="row">
-                    <div class="col-8">
-                        <div class="icheck-primary">
-                            <input type="checkbox" id="remember">
-                            <label for="remember">
-                                Remember Me
-                            </label>
-                        </div>
-                    </div>
+            <div class="row justify-content-center">
                     <!-- /.col -->
-                    <div class="col-4">
+                    <div class="col-6 ">
                         <button type="submit" class="btn btn-primary btn-block">Sign In</button>
                     </div>
                     <!-- /.col -->
@@ -87,7 +78,7 @@
             <?= form_close(); ?>
 
 
-            <p class="mb-1">
+            <p class="mb-1 text-center">
                 <a href="<?= url_to('ldm.forgot.password') ?>">I forgot my password</a>
             </p>
         </div>

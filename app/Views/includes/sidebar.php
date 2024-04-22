@@ -68,47 +68,6 @@
                     </ul>
                 </li>
                 <?php if (isset($userData['learningDevRoleId']) and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))): ?>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-copy"></i>
-                            <p>
-                                Reporting Module
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="<?= url_to('ldm.reports.competencies') ?>" class="nav-link <?= strpos(url_to('ldm.reports.competencies'), uri_string()) ? 'active' : ''; ?>">
-                                    <i class="far fa-clone nav-icon"></i>
-                                    <p>Competencies Reports</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="<?= url_to('ldm.reports.contracts') ?>" class="nav-link <?= strpos(url_to('ldm.reports.contracts'), uri_string()) ? 'active' : ''; ?>">
-                                    <i class="far fa-clone nav-icon"></i>
-                                    <p>Development Contract Summary</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="<?= url_to('ldm.reports.interventions') ?>" class="nav-link <?= strpos(url_to('ldm.reports.interventions'), uri_string()) ? 'active' : ''; ?>">
-                                    <i class="far fa-clone nav-icon"></i>
-                                    <p>Intervention History Reports</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="<?= url_to('ldm.reports.attendance') ?>" class="nav-link <?= strpos(url_to('ldm.reports.attendance'), uri_string()) ? 'active' : ''; ?>">
-                                    <i class="far fa-clone nav-icon"></i>
-                                    <p>Intervention Attendance Reports</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="<?= url_to('ldm.reports.feedback') ?>" class="nav-link <?= strpos(url_to('ldm.reports.feedback'), uri_string()) ? 'active' : ''; ?>">
-                                    <i class="far fa-clone nav-icon"></i>
-                                    <p>Participant Feedback Reports</small></p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
                     <li class="nav-item <?= strpos(uri_string(), "structure") ? 'menu-open' : ''; ?>">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-sitemap"></i>

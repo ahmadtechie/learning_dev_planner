@@ -12,7 +12,7 @@ class EmailLogModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['email', 'type', 'status', 'created_at', 'updated_at'];
+    protected $allowedFields    = ['email', 'type', 'status', 'intervention_id', 'created_at', 'updated_at'];
 
     protected bool $allowEmptyInserts = false;
 

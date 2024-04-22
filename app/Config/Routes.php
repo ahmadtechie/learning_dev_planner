@@ -180,7 +180,7 @@ $routes->group('ldm', function ($routes) {
         $routes->post('map/', [EmployeeInterventionMappingController::class, 'create'], ['as' => 'ldm.intervention.map.create']);
         $routes->post('fetch-interventions/', [EmployeeInterventionMappingController::class, 'fetchInterventions'], ['as' => 'ldm.intervention.fetch']);
         $routes->post('fetch-classes/', [EmployeeInterventionMappingController::class, 'fetchClasses'], ['as' => 'ldm.intervention.class.fetch']);
-        $routes->get('fetch-employees/(:num)/', [EmployeeInterventionMappingController::class, 'fetchEligibleEmployees'], ['as' => 'ldm.intervention.employees.fetch']);
+        $routes->post('fetch-employees/', [EmployeeInterventionMappingController::class, 'fetchEligibleEmployees'], ['as' => 'ldm.intervention.employees.fetch']);
     });
 
     $routes->group('trainer', ['filter' => 'TrainerCheck'], function ($routes) {
@@ -201,18 +201,15 @@ $routes->group('ldm', function ($routes) {
         $routes->get('adp/', [InterventionVendorController::class, 'index'], ['as' => 'ldm.dashboard.adp']);
     });
 
-    $routes->group('reports', ['filter' => 'AuthCheck'], function ($routes) {
-        $routes->get('competencies/', [ReportController::class, 'index'], ['as' => 'ldm.reports.competencies']);
-        $routes->get('contracts/', [ReportController::class, 'index'], ['as' => 'ldm.reports.contracts']);
-        $routes->get('interventions/', [ReportController::class, 'index'], ['as' => 'ldm.reports.interventions']);
-        $routes->get('attendance/', [ReportController::class, 'index'], ['as' => 'ldm.reports.attendance']);
-        $routes->get('feedback/', [ReportController::class, 'index'], ['as' => 'ldm.reports.feedback']);
-    });
-
     $routes->get('login/', [AuthController::class, 'index'], ['as' => 'ldm.login']);
     $routes->post('login/', [AuthController::class, 'login'], ['as' => 'ldm.login.auth']);
     $routes->get('logout/', [AuthController::class, 'logout'], ['as' => 'ldm.logout']);
-    $routes->get('forgot/password', [AuthController::class, 'forgotPassword'], ['as' => 'ldm.forgot.password']);
-    $routes->post('forgot/password', [AuthController::class, 'handleForgotPassword'], ['as' => 'ldm.retrieve.password']);
+    $routes->get('password/forgot/', [AuthController::class, 'forgotPassword'], ['as' => 'ldm.forgot.password']);
+    $routes->post('password/retrieve/', [AuthController::class, 'handleForgotPassword'], ['as' => 'ldm.retrieve.password']);
+
+    $routes->group('', ['filter' => 'AuthCheck'], function ($routes) {
+        $routes->get('password/change', [AuthController::class, 'getChangePassword'], ['as' => 'ldm.change.password']);
+        $routes->post('password/save', [AuthController::class, 'handleChangePassword'], ['as' => 'ldm.change.password.save']);
+    });
 });
 

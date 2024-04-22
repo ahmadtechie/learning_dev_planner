@@ -3,11 +3,16 @@
 namespace App\Controllers\InterventionManagement;
 
 use App\Controllers\BaseController;
+use App\Helpers\EmailHelper;
 use App\Models\DevelopmentCycleModel;
+use App\Models\EmailLogModel;
+use App\Models\EmailTemplateModel;
 use App\Models\EmployeeInterventionsModel;
 use App\Models\EmployeeModel;
+use App\Models\InterventionAttendanceModel;
 use App\Models\InterventionClassModel;
 use App\Models\LearningInterventionModel;
+use App\Models\SiteSettingsModel;
 
 helper(['form', 'url']);
 
@@ -19,6 +24,12 @@ class EmployeeInterventionMappingController extends BaseController
     public InterventionClassModel $interventionClassModel;
     public DevelopmentCycleModel $cycleModel;
     public EmployeeInterventionsModel $employeeInterventionsModel;
+    public SiteSettingsModel $siteSettingsModel;
+    public EmailTemplateModel $emailTemplateModel;
+    public EmailHelper $emailHelper;
+    public EmailLogModel $emailLogModel;
+    public InterventionAttendanceModel $interventionAttendanceModel;
+
 
     public array $validation = [
         'employee_ids' => [
@@ -42,11 +53,17 @@ class EmployeeInterventionMappingController extends BaseController
         $this->interventionClassModel = model(InterventionClassModel::class);
         $this->cycleModel = model(DevelopmentCycleModel::class);
         $this->employeeInterventionsModel = model(EmployeeInterventionsModel::class);
+        $this->siteSettingsModel = model(SiteSettingsModel::class);
+        $this->emailTemplateModel = model(EmailTemplateModel::class);
+        $this->emailHelper = model(EmailHelper::class);
+        $this->emailLogModel = model(EmailLogModel::class);
+        $this->interventionAttendanceModel = model(InterventionAttendanceModel::class);
 
         $this->data = [
             'title' => 'Employee Intervention Mapping | LD Planner',
             'employees' => $this->employeeModel->getAllEmployeesWithUserDetails(),
-            'cycles' => $this->cycleModel->orderBy('created_at', 'DESC')->findAll(),
+            'active_cycles' => $this->cycleModel->orderBy('created_at', 'DESC')->where('is_active', true)->findAll(),
+            'all_cycles' => $this->cycleModel->orderBy('created_at', 'DESC')->findAll(),
             'interventions' => $this->learningInterventionModel->orderBy('created_at', 'DESC')->findAll(),
             'classes' => $this->interventionClassModel->orderBy('created_at', 'DESC')->findAll(),
             'page_name' => 'Employee-Intervention Mapping',
@@ -64,6 +81,9 @@ class EmployeeInterventionMappingController extends BaseController
             view('includes/footer');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function create()
     {
         $this->data['userData'] = $this->request->userData;
@@ -77,13 +97,98 @@ class EmployeeInterventionMappingController extends BaseController
                 view('includes/footer');
         }
         $employeeIds = $this->request->getPost('employee_ids');
+        $classIds = $this->request->getPost('class_ids');
         $intervention_id = $this->request->getPost('intervention_id');
+        $cycle_id = $this->request->getPost('cycle_id');
+        $cycleData = $this->cycleModel->find($cycle_id);
+        $intervention = $this->learningInterventionModel->find($intervention_id);
+        $trainer = $this->employeeModel->getEmployeeDetailsWithUser($intervention['trainer_id']);
+        $classDetails = '';
+
+        foreach ($classIds as $classId) {
+            $classDetail = $this->interventionClassModel->find($classId);
+            $classDetails .= "<div class=\"class-details\">
+                                    <p><strong>Class Name:</strong> {$classDetail['class_name']}</p>
+                                    <p><strong>Start Date:</strong> {$classDetail['start_date']}</p>
+                                    <p><strong>End Date:</strong> {$classDetail['end_date']}</p>
+                                    <p><strong>Venue:</strong> {$classDetail['venue']}</p>
+                                </div>";
+        }
 
         foreach ($employeeIds as $employeeId) {
-            $this->employeeInterventionsModel->insert(['employee_id' => $employeeId, 'intervention_id' => $intervention_id]);
+            foreach ($classIds as $classId) {
+                $this->employeeInterventionsModel->insert(['employee_id' => $employeeId, 'intervention_id' => $intervention_id, 'class_id' => $classId, 'cycle_id' => $cycle_id]);
+            }
+
+            $employeeData = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
+            $siteName = $this->siteSettingsModel->first()["company_name"];
+            $emailData = $this->emailTemplateModel->where('email_type', 'employee_intervention_invite')->first();
+            $find = ['{employee_name}', '{intervention_name}', '{class_details}', '{site_name}', '{trainer}'];
+            $replace = [
+                $employeeData['first_name'] . ' ' . $employeeData['last_name'],
+                $intervention['intervention_name'],
+                $classDetails,
+                $siteName,
+                $trainer['first_name'] . ' ' . $trainer['last_name']
+            ];
+            $emailBody = str_replace($find, $replace, $emailData['email_body']);
+            $emailSubject = str_replace(['{site_name}', '{cycle_year}'], [$siteName, $cycleData['cycle_year']], $emailData['email_subject']);
+            $this->emailHelper->send_email($employeeData['email'], $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
+            $this->emailLogModel->insert(['email' => $employeeData['email'], 'status' => 'success', 'type' => 'employee_intervention_invite', 'intervention_id' => $intervention_id]);
+
+            // initiate the attendance marking for each participant
+            $this->interventionAttendanceModel->insert(['intervention_id' => $intervention_id, 'employee_id' => $employeeId, 'attendance_status' => 'absent']);
         }
+        $this->sendLineManagerNotification($employeeIds, $intervention, $classDetails, $cycleData, $trainer);
+
         return redirect('ldm.intervention.map')->with('success', 'The selected employees have been mapped to the intervention.');
     }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function sendLineManagerNotification($employeeIds, $intervention, $classDetails, $cycleData, $trainer)
+    {
+        $employeeDataByLineManager = [];
+        foreach ($employeeIds as $employeeId) {
+            $lineManagerId = $this->employeeModel->find($employeeId)['line_manager_id'];
+            if (!$lineManagerId) {
+                continue;
+            }
+            if (!isset($employeeDataByLineManager[$lineManagerId])) {
+                $employeeDataByLineManager[$lineManagerId] = [];
+            }
+            $employeeDataByLineManager[$lineManagerId][] = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
+        }
+
+        foreach ($employeeDataByLineManager as $lineManagerId => $employees) {
+            $lineManagerData = $this->employeeModel->getEmployeeDetailsWithUser($lineManagerId);
+
+            $directReportsList = '';
+            foreach ($employees as $employee) {
+                $directReportsList .= "<li>{$employee['first_name']} {$employee['last_name']}</li>";
+            }
+
+            $siteName = $this->siteSettingsModel->first()["company_name"];
+            $emailData = $this->emailTemplateModel->where('email_type', 'line_manager_intervention_notification')->first();
+            $find = ['{line_manager_name}', '{intervention_name}', '{class_details}', '{direct_reports}', '{site_name}', '{cycle_year}', '{trainer}'];
+            $replace = [
+                $lineManagerData['first_name'] . ' ' . $lineManagerData['last_name'],
+                $intervention['intervention_name'],
+                $classDetails,
+                $directReportsList,
+                $siteName,
+                $cycleData['cycle_year'],
+                $trainer['first_name'] . ' ' . $trainer['last_name']
+            ];
+            $emailBody = str_replace($find, $replace, $emailData['email_body']);
+            $emailSubject = str_replace(['{site_name}', '{cycle_year}'], [$siteName, $cycleData['cycle_year']], $emailData['email_subject']);
+
+            $this->emailHelper->send_email($lineManagerData['email'], $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
+            $this->emailLogModel->insert(['email' => $lineManagerData['email'], 'status' => 'success', 'type' => 'line_manager_intervention_notification']);
+        }
+    }
+
 
     public function fetchInterventions()
     {
@@ -109,12 +214,13 @@ class EmployeeInterventionMappingController extends BaseController
         echo $options;
     }
 
-    public function fetchEligibleEmployees($interventionId)
+    public function fetchEligibleEmployees()
     {
-//        $interventionId = $this->request->getPost('intervention_id');
-        $eligibleEmployees = $this->employeeInterventionsModel->whereNotIn('intervention_id', [$interventionId])->findAll();
-        $employeeIds = array_column($eligibleEmployees, 'employee_id');
+        $interventionId = $this->request->getPost('intervention_id');
+        $cycleId = $this->request->getPost('cycle_id');
+        $eligibleEmployees = $this->employeeInterventionsModel->getEmployeesWithoutIntervention($interventionId, $cycleId);
 
+        $employeeIds = array_column($eligibleEmployees, 'id');
         $options = '';
         foreach ($employeeIds as $employeeId) {
             $employee = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
