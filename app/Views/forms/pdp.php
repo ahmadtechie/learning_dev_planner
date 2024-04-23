@@ -1,18 +1,19 @@
+<?php
+
+use App\Models\CompetencyModel;
+
+?>
 <section class="content">
     <div class="container">
         <!-- Header Section -->
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                <h2>{employee_name} Personal Development Plan {cycle_year}</h2>
-            </div>
-        </div>
 
         <!-- Rate Self Section -->
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card card-info">
                     <div class="card-header">
-                        <h3 class="card-title">Rate Self: <strong><?= session()->get('first_name') . ' ' . session()->get('last_name') ?></strong></h3>
+                        <h3 class="card-title">Personal Development Plan:
+                            <strong><?= $loggedInUserFullName ?? '' ?></strong></h3>
                     </div>
                     <?= form_open(url_to('ldm.rating.self')) ?>
                     <div class="card-body">
@@ -37,42 +38,59 @@
                             </script>
                         <?php endif; ?>
                         <div class="form-group">
-                            <label for="dev_cycle">Development Cycle <span>*</span></label>
-                            <select id="dev_cycle" name="cycle_id" class="form-control">
-                                <option>Choose Dev Cycle</option>
-                                <?php if (!empty($cycles) && is_array($cycles)): ?>
-                                    <?php foreach ($cycles as $cycle): ?>
-                                        <option value="<?= $cycle['id'] ?>"><?= esc($cycle['cycle_year']) ?></option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
+                            <label for="dev_cycle">Development
+                                Cycle: <?= '(' . $active_cycle['cycle_year'] . ')' ?? '' ?></label>
                         </div>
-                        <?php foreach ($competencies as $competency): ?>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="competency<?= $competency['id'] ?>">Competency <?= $competency['id'] ?> <span>*</span></label>
-                                    <select class="form-control competency-select" id="competency<?= $competency['id'] ?>" name="competency<?= $competency['id'] ?>" required>
-                                        <option value="<?= $competency['id'] ?>"><?= $competency['competency_name'] ?></option>
-                                    </select>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label>Average Rating</label>
-                                    <!-- Display average rating -->
-                                    <p>Average Self: <?= $competency['average_self_rating'] ?></p>
-                                    <p>Average Line Manager: <?= $competency['average_lm_rating'] ?></p>
-                                </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="competency">Top 'n' Competencies</label>
                             </div>
-                        <?php endforeach; ?>
+                            <div class="form-group col-md-6">
+                                <label for="average_rating">Average Rating</label>
+                            </div>
+                        </div>
+                        <?php if (!empty($employee_ratings)): ?>
+                            <?php $competencyModel = model(CompetencyModel::class); ?>
+                            <?php if (!empty($employee_ratings)): ?>
+                                <?php $competencyModel = model(CompetencyModel::class); ?>
+                                <?php foreach ($employee_ratings as $ratingCount => $rating): ?>
+                                    <?php $competency = $competencyModel->find($rating['competency_id']); ?>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <select class="form-control competency-select"
+                                                    id="competency<?= $ratingCount ?>" name="competency<?= $ratingCount ?>"
+                                                    required>
+                                                <option value="<?= $competency['id'] ?>"
+                                                        selected><?= $competency['competency_name'] ?></option>
+                                                <?php foreach ($employee_ratings as $otherRating): ?>
+                                                    <?php if ($otherRating['competency_id'] != $competency['id']): ?>
+                                                        <?php $otherCompetency = $competencyModel->find($otherRating['competency_id']); ?>
+                                                        <option value="<?= $otherCompetency['id'] ?>"><?= $otherCompetency['competency_name'] ?></option>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                                <?php
+                                                $avg_rating = ($rating['self_rating'] + $rating['line_manager_rating']) / 2;
+                                                ?>
+                                                <input type="number" id="average_rating" name="average_rating"
+                                                       value="<?= $avg_rating ?>" class="form-control" disabled>
+                                                <?php $avg_rating_displayed = true; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                    <div class="row card-footer justify-content-center">
+                        <button type="submit" class="btn btn-primary col-md-3">Submit</button>
                     </div>
                     <?= form_close() ?>
                 </div>
             </div>
         </div>
 
-        <!-- Employee and Line Manager Sign-off Section -->
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card card-info">
@@ -80,13 +98,10 @@
                         <h3 class="card-title">Employee and Line Manager Sign-off</h3>
                     </div>
                     <div class="card-body">
-                        <!-- Include options for sign-off -->
                         <label for="employee-signoff">Employee Sign-off:</label>
                         <input type="checkbox" id="employee-signoff" name="employee-signoff">
-                        <!-- Include date of Employee sign-off -->
                         <label for="lm-signoff">Line Manager Sign-off:</label>
                         <input type="checkbox" id="lm-signoff" name="lm-signoff">
-                        <!-- Include date of LM sign-off -->
                     </div>
                 </div>
             </div>

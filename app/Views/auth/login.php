@@ -78,7 +78,7 @@
             <?= form_close(); ?>
 
 
-            <p class="mb-1 text-center">
+            <p class="mb-1 mt-1 text-center">
                 <a href="<?= url_to('ldm.forgot.password') ?>">I forgot my password</a>
             </p>
         </div>

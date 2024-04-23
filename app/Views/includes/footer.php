@@ -143,7 +143,7 @@
             var selectedCompetency = $(this).val();
 
             $('.competency-select').each(function() {
-                    if (this !== event.target) {
+                if (this !== event.target) {
                     $(this).find('option[value="' + selectedCompetency + '"]').remove();
                 }
             });

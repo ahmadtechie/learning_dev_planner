@@ -21,6 +21,7 @@ use App\Controllers\OrgStructure\DepartmentController;
 use App\Controllers\OrgStructure\DivisionController;
 use App\Controllers\OrgStructure\GroupController;
 use App\Controllers\OrgStructure\UnitController;
+use App\Controllers\PDPController;
 use App\Controllers\ReportController;
 use App\Controllers\Trainer\InterventionAttendanceController;
 use App\Controllers\Trainer\ParticipantFeedbackController;
@@ -197,7 +198,7 @@ $routes->group('ldm', function ($routes) {
     });
 
     $routes->group('dashboard', ['filter' => 'AuthCheck'], function ($routes) {
-        $routes->get('pdp/', [InterventionVendorController::class, 'index'], ['as' => 'ldm.dashboard.pdp']);
+        $routes->get('pdp/', [PDPController::class, 'index'], ['as' => 'ldm.dashboard.pdp']);
         $routes->get('adp/', [InterventionVendorController::class, 'index'], ['as' => 'ldm.dashboard.adp']);
     });
 
