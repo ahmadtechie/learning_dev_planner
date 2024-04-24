@@ -12,45 +12,89 @@
                             <thead>
                             <tr>
                                 <th>Employee</th>
+                                <th>Cycle Year</th>
                                 <th>Interventions</th>
-                                <th>Classes</th>
-                                <th>Updated At</th>
+                                <th>Email Sent?</th>
+                                <th>Last Updated</th>
                             </tr>
                             </thead>
                             <tbody>
                             <?php
                             use App\Models\EmployeeInterventionsModel;
                             use App\Models\LearningInterventionModel;
+                            use App\Models\InterventionClassModel;
+                            use App\Models\EmployeeModel;
+                            use App\Models\DevelopmentCycleModel;
+                            use App\Models\EmailLogModel;
 
                             $employeeInterventionsModel = model(EmployeeInterventionsModel::class);
                             $interventionModel = model(LearningInterventionModel::class);
+                            $classModel = model(InterventionClassModel::class);
+                            $cycleModel = model(DevelopmentCycleModel::class);
+                            $employeeModel = model(EmployeeModel::class);
+                            $emailLogModel = model(EmailLogModel::class);
+
+                            $employeeInterventions = $employeeInterventionsModel
+                                ->groupBy('employee_id, cycle_id')
+                                ->findAll();
+
+                            if (!empty($employeeInterventions) && is_array($employeeInterventions)) {
+                                foreach ($employeeInterventions as $employeeIntervention) {
+                                    $employee = $employeeModel->getEmployeeDetailsWithUser($employeeIntervention['employee_id']);
+                                    if (!$employee) {
+                                        continue;
+                                    }
+                                    $cycle_year = $cycleModel->find($employeeIntervention['cycle_id']);
+                                    if (!$cycle_year) {
+                                        continue;
+                                    }
+                                    $is_mail_sent = 0;
+
+                                    $interventionsData = $employeeInterventionsModel
+                                        ->where('employee_id', $employeeIntervention['employee_id'])
+                                        ->where('cycle_id', $employeeIntervention['cycle_id'])
+                                        ->findAll();
+
+                                    $interventionClasses = [];
+                                    foreach ($interventionsData as $interventionData) {
+                                        $intervention = $interventionModel->find($interventionData['intervention_id']);
+                                        if ($intervention) {
+                                            $is_mail_sent = $emailLogModel
+                                                ->where('type', 'employee_intervention_invite')
+                                                ->where('email', $employee['email'])
+                                                ->where('intervention_id', $interventionData['intervention_id'])
+                                                ->countAllResults();
+                                            $classIds = explode(',', $interventionData['class_id']);
+                                            foreach ($classIds as $classId) {
+                                                $class = $classModel->find($classId);
+                                                if ($class) {
+                                                    $interventionClasses[$intervention['intervention_name']][] = $class['class_name'];
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+                                    echo "<tr>";
+                                    echo "<td>{$employee['first_name']} {$employee['last_name']} [{$employee['username']}]</td>";
+                                    echo "<td>{$cycle_year['cycle_year']}</td>";
+                                    echo "<td>";
+                                    foreach ($interventionClasses as $interventionName => $classNames) {
+                                        echo "{$interventionName}: " . implode(', ', $classNames) . "<br>";
+                                    }
+                                    echo "</td>";
+                                    echo "<td>";
+                                    if ($is_mail_sent) echo 'Yes'; else echo 'No';
+                                    echo "</td>";
+                                    echo "<td>{$employeeIntervention['updated_at']}</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='5'>No employee interventions found</td></tr>";
+                            }
                             ?>
-                            <?php if (!empty($employees) && is_array($employees)): ?>
-                                <?php foreach ($employees as $employee): ?>
-                                    <?php $employeeInterventions = $employeeInterventionsModel->where('employee_id', $employee['employee_id'])->findAll() ?>
-                                    <tr>
-                                        <td><?= "{$employee['first_name']} {$employee['last_name']} [{$employee['username']}]"  ?></td>
-                                        <td><?php if (!empty($employeeInterventions)): ?>
-                                                <?php foreach ($employeeInterventions as $employeeIntervention): ?>
-                                                    <?php $intervention = $interventionModel->find($employeeIntervention['intervention_id']) ?>
-                                                    <?php if ($intervention): ?>
-                                                        <?= $intervention['intervention_name'] . ', ' ?>
-                                                    <?php else: ?>
-                                                        <?php continue; ?>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td></td>
-                                        <td><?= $employee['updated_at']; ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="5">No employee organizational record found</td>
-                                </tr>
-                            <?php endif; ?>
                             </tbody>
+
                         </table>
                     </div>
                     <!-- /.card-body -->
@@ -60,7 +104,8 @@
     </div>
 </section>
 
-<<script>
+
+<script>
     $(function () {
         $("#example1").DataTable({
             "responsive": true,
@@ -93,7 +138,7 @@
                 }
                 , "colvis",
             ],
-            "order": [[3, "desc"]],
+            "order": [[4, "desc"]],
 
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });

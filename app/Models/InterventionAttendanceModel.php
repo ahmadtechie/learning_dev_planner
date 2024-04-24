@@ -6,16 +6,16 @@ use CodeIgniter\Model;
 
 class InterventionAttendanceModel extends Model
 {
-    protected $table            = 'interventionattendance';
+    protected $table            = 'intervention_attendance';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['intervention_id', 'employee_id', 'line_manager_id', 'attendance_date', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['intervention_id', 'employee_id', 'attendance_date', 'attendance_status', 'remarks', 'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

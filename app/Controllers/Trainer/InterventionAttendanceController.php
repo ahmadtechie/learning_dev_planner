@@ -3,12 +3,22 @@
 namespace App\Controllers\Trainer;
 
 use App\Controllers\BaseController;
+use App\Models\EmployeeModel;
+use App\Models\InterventionAttendanceModel;
+use App\Models\LearningInterventionModel;
+use App\Models\UserModel;
+use CodeIgniter\HTTP\Files\UploadedFile;
+use DateTime;
 
 helper(['form', 'url']);
 
 class InterventionAttendanceController extends BaseController
 {
     public array $data;
+    public UserModel $userModel;
+    public EmployeeModel $employeeModel;
+    public LearningInterventionModel $interventionModel;
+    public InterventionAttendanceModel $interventionAttendanceModel;
     public array $validation = [
         'attendance_csv' => [
             'rules' => 'required',
@@ -20,8 +30,13 @@ class InterventionAttendanceController extends BaseController
 
     function __construct()
     {
+        $this->interventionAttendanceModel = model(InterventionAttendanceModel::class);
+        $this->userModel = model(UserModel::class);
+        $this->employeeModel = model(EmployeeModel::class);
+        $this->interventionModel = model(LearningInterventionModel::class);
         $this->data = [
             'title' => 'Attendance Bulk Upload Page | LD Planner',
+            'all_attendance' => $this->interventionAttendanceModel->orderBy('updated_at', 'DESC')->findAll(),
             'page_name' => 'Attendance Bulk Upload',
         ];
     }
@@ -39,7 +54,7 @@ class InterventionAttendanceController extends BaseController
 
     public function format()
     {
-        $columns = ['employee_username', 'intervention_id', 'attendance_date', 'attendance_status', 'session_duration', 'remarks'];
+        $columns = ['employee_username', 'intervention_id', 'attendance_date', 'attendance_status', 'remarks'];
         $csvData = implode(',', $columns) . "\n";
         $filename = 'intervention_attendance_bulk_upload_template.csv';
 
@@ -99,7 +114,7 @@ class InterventionAttendanceController extends BaseController
 
     private function validateRow(array $rowData): array
     {
-        if (count($rowData) !== 6) {
+        if (count($rowData) !== 5) {
             return [
                 'success' => false,
                 'data' => null,
@@ -113,7 +128,7 @@ class InterventionAttendanceController extends BaseController
             'intervention_id' => 'required',
             'attendance_date' => 'required',
             'attendance_status' => 'required',
-            'session_duration' => 'required',
+            'remarks' => 'permit_empty'
         ]);
 
         if (!$validation->run($rowData)) {
@@ -127,11 +142,10 @@ class InterventionAttendanceController extends BaseController
         return [
             'success' => true,
             'data' => [
-                'employee_id' => $rowData['employee_username'],
+                'employee_username' => $rowData['employee_username'],
                 'intervention_id' => $rowData['intervention_id'],
                 'attendance_date' => $rowData['attendance_date'],
                 'attendance_status' => $rowData['attendance_status'],
-                'session_duration' => $rowData['session_duration'],
                 'remarks' => $rowData['remarks'],
             ],
             'message' => ''
@@ -139,8 +153,65 @@ class InterventionAttendanceController extends BaseController
     }
 
 
+    /**
+     * @throws \ReflectionException
+     */
     public function create()
     {
+        $this->data['userData'] = $this->request->userData;
+        $encodedData = $this->request->getPost('encoded_data');
+        $decodedData = base64_decode($encodedData);
+        $tempFilePath = WRITEPATH . 'uploads/attendance_temp_file.csv';
 
+        try {
+            file_put_contents($tempFilePath, $decodedData);
+        } catch (\Exception $e) {
+            return redirect()->to(url_to('ldm.employee.upload'))->with('error', 'Unable to upload the csv file now. Try again!');
+        }
+        $uploadedFile = new UploadedFile($tempFilePath, true);
+
+        if ($uploadedFile->getExtension() === 'csv') {
+            $csvData = array_map('str_getcsv', file($uploadedFile->getTempName()));
+
+            $successCount = 0;
+            $errorCount = 0;
+            $errors = [];
+
+            foreach ($csvData as $rowNumber => $rowData) {
+                if ($rowNumber === 0) continue;
+
+                $employee_username = $rowData[0];
+                $intervention_id = $rowData[1];
+                $attendance_date = $rowData[2];
+                $attendance_status = $rowData[3];
+                $remarks = $rowData[4];
+
+                try {
+                    $user = $this->userModel->where('username', $employee_username)->first();
+                    if (!$user) continue;
+                    $intervention = $this->interventionModel->where('intervention_id', $intervention_id)->first();
+                    if (!$intervention) continue;
+                    $employeeData = $this->employeeModel->where('user_id', $user['id'])->first();
+                    $attendanceData = $this->interventionAttendanceModel->where('employee_id', $employeeData['id'])->where('intervention_id', $intervention['id'])->first();
+                    if (!$attendanceData) continue;
+                    $this->interventionAttendanceModel->update($attendanceData['id'], ['attendance_date' => $attendance_date, 'attendance_status' => $attendance_status, 'remarks' => $remarks]);
+                    $successCount++;
+                } catch
+                (\Exception $e) {
+                    $errorCount++;
+                    $errors[] = "Error on row {$rowNumber}: " . $e->getMessage();
+                }
+            }
+            if ($successCount > 0) {
+                session()->setFlashdata('success', "$successCount attendance updated successfully.");
+            }
+            if ($errorCount > 0) {
+                session()->setFlashdata('error', "$errorCount errors occurred during attendance bulk upload.");
+                session()->setFlashdata('bulk_upload_errors', $errors);
+            }
+            return redirect()->to(url_to('ldm.intervention.attendance'));
+        } else {
+            return redirect()->to('ldm.home');
+        }
     }
 }

@@ -212,9 +212,7 @@ class EmployeeCSVController extends BaseController
             $errors = [];
 
             foreach ($csvData as $rowNumber => $rowData) {
-                if ($rowNumber === 0) {
-                    continue;
-                }
+                if ($rowNumber === 0) continue;
 
                 $user_email = $rowData[0];
                 $first_name = $rowData[1];
@@ -237,9 +235,7 @@ class EmployeeCSVController extends BaseController
 
                 try {
                     $is_user_exist = $this->userModel->where('email', $user_email)->first();
-                    if ($is_user_exist) {
-                        continue;
-                    }
+                    if ($is_user_exist) continue;
                     $userId = $this->userModel->insert([
                         'username' => $username,
                         'email' => $user_email,

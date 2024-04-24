@@ -11,6 +11,7 @@
     <link rel="icon" href="<?php echo base_url("images/favicon.png") ?>">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="<?php echo base_url("plugins/fontawesome-free/css/all.min.css") ?>">
+    <script type="text/javascript" src="<?php echo base_url("plugins/jquery/jquery.min.js") ?>"></script>
     <!-- Ionicons -->
     <link rel="stylesheet" href=https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Tempusdominus Bootstrap 4 -->
@@ -42,7 +43,6 @@
     <link rel="stylesheet" href="<?php echo base_url("plugins/datatables-buttons/css/buttons.bootstrap4.min.css") ?>">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?php echo base_url("dist/css/adminlte.min.css") ?>">
-    <script type="text/javascript" src="<?php echo base_url("plugins/jquery/jquery.min.js") ?>"></script>
 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">

@@ -78,7 +78,7 @@ class EmployeeModel extends Model
     {
         return $this->select('employee.id AS employee_id, employee.*, user.*, job.job_title as job_title, CONCAT(line_manager.first_name, " ", line_manager.last_name) as line_manager_name')
             ->join('user', 'user.id = employee.user_id')
-            ->join('job', 'job.id = employee.job_id')
+            ->join('job', 'job.id = employee.job_id', 'left')
             ->join('user as line_manager', 'line_manager.id = employee.line_manager_id', 'left')
             ->where('employee.id', $employeeId)
             ->first();

@@ -143,7 +143,7 @@
             var selectedCompetency = $(this).val();
 
             $('.competency-select').each(function() {
-                    if (this !== event.target) {
+                if (this !== event.target) {
                     $(this).find('option[value="' + selectedCompetency + '"]').remove();
                 }
             });
@@ -410,11 +410,13 @@
 
     function updateEmployees() {
         let interventionId = $('#intervention_id').val();
+        let cycleId = $('#cycle_id').val();
         $.ajax({
             url: 'http://localhost:8080/ldm/intervention/fetch-employees/',
             method: 'POST',
             data: {
                 intervention_id: interventionId,
+                cycle_id: cycleId,
             },
             success: function(data) {
                 console.log(data)

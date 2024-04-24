@@ -5,6 +5,7 @@ namespace App\Controllers\InterventionManagement;
 use App\Controllers\BaseController;
 use App\Models\CompetencyModel;
 use App\Models\DevelopmentCycleModel;
+use App\Models\EmployeeModel;
 use App\Models\InterventionTypeModel;
 use App\Models\LearningInterventionModel;
 use App\Models\UserRoleModel;
@@ -21,6 +22,7 @@ class LearningInterventionController extends BaseController
     public CompetencyModel $competencyModel;
     public DevelopmentCycleModel $cycleModel;
     public InterventionTypeModel $interventionTypeModel;
+    public EmployeeModel $employeeModel;
     public array $validation = [
         'intervention_name' => [
             'rules' => 'required',
@@ -62,12 +64,15 @@ class LearningInterventionController extends BaseController
         $this->cycleModel = model(DevelopmentCycleModel::class);
         $this->competencyModel = model(CompetencyModel::class);
         $this->interventionTypeModel = model(InterventionTypeModel::class);
+        $this->employeeModel = model(EmployeeModel::class);
+        $trainerRoleId = $this->userRoleModel->where('name', 'Trainer')->first()['id'];
 
         $this->data = [
             'title' => 'Learning Intervention | LD Planner',
             'competencies' => $this->competencyModel->findAll(),
             'cycles' => $this->cycleModel->findAll(),
             'intervention_types' => $this->interventionTypeModel->findAll(),
+            'trainers' => $this->employeeModel->getTrainerEmployeesDetails($trainerRoleId),
             'page_name' => 'Learning Intervention',
             'learningInterventions' => $this->learningInterventionModel->orderBy('created_at', 'DESC')->findAll(),
         ];

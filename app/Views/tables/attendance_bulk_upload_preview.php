@@ -1,3 +1,6 @@
+<?php if (empty($data)): ?>
+<?php include(APPPATH . 'Views/tables/attendance_table.php'); ?>
+<?php else: ?>
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -18,27 +21,25 @@
                         <?php endif; ?>
 
                         <?php if (!empty($data)) : ?>
-                            <?= form_open_multipart(url_to('ldm.employee.upload.create')) ?>
+                            <?= form_open_multipart(url_to('ldm.intervention.attendance.create')) ?>
                             <input type="hidden" name="encoded_data" value="<?= $uploadedFile ?>">
-                            <table id="example1" class="table table-bordered table-striped">
+                            <table id="" class="table table-bordered table-striped">
                                 <thead>
                                 <tr>
-                                    <th>Employee ID</th>
+                                    <th>Employee Username</th>
                                     <th>Intervention ID</th>
                                     <th>Attendance Date</th>
                                     <th>Attendance Status</th>
-                                    <th>Session Duration</th>
                                     <th>Remarks</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <?php foreach ($data as $row) : ?>
                                     <tr>
-                                        <td><?= esc($row['employee_id']) ?? '' ?></td>
+                                        <td><?= esc($row['employee_username']) ?? '' ?></td>
                                         <td><?= esc($row['intervention_id']) ?? '' ?></td>
                                         <td><?= esc($row['attendance_date']) ?? '' ?></td>
                                         <td><?= esc($row['attendance_status']) ?? ''  ?></td>
-                                        <td><?= esc($row['session_duration']) ?? ''  ?></td>
                                         <td><?= esc($row['remarks']) ?? ''  ?></td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -53,14 +54,6 @@
         </div>
     </div>
 </section>
+<?php endif; ?>
 
-<script>
-    $(function() {
-        $("#example1").DataTable({
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print"],
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-    });
-</script>
+

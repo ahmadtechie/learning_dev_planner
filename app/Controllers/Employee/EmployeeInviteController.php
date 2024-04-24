@@ -44,6 +44,7 @@ class EmployeeInviteController extends BaseController
         $this->employeeModel = model(EmployeeModel::class);
         $this->emailLogsModel = model(EmailLogModel::class);
         $this->userModel = model(UserModel::class);
+        $this->emailTemplateModel = model(EmailTemplateModel::class);
 
         $this->data = [
             'title' => 'Dev Cycle Invite | LD Planner',
