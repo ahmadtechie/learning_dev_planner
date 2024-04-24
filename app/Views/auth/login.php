@@ -19,8 +19,7 @@
 <div class="login-box">
     <div class="login-logo">
         <a href="<?php url_to('ldm.home') ?>" class="h1" style="display: inline-block; vertical-align: middle;">
-            <img src="<?php echo base_url("images/favicon.png") ?>" alt="LIM Logo" class="brand-image img-circle elevation-3" style="opacity: .8; width: 40px; height: 40px; margin-right: 10px;">
-            <b>LD Planner</b>
+            <img src="<?php echo base_url("images/LD planner.png") ?>" alt="LIM Logo" class="brand-image elevation-3" style=" width: 150px; height: 140px; margin-right: 10px;">
         </a>
     </div>
     <!-- /.login-logo -->
