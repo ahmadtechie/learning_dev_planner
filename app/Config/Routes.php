@@ -34,6 +34,7 @@ use CodeIgniter\Router\RouteCollection;
 $routes->group('', ['filter' => 'AuthCheck'], function ($routes) {
     $routes->get('/', [Home::class, 'index'], ['as' => 'ldm.home']);
     $routes->get('/home', [Home::class, 'index'], ['as' => 'ldm.home.dashboard']);
+    $routes->get('/email', [Home::class, 'email'], ['as' => 'ldm.home.email']);
     $routes->get('/access-denied', [Home::class, 'accessDenied'], ['as' => 'ldm.access_denied']);
 });
 
@@ -199,6 +200,7 @@ $routes->group('ldm', function ($routes) {
 
     $routes->group('dashboard', ['filter' => 'AuthCheck'], function ($routes) {
         $routes->get('pdp/', [PDPController::class, 'index'], ['as' => 'ldm.dashboard.pdp']);
+        $routes->post('pdp/create', [PDPController::class, 'create'], ['as' => 'ldm.dashboard.pdp.create']);
         $routes->get('adp/', [InterventionVendorController::class, 'index'], ['as' => 'ldm.dashboard.adp']);
     });
 

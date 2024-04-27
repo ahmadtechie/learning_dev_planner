@@ -25,7 +25,7 @@
                 </span>
             </div>
             <div class="form-group">
-                <label for="qualification">Description <span>*</span></label>
+                <label for="qualification">Descriptors <span>*</span></label>
                 <textarea id="qualification" name="description" class="form-control" rows="3" placeholder="Enter Description" required><?= isset($competency) ? esc($competency['description']) : set_value('description') ?></textarea>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('description')) ? $validation->getError('description') : '' ?>

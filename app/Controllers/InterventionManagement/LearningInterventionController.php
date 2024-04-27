@@ -70,7 +70,7 @@ class LearningInterventionController extends BaseController
         $this->data = [
             'title' => 'Learning Intervention | LD Planner',
             'competencies' => $this->competencyModel->findAll(),
-            'cycles' => $this->cycleModel->findAll(),
+            'cycles' => $this->cycleModel->orderBy('cycle_year')->findAll(),
             'intervention_types' => $this->interventionTypeModel->findAll(),
             'trainers' => $this->employeeModel->getTrainerEmployeesDetails($trainerRoleId),
             'page_name' => 'Learning Intervention',

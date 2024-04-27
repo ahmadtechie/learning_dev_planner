@@ -12,7 +12,7 @@
                             <thead>
                             <tr>
                                 <th>Competency Name</th>
-                                <th>Description</th>
+                                <th>Descriptors</th>
                                 <th>Created At</th>
                                 <th>Updated At</th>
                                 <th>Actions</th>

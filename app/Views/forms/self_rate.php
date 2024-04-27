@@ -76,5 +76,19 @@
 </section>
 <?php include(APPPATH . 'Views/tables/employee_ratings_table.php'); ?>
 
+<script>
+    $(document).ready(function() {
+        $('.competency-select').change(function() {
+            var selectedCompetency = $(this).val();
+
+            $('.competency-select').each(function() {
+                if (this !== event.target) {
+                    $(this).find('option[value="' + selectedCompetency + '"]').remove();
+                }
+            });
+        });
+    });
+</script>
+
 
 

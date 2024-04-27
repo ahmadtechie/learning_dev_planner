@@ -14,6 +14,7 @@ use App\Models\UnitModel;
 use App\Models\UserModel;
 use App\Models\UserRoleModel;
 use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\Config\Services;
 use CodeIgniter\HTTP\ResponseInterface;
 use ReflectionException;
 
@@ -168,11 +169,12 @@ class EmployeeController extends BaseController
 
 
         $email = $this->emailHelper->send_email($user_email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
-
-        if ($email) {
-            return redirect()->to(url_to('ldm.employee'))->with('success', "Email sent to new user $firstName successfully.");
-        }
-        return redirect()->to(url_to('ldm.employee'))->with('error', "Email failed!")->withInput();
+        return view('display_email', ['emailBody' => $emailBody]);
+//        if ($email) {
+//            return redirect()->to(url_to('ldm.employee'))->with('success', "Email sent to new user $firstName successfully.");
+//        } else {
+//            return redirect()->to(url_to('ldm.employee'))->with('error', "Email failed!")->withInput();
+//        }
     }
 
     public function edit($employeeId): string
@@ -180,7 +182,7 @@ class EmployeeController extends BaseController
         $this->data['userData'] = $this->request->userData;
         $employee = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
         $this->data['employee'] = $employee;
-        $this->data['selected_roles'] = $this->employeeModel->where('employee_id', $employeeId)->findAll();
+        $this->data['selected_roles'] = $this->employeeModel->where('id', $employeeId)->findAll();
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .

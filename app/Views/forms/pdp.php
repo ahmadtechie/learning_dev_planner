@@ -2,6 +2,8 @@
 
 use App\Models\CompetencyModel;
 
+$loggedInEmployeeId = session()->get('loggedInEmployee');
+
 ?>
 <section class="content">
     <div class="container">
@@ -15,7 +17,7 @@ use App\Models\CompetencyModel;
                         <h3 class="card-title">Personal Development Plan:
                             <strong><?= $loggedInUserFullName ?? '' ?></strong></h3>
                     </div>
-                    <?= form_open(url_to('ldm.rating.self')) ?>
+                    <?= form_open(url_to('ldm.dashboard.pdp.create')) ?>
                     <div class="card-body">
                         <?php if (!empty(session()->getFlashdata('success'))): ?>
                             <div id="successAlert" class="alert alert-success" role="alert">
@@ -52,13 +54,13 @@ use App\Models\CompetencyModel;
                         <?php if (!empty($employee_ratings)): ?>
                             <?php $competencyModel = model(CompetencyModel::class); ?>
                             <?php if (!empty($employee_ratings)): ?>
-                                <?php $competencyModel = model(CompetencyModel::class); ?>
                                 <?php foreach ($employee_ratings as $ratingCount => $rating): ?>
                                     <?php $competency = $competencyModel->find($rating['competency_id']); ?>
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <select class="form-control competency-select"
-                                                    id="competency<?= $ratingCount ?>" name="competency<?= $ratingCount ?>"
+                                                    id="competency<?= $ratingCount ?>"
+                                                    name="competency<?= $ratingCount ?>"
                                                     required>
                                                 <option value="<?= $competency['id'] ?>"
                                                         selected><?= $competency['competency_name'] ?></option>
@@ -71,22 +73,23 @@ use App\Models\CompetencyModel;
                                             </select>
                                         </div>
                                         <div class="form-group col-md-6">
-                                                <?php
-                                                $avg_rating = ($rating['self_rating'] + $rating['line_manager_rating']) / 2;
-                                                ?>
-                                                <input type="number" id="average_rating" name="average_rating"
-                                                       value="<?= $avg_rating ?>" class="form-control" disabled>
-                                                <?php $avg_rating_displayed = true; ?>
+                                            <?php
+                                            $avg_rating = ($rating['self_rating'] + $rating['line_manager_rating']) / 2;
+                                            ?>
+                                            <input type="hidden" name="average_rating<?= $ratingCount ?>" value="<?= $avg_rating ?>">
+                                            <span class="ml-5"><?= $avg_rating ?></span>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>
-                    <div class="row card-footer justify-content-center">
-                        <button type="submit" class="btn btn-primary col-md-3">Submit</button>
-                    </div>
-                    <?= form_close() ?>
+                    <?php if (isset($line_manager) and $line_manager['employee_id'] === $loggedInEmployeeId): ?>
+                        <div class="row card-footer justify-content-center">
+                            <button type="submit" class="btn btn-primary col-md-3">Submit</button>
+                        </div>
+                        <?= form_close() ?>
+                    <?php endif ?>
                 </div>
             </div>
         </div>
@@ -98,13 +101,36 @@ use App\Models\CompetencyModel;
                         <h3 class="card-title">Employee and Line Manager Sign-off</h3>
                     </div>
                     <div class="card-body">
-                        <label for="employee-signoff">Employee Sign-off:</label>
-                        <input type="checkbox" id="employee-signoff" name="employee-signoff">
-                        <label for="lm-signoff">Line Manager Sign-off:</label>
-                        <input type="checkbox" id="lm-signoff" name="lm-signoff">
+                        <!--                        // Logic to determine whether to show employee sign-off or line manager sign-off checkbox-->
+                        <?php if (isset($line_manager) and $line_manager['employee_id'] === $loggedInEmployeeId): ?>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="employee-signoff"
+                                       name="employee_signed_off">
+                                <label class="form-check-label" for="employee-signoff">Employee Sign-off</label>
+                            </div>
+                            <?php if (isset($employeeSignedOff) and !$employeeSignedOff): ?>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        <?php if (isset($line_manager) and $line_manager['employee_id'] === $loggedInEmployeeId): ?>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="lm-signoff"
+                                       name="line_manager_signed_off">
+                                <label class="form-check-label" for="lm-signoff">Line Manager Sign-off</label>
+                            </div>
+                            <?php if (isset($employeeSignedOff) and !$employeeSignedOff): ?>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="row card-footer justify-content-center">
+                        <button type="submit" class="btn btn-primary col-md-3">Submit</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+<?php include(APPPATH . 'Views/tables/pdp_table.php'); ?>
+

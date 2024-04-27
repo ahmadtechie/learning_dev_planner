@@ -1,10 +1,9 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="/" class="brand-link">
-        <img src="<?php echo base_url("images/favicon.png") ?>" alt="AdminLTE Logo"
-             class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">LD Planner</span>
+    <a href="<?php url_to('ldm.home') ?>" class="h1" style="display: inline-block; vertical-align: middle;">
+        <img src="<?php echo base_url("images/LD planner horizontal W.png") ?>" alt="LIM Logo" class="brand-image"
+             style="padding-left: 5px; width: 170px; height: 50px; margin-right: 10px; background-size: cover">
     </a>
     <div class="sidebar">
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
@@ -53,12 +52,14 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
+                        <?php if (isset($userData['learningDevRoleId']) and in_array($userData['learningDevRoleId'], session()->get('employeeRoles'))): ?>
                         <li class="nav-item">
                             <a href="<?= url_to('ldm.dashboard.adp') ?>" class="nav-link <?= strpos(url_to('ldm.dashboard.adp'), uri_string()) ? 'active' : ''; ?>">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>ADP Report Dashboard</p>
                             </a>
                         </li>
+                        <?php endif; ?>
                         <li class="nav-item">
                             <a href="<?= url_to('ldm.dashboard.pdp') ?>" class="nav-link <?= strpos(url_to('ldm.dashboard.pdp'), uri_string()) ? 'active' : ''; ?>">
                                 <i class="far fa-circle nav-icon"></i>

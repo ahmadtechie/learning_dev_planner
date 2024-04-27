@@ -24,6 +24,8 @@ class EmailHelper
         if ($this->email->send()) {
             return true;
         } else {
+            echo $this->email->printDebugger(['headers']);
+
             return false;
         }
     }

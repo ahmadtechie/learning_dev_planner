@@ -125,7 +125,7 @@ class DevelopmentCycleController extends BaseController
         $cycleModel = new DevelopmentCycleModel();
         $this->validation['cycle_year']['rules'] = 'required|integer';
         $cycle_id = $this->request->getPost('cycle_id');
-        $is_active_cycle_exists = $cycleModel->where('is_active', 1)->whereNotIn('id', [$cycle_id])->countAllResults();
+        $is_active_cycle_exists = $cycleModel->where('is_active', 1)->countAllResults();
         $is_new_active = $this->request->getPost('is_active');
 
         if (!$this->validate($this->validation)) {

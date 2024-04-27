@@ -62,10 +62,10 @@ class EmployeeInterventionMappingController extends BaseController
         $this->data = [
             'title' => 'Employee Intervention Mapping | LD Planner',
             'employees' => $this->employeeModel->getAllEmployeesWithUserDetails(),
-            'active_cycles' => $this->cycleModel->orderBy('created_at', 'DESC')->where('is_active', true)->findAll(),
-            'all_cycles' => $this->cycleModel->orderBy('created_at', 'DESC')->findAll(),
-            'interventions' => $this->learningInterventionModel->orderBy('created_at', 'DESC')->findAll(),
-            'classes' => $this->interventionClassModel->orderBy('created_at', 'DESC')->findAll(),
+            'active_cycles' => $this->cycleModel->orderBy('cycle_year', 'DESC')->where('is_active', true)->findAll(),
+            'all_cycles' => $this->cycleModel->orderBy('cycle_year', 'DESC')->findAll(),
+            'interventions' => $this->learningInterventionModel->orderBy('updated_at', 'DESC')->findAll(),
+            'classes' => $this->interventionClassModel->orderBy('updated_at', 'DESC')->findAll(),
             'page_name' => 'Employee-Intervention Mapping',
         ];
     }
@@ -193,7 +193,7 @@ class EmployeeInterventionMappingController extends BaseController
     public function fetchInterventions()
     {
         $cycleId = $this->request->getPost('cycle_id');
-        $interventionsData = $this->learningInterventionModel->where('cycle_id', $cycleId)->findAll();
+        $interventionsData = $this->learningInterventionModel->where('cycle_id', $cycleId)->orderBy('updated_at', 'DESC')->findAll();
 
         $options = '<option value="">Choose Intervention</option>';
         foreach ($interventionsData as $intervention) {
@@ -206,7 +206,7 @@ class EmployeeInterventionMappingController extends BaseController
     public function fetchClasses()
     {
         $interventionId = $this->request->getPost('intervention_id');
-        $classesData = $this->interventionClassModel->where('intervention_id', $interventionId)->findAll();
+        $classesData = $this->interventionClassModel->where('intervention_id', $interventionId)->orderBy('updated_at', 'DESC')->findAll();
         $options = '';
         foreach ($classesData as $class) {
             $options .= '<option value="' . $class['id'] . '">' . $class['class_name'] . '</option>';

@@ -12,7 +12,6 @@
                             <thead>
                             <tr>
                                 <th>Job Title</th>
-                                <th>Qualifications</th>
                                 <th>Created At</th>
                                 <th>Updated At</th>
                                 <th></th>
@@ -23,7 +22,6 @@
                                 <?php foreach ($jobs as $job): ?>
                                     <tr>
                                         <td><?= $job['job_title']; ?></td>
-                                        <td><?= $job['qualifications']; ?></td>
                                         <td><?= $job['created_at']; ?></td>
                                         <td><?= $job['updated_at']; ?></td>
                                         <td>

@@ -138,20 +138,6 @@
 </script>
 
 <script>
-    $(document).ready(function() {
-        $('.competency-select').change(function() {
-            var selectedCompetency = $(this).val();
-
-            $('.competency-select').each(function() {
-                if (this !== event.target) {
-                    $(this).find('option[value="' + selectedCompetency + '"]').remove();
-                }
-            });
-        });
-    });
-</script>
-
-<script>
     $(document).ready(function () {
         $('#department_map').on('change', function () {
             var selectedDepartmentId = $(this).val();

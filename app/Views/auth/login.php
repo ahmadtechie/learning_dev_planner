@@ -7,7 +7,8 @@
     <link rel="icon" href="<?php echo base_url("images/favicon.png") ?>">
 
     <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="<?php echo base_url("plugins/fontawesome-free/css/all.min.css") ?>">
     <!-- icheck bootstrap -->
@@ -19,7 +20,8 @@
 <div class="login-box">
     <div class="login-logo">
         <a href="<?php url_to('ldm.home') ?>" class="h1" style="display: inline-block; vertical-align: middle;">
-            <img src="<?php echo base_url("images/LD planner.png") ?>" alt="LIM Logo" class="brand-image elevation-3" style=" width: 150px; height: 140px; margin-right: 10px;">
+            <img src="<?php echo base_url("images/LD planner horizontal.png") ?>" alt="LIM Logo" class="brand-image"
+                 style=" width: 200px; height: 80px; margin-right: 10px;">
         </a>
     </div>
     <!-- /.login-logo -->
@@ -48,45 +50,41 @@
             <?php endif; ?>
 
             <?= form_open(url_to('ldm.login.auth')) ?>
-                <?= csrf_field(); ?>
-                <div class="input-group mb-3">
-                    <input type="email" class="form-control" placeholder="Email" name="email">
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-envelope"></span>
-                        </div>
+            <?= csrf_field(); ?>
+            <div class="input-group mb-3">
+                <input type="email" class="form-control" placeholder="Email" name="email">
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-envelope"></span>
                     </div>
                 </div>
+            </div>
             <span class="text-danger"><?= isset($validation) && $validation->hasError('email') ? $validation->getError('email') : '' ?></span>
             <div class="input-group mb-3">
-                    <input type="password" class="form-control" placeholder="Password" name="password">
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
+                <input type="password" class="form-control" placeholder="Password" name="password">
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-lock"></span>
                     </div>
                 </div>
+            </div>
             <span class="text-danger"><?= isset($validation) && $validation->hasError('password') ? $validation->getError('password') : '' ?></span>
-            <div class="row">
-                    <!-- /.col -->
-                    <div class="col-6 container d-flex justify-content-center">
             <div class="row justify-content-center">
-                    <!-- /.col -->
-                    <div class="col-6 ">
-                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-                    </div>
-                    <!-- /.col -->
+                <!-- /.col -->
+                <div class="col-6 ">
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
                 </div>
-            <?= form_close(); ?>
-
-
-            <p class="mb-1 text-center">
-            <p class="mb-1 mt-1 text-center">
-                <a href="<?= url_to('ldm.forgot.password') ?>">I forgot my password</a>
-            </p>
+                <!-- /.col -->
+            </div>
         </div>
-        <!-- /.login-card-body -->
+        <?= form_close(); ?>
+
+        <p class="text-center">
+            <a href="<?= url_to('ldm.forgot.password') ?>">I forgot my password</a>
+        </p>
     </div>
+    <!-- /.login-card-body -->
+</div>
 </div>
 <!-- /.login-box -->
 

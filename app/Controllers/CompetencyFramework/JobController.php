@@ -22,12 +22,6 @@ class JobController extends BaseController
                 'validateJobUnique' => 'A job with this name already registered'
             ]
         ],
-        'qualifications' => [
-            'rules' => 'required',
-            'errors' => [
-                'required' => 'Qualifications must be provided',
-            ],
-        ]
     ];
 
     function __construct()

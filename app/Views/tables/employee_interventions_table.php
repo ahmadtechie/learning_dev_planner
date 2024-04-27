@@ -20,6 +20,7 @@
                             </thead>
                             <tbody>
                             <?php
+
                             use App\Models\EmployeeInterventionsModel;
                             use App\Models\LearningInterventionModel;
                             use App\Models\InterventionClassModel;
@@ -35,8 +36,9 @@
                             $emailLogModel = model(EmailLogModel::class);
 
                             $employeeInterventions = $employeeInterventionsModel
-                                ->groupBy('employee_id, cycle_id')
+                                ->groupBy('id, employee_id, cycle_id')
                                 ->findAll();
+
 
                             if (!empty($employeeInterventions) && is_array($employeeInterventions)) {
                                 foreach ($employeeInterventions as $employeeIntervention) {
@@ -73,8 +75,6 @@
                                             }
                                         }
                                     }
-
-
                                     echo "<tr>";
                                     echo "<td>{$employee['first_name']} {$employee['last_name']} [{$employee['username']}]</td>";
                                     echo "<td>{$cycle_year['cycle_year']}</td>";

@@ -191,7 +191,7 @@ class EmployeeCSVController extends BaseController
         $encodedData = $this->request->getPost('encoded_data');
         $decodedData = base64_decode($encodedData);
         $logger = service('logger');
-        $tempFilePath = WRITEPATH . 'uploads/temp_file.csv';
+        $tempFilePath = WRITEPATH . 'uploads/temp_files.csv';
 
         try {
             file_put_contents($tempFilePath, $decodedData);
@@ -306,7 +306,7 @@ class EmployeeCSVController extends BaseController
             }
             return redirect()->to(url_to('ldm.employee.upload'));
         } else {
-            return redirect()->to('ldm.home');
+            return redirect()->to(url_to('ldm.home.dashboard'));
         }
     }
 }
