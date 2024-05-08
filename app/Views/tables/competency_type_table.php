@@ -4,36 +4,26 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">All Created Competencies</h3>
+                        <h3 class="card-title">All Intervention Types</h3>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="example1" class="table table-bordered competencyTable table-striped">
+                        <table id="example1" class="table table-bordered table-striped interventionTypesTable">
                             <thead>
                             <tr>
-                                <th>Competency Name</th>
-                                <th>Competency Type</th>
-                                <th>Descriptors</th>
+                                <th>Type Name</th>
+                                <th>Created At</th>
                                 <th>Updated At</th>
-                                <th>Actions</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <?php use App\Models\CompetencyTypeModel;
-
-                            $competencyTypeModel = model(CompetencyTypeModel::class);
-
-                            ?>
-                            <?php if (!empty($competencies) && is_array($competencies)): ?>
-                                <?php foreach ($competencies as $competency): ?>
-
-                                    <tr data-division-id="<?= $competency['id'] ?>">
-                                        <?php $competencyType = $competencyTypeModel->find($competency['competency_type_id']) ?>
-                                        <td><?= $competency['competency_name']; ?></td>
-<!--                                        <td>--><?php //= $competencyType['name'] ?><!--</td>-->
-                                        <td><?= $competency['description']; ?></td>
-                                        <td><?= $competency['created_at']; ?></td>
-                                        <td><?= $competency['updated_at']; ?></td>
+                            <?php if (!empty($competencyTypes) && is_array($competencyTypes)): ?>
+                                <?php foreach ($competencyTypes as $competencyType): ?>
+                                    <tr>
+                                        <td><?= esc($competencyType['name']); ?></td>
+                                        <td><?= esc($competencyType['created_at']); ?></td>
+                                        <td><?= esc($competencyType['updated_at']); ?></td>
                                         <td>
                                             <div class="btn-group">
                                                 <button type="button"
@@ -44,9 +34,9 @@
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item edit-btn"
-                                                       href="<?= url_to('ldm.competencies.edit', $competency['id']) ?>">Edit</a>
+                                                       href="<?= url_to('ldm.competencies.types.edit', $competencyType['id']) ?>">Edit</a>
                                                     <a class="dropdown-item delete-btn"
-                                                       href="#" onclick="confirmDelete(<?= $competency['id'] ?>)">Delete</a>
+                                                       href="#" onclick="confirmDelete(<?= $competencyType['id'] ?>)">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -64,9 +54,9 @@
 </section>
 
 <script>
-    function confirmDelete(competencyId) {
-        if (confirm("Are you sure you want to delete this competency?")) {
-            window.location.href = "<?= url_to('ldm.competencies.delete') ?>?content_id=" + competencyId;
+    function confirmDelete(competencyTypeId) {
+        if (confirm("Are you sure you want to delete this competency type?")) {
+            window.location.href = "<?= url_to('ldm.competencies.types.delete') ?>?competency_type_id=" + competencyTypeId;
         }
     }
 </script>
@@ -104,7 +94,7 @@
                 }
                 , "colvis",
             ],
-            "order": [[3, "desc"]],
+            "order": [[2, "desc"]],
 
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });

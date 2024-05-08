@@ -44,8 +44,8 @@ class EmployeeCSVController extends BaseController
     function __construct()
     {
         $this->data = [
-            'title' => 'Employee Bulk Upload Page | LD Planner',
-            'page_name' => 'Employee Bulk Upload',
+            'title' => 'Users Bulk Upload Page | LD Planner',
+            'page_name' => 'Users Bulk Upload',
         ];
         $this->employeeModel = new EmployeeModel();
         $this->userModel = new UserModel();
@@ -56,6 +56,7 @@ class EmployeeCSVController extends BaseController
         $this->employeeRolesModel = new EmployeeRolesModel();
         $this->emailTemplateModel = new EmailTemplateModel();
         $this->siteSettingsModel = new SiteSettingsModel();
+        $this->emailHelper = new EmailHelper();
     }
 
     public function index(): string

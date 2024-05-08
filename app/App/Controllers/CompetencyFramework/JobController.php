@@ -13,6 +13,7 @@ helper(['form']);
 class JobController extends BaseController
 {
     public array $data;
+    public JobModel $jobModel;
     public array $validation = [
         'job_title' => [
             'rules' => 'required|min_length[3]|validateJobUnique[job.job_title]',
@@ -26,8 +27,8 @@ class JobController extends BaseController
 
     function __construct()
     {
-        $jobModel = new JobModel();
-        $jobs = $jobModel->orderBy('created_at', 'DESC')->findAll();
+        $this->jobModel = new JobModel();
+        $jobs = $this->jobModel->orderBy('created_at', 'DESC')->findAll();
 
         $this->data = [
             'title' => 'Job Page | LD Planner',
@@ -53,14 +54,12 @@ class JobController extends BaseController
      */
     public function create()
     {
-        $jobModel = new JobModel();
 
         $this->data['title'] = 'Create Job | LD Planner';
         $this->data['userData'] = $this->request->userData;
 
         if (!$this->validate($this->validation)) {
-            // Validation failed
-            $validation = ['validation' =>$this->validator];
+            $validation = ['validation' => $this->validator];
             return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .
@@ -68,20 +67,14 @@ class JobController extends BaseController
                 view('forms/create_job', array_merge($this->data, $validation)) .
                 view('includes/footer');
         }
-        // Validation successful
         $validData = $this->validator->getValidated();
-
-        $jobModel->save($validData);
-
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Job {$validData['job_title']} created successfully.");
-        return redirect()->to(url_to('ldm.jobs'));
+        $this->jobModel->save($validData);
+        return redirect()->to(url_to('ldm.jobs'))->with('message', 'Job created successfully.');
     }
 
     public function edit($id)
     {
-        $jobModel = new JobModel();
-        $job = $jobModel->find($id);
+        $job = $this->jobModel->find($id);
 
         $this->data['userData'] = $this->request->userData;
 
@@ -103,11 +96,9 @@ class JobController extends BaseController
     public function update($id)
     {
         $this->data['userData'] = $this->request->userData;
-        $jobModel = new JobModel();
         $this->validation['job_title']['rules'] = 'required|min_length[3]';
 
         if (!$this->validate($this->validation)) {
-            // Validation failed
             $validation = ['validation' => $this->validator];
 
             return view('includes/head', $this->data) .
@@ -118,25 +109,18 @@ class JobController extends BaseController
                 view('includes/footer');
         }
 
-        // Validation successful
         $validData = $this->request->getPost();
-
-        $jobModel->update($id, $validData);
-        $session = \Config\Services::session();
-        $session->setFlashdata('success', "Job {$validData['job_title']} edited successfully.");
+        $this->jobModel->update($id, $validData);
+        session()->setFlashdata('success', "Job {$validData['job_title']} edited successfully.");
         return redirect()->to(url_to('ldm.jobs'));
     }
 
-    public function delete($id)
+    public function delete()
     {
         $this->data['userData'] = $this->request->userData;
-
-        $jobModel = new JobModel();
-        $jobModel->delete($id);
-        $session = \Config\Services::session();
-        $session->setFlashdata('deleted', "Job deleted successfully.");
+        $job_id = $this->request->getVar('job_id');
+        $this->jobModel->delete($job_id);
+        session()->setFlashdata('deleted', "Job deleted successfully.");
         return redirect()->to(url_to('ldm.jobs'));
     }
-
-
 }

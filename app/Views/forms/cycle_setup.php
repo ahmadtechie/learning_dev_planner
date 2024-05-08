@@ -52,7 +52,7 @@
                             <select class="form-control" id="cycle_year" name="cycle_year" required>
                                 <option>Select Cycle Year</option>
                                 <?php
-                                $years = range(date('Y'), date('Y') + 2);
+                                $years = range(date('Y'), date('Y') + 4);
                                 foreach ($years as $year):
                                     ?>
                                     <?php if ((isset($cycle) and $cycle['cycle_year'] == $year) or set_value('cycle_year') == $year): ?>

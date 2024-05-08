@@ -11,6 +11,7 @@ use App\Models\EmployeeInterventionsModel;
 use App\Models\EmployeeModel;
 use App\Models\InterventionAttendanceModel;
 use App\Models\InterventionClassModel;
+use App\Models\InterventionContentModel;
 use App\Models\LearningInterventionModel;
 use App\Models\SiteSettingsModel;
 
@@ -29,6 +30,7 @@ class EmployeeInterventionMappingController extends BaseController
     public EmailHelper $emailHelper;
     public EmailLogModel $emailLogModel;
     public InterventionAttendanceModel $interventionAttendanceModel;
+    public InterventionContentModel $interventionContentModel;
 
 
     public array $validation = [
@@ -58,6 +60,7 @@ class EmployeeInterventionMappingController extends BaseController
         $this->emailHelper = model(EmailHelper::class);
         $this->emailLogModel = model(EmailLogModel::class);
         $this->interventionAttendanceModel = model(InterventionAttendanceModel::class);
+        $this->interventionContentModel = model(InterventionContentModel::class);
 
         $this->data = [
             'title' => 'Employee Intervention Mapping | LD Planner',
@@ -114,6 +117,7 @@ class EmployeeInterventionMappingController extends BaseController
                                     <p><strong>Venue:</strong> {$classDetail['venue']}</p>
                                 </div>";
         }
+        $intervention_content = $this->interventionContentModel->find($intervention_id);
 
         foreach ($employeeIds as $employeeId) {
             foreach ($classIds as $classId) {
@@ -123,7 +127,7 @@ class EmployeeInterventionMappingController extends BaseController
             $employeeData = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
             $siteName = $this->siteSettingsModel->first()["company_name"];
             $emailData = $this->emailTemplateModel->where('email_type', 'employee_intervention_invite')->first();
-            $find = ['{employee_name}', '{intervention_name}', '{class_details}', '{site_name}', '{trainer}'];
+            $find = ['{employee_name}', '{intervention_name}', '{class_details}', '{intervention_content}', '{site_name}', '{trainer}'];
             $replace = [
                 $employeeData['first_name'] . ' ' . $employeeData['last_name'],
                 $intervention['intervention_name'],

@@ -26,23 +26,6 @@ class EmployeePermissionCheck implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        //
-    }
-
-    /**
-     * Allows After filters to inspect and modify the response
-     * object as needed. This method does not allow any way
-     * to stop execution of other after filters, short of
-     * throwing an Exception or Error.
-     *
-     * @param RequestInterface $request
-     * @param ResponseInterface $response
-     * @param array|null $arguments
-     *
-     * @return ResponseInterface|void
-     */
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
         if (!session()->has('loggedInUser')) {
             session()->set('redirect_url', current_url());
             return redirect()->to(url_to('ldm.login'))->with('error', 'You must be logged In to access this page');
@@ -56,5 +39,21 @@ class EmployeePermissionCheck implements FilterInterface
             return null;
         }
         return redirect()->to(url_to('ldm.access_denied'));
+    }
+
+    /**
+     * Allows After filters to inspect and modify the response
+     * object as needed. This method does not allow any way
+     * to stop execution of other after filters, short of
+     * throwing an Exception or Error.
+     *
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     * @param array|null $arguments
+     *
+     * @return RequestInterface|ResponseInterface|string|void
+     */
+    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
+    {
     }
 }

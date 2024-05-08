@@ -5,12 +5,11 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body">
-            <table id="example1" class="table table-bordered table-striped interventionContentTable">
+            <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>
                     <th>Learning Intervention</th>
-                    <th>Module Title</th>
-                    <th>Created At</th>
+                    <th>Modules</th>
                     <th>Updated At</th>
                     <th>Action</th>
                 </tr>
@@ -26,7 +25,7 @@
                         ?>
                         <tr>
                             <td><?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id']  . ']'?></td>
-                            <td><?= $content['module_title'] ?></td>
+                            <td><?= $content['modules'] ?></td>
                             <td><?= $content['created_at']  ?></td>
                             <td><?= $content['updated_at'] ?></td>
                             <td>
@@ -99,7 +98,7 @@
                 }
                 , "colvis",
             ],
-            "order": [[3, "desc"]],
+            "order": [[2, "desc"]],
 
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     });

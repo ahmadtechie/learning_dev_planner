@@ -93,12 +93,11 @@ class EmployeeInviteController extends BaseController
             $emailSubject = str_replace($emailSubjectFind, $emailSubjectReplace, $emailData['email_subject']);
             $is_email_sent = $emailHelper->send_email($email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
 
-            return redirect('display_email', ['emailBody' => $emailBody]);
-
-//                $this->emailLogsModel->insert(['email' => $email, 'type' => 'cycle_invite', 'status' => 'success']);
-//            } else {
-//                $this->emailLogsModel->insert(['email' => $email, 'type' => 'cycle_invite', 'status' => 'failed']);
-//            }
+            if ($is_email_sent) {
+                $this->emailLogsModel->insert(['email' => $email, 'type' => 'cycle_invite', 'status' => 'success']);
+            } else {
+                $this->emailLogsModel->insert(['email' => $email, 'type' => 'cycle_invite', 'status' => 'failed']);
+            }
         }
 
         return redirect('ldm.employee.invite');

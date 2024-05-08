@@ -36,7 +36,7 @@
                                     ?>
                                     <tr>
                                         <td><?= $intervention['intervention_name']; ?></td>
-                                        <td><?= $employeeData['first_name'] . ' ' . $employeeData['last_name']; ?></td>
+                                        <td><?= isset($employeeData['first_name']) ? $employeeData['first_name'] . ' ' . $employeeData['last_name'] : '-'; ?></td>
                                         <td><?= $attendance['attendance_status']; ?></td>
                                         <td><?= $attendance['attendance_date']; ?></td>
                                         <td><?= $attendance['remarks']; ?></td>

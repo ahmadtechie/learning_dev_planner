@@ -5,9 +5,9 @@
                 <div class="card card-info">
                     <div class="card-header">
                         <?php if (isset($employee)): ?>
-                            <h3 class="card-title">Update Staff Details</h3>
+                            <h3 class="card-title">Update User Details</h3>
                         <?php else: ?>
-                            <h3 class="card-title">Register New Staff</h3>
+                            <h3 class="card-title">Register New User</h3>
                         <?php endif; ?>
                     </div>
                     <div class="card-body">
@@ -43,7 +43,6 @@
                             <input type="email" name="email" class="form-control" id="InputEmail"
                                    placeholder="Enter email"
                                    value="<?= isset($employee) ? esc($employee['email']) : set_value('email') ?>"
-
                                    required
                             >
                             <span class="text-danger">

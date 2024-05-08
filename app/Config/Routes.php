@@ -3,6 +3,7 @@
 use App\Controllers\AuthController;
 use App\Controllers\CompetencyFramework\CompetencyController;
 use App\Controllers\CompetencyFramework\CompetencyMappingController;
+use App\Controllers\CompetencyFramework\CompetencyTypeController;
 use App\Controllers\CompetencyFramework\JobController;
 use App\Controllers\DevelopmentContracting\DevelopmentRatingController;
 use App\Controllers\DevelopmentCycle\DevelopmentCycleController;
@@ -15,14 +16,13 @@ use App\Controllers\InterventionManagement\EmployeeInterventionMappingController
 use App\Controllers\InterventionManagement\InterventionClassController;
 use App\Controllers\InterventionManagement\InterventionContentController;
 use App\Controllers\InterventionManagement\InterventionTypeController;
-use App\Controllers\InterventionManagement\LearningInterventionController;
 use App\Controllers\InterventionManagement\InterventionVendorController;
+use App\Controllers\InterventionManagement\LearningInterventionController;
 use App\Controllers\OrgStructure\DepartmentController;
 use App\Controllers\OrgStructure\DivisionController;
 use App\Controllers\OrgStructure\GroupController;
 use App\Controllers\OrgStructure\UnitController;
 use App\Controllers\PDPController;
-use App\Controllers\ReportController;
 use App\Controllers\Trainer\InterventionAttendanceController;
 use App\Controllers\Trainer\ParticipantFeedbackController;
 use CodeIgniter\Router\RouteCollection;
@@ -78,7 +78,7 @@ $routes->group('ldm', function ($routes) {
         $routes->post('jobs/', [JobController::class, 'create'], ['as' => 'ldm.jobs.create']);
         $routes->get('jobs/edit/(:num)/', [JobController::class, 'edit'], ['as' => 'ldm.jobs.edit']);
         $routes->post('jobs/update/(:num)/', [JobController::class, 'update'], ['as' => 'ldm.jobs.update']);
-        $routes->get('jobs/delete/(:num)/', [JobController::class, 'delete'], ['as' => 'ldm.jobs.delete']);
+        $routes->get('jobs/delete/', [JobController::class, 'delete'], ['as' => 'ldm.jobs.delete']);
 
         // Competency routes
         $routes->get('framework/', [CompetencyController::class, 'index'], ['as' => 'ldm.competencies']);
@@ -94,11 +94,16 @@ $routes->group('ldm', function ($routes) {
         $routes->post('mapping/update/(:num)/', [CompetencyMappingController::class, 'update'], ['as' => 'ldm.competencies.mapping.update']);
         $routes->get('mapping/delete/', [CompetencyMappingController::class, 'delete'], ['as' => 'ldm.competencies.mapping.delete']);
 
-        $routes->get('dashboard/competencies/', [CompetencyMappingController::class, 'dashboard'], ['as' => 'ldm.competencies.mapping.dashboard']);
+        // competency types routes
+        $routes->get('types/', [CompetencyTypeController::class, 'index'], ['as' => 'ldm.competencies.types']);
+        $routes->post('types/', [CompetencyTypeController::class, 'create'], ['as' => 'ldm.competencies.types.create']);
+        $routes->get('types/edit/(:num)/', [CompetencyTypeController::class, 'edit'], ['as' => 'ldm.competencies.types.edit']);
+        $routes->post('types/update/(:num)/', [CompetencyTypeController::class, 'update'], ['as' => 'ldm.competencies.types.update']);
+        $routes->get('types/delete/', [CompetencyTypeController::class, 'delete'], ['as' => 'ldm.competencies.types.delete']);
     });
 
     // Employee Routes
-    $routes->group('employee', ['filter' => 'LDMCheck'], function ($routes) {
+    $routes->group('users', ['filter' => 'LDMCheck'], function ($routes) {
         $routes->get('all/', [EmployeeController::class, 'index'], ['as' => 'ldm.employee']);
         $routes->post('create/', [EmployeeController::class, 'create'], ['as' => 'ldm.employee.create']);
         $routes->get('edit/(:num)/', [EmployeeController::class, 'edit'], ['as' => 'ldm.employee.edit']);
@@ -145,6 +150,8 @@ $routes->group('ldm', function ($routes) {
     $routes->group('contracting', ['filter' => 'LineManagerCheck'], function ($routes) {
         $routes->get('validate/', [DevelopmentRatingController::class, 'validateRating'], ['as' => 'ldm.rating.validate']);
         $routes->post('validate/', [DevelopmentRatingController::class, 'updateLineManagerRating'], ['as' => 'ldm.rating.validate.update']);
+        $routes->get('manager/pdp/', [PDPController::class, 'getPlans'], ['as' => 'ldm.rating.pdp']);
+        $routes->post('manager/pdp/create/', [PDPController::class, 'createPlans'], ['as' => 'ldm.rating.pdp.create']);
     });
 
     $routes->group('intervention', ['filter' => 'LDMCheck'], function ($routes) {
@@ -201,6 +208,7 @@ $routes->group('ldm', function ($routes) {
     $routes->group('dashboard', ['filter' => 'AuthCheck'], function ($routes) {
         $routes->get('pdp/', [PDPController::class, 'index'], ['as' => 'ldm.dashboard.pdp']);
         $routes->post('pdp/create', [PDPController::class, 'create'], ['as' => 'ldm.dashboard.pdp.create']);
+        $routes->post('pdp/signoff/(:num)/', [PDPController::class, 'signoff'], ['as' => 'ldm.dashboard.pdp.signoff']);
         $routes->get('adp/', [InterventionVendorController::class, 'index'], ['as' => 'ldm.dashboard.adp']);
     });
 

@@ -49,31 +49,22 @@
             </div>
 
             <div class="form-group">
-                <label for="module_title">Module Title</label>
-                <input type="text" id="module_title" name="module_title" class="form-control"
-                       value="<?= isset($intervention_content) ? esc($intervention_content['module_title']) : set_value('module_title') ?>"
-                       required>
+                <label for="summernote1">Learning Objectives</label>
+                <textarea id="summernote1" name="learning_objectives">
+                    <?= isset($intervention_content) ? esc($intervention_content['learning_objectives']) : set_value('learning_objectives') ?>
+              </textarea>
                 <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('module_title')) ? $validation->getError('module_title') : '' ?>
+                    <?= (isset($validation) && $validation->hasError('learning_objectives')) ? $validation->getError('learning_objectives') : '' ?>
                 </span>
             </div>
 
             <div class="form-group">
-                <label for="summernote">Sub Topic(s)</label>
+                <label for="summernote">Modules/Titles/Lessons</label>
                 <textarea id="summernote" name="sub_topics">
-                    <?= isset($intervention_content) ? esc($intervention_content['sub_topics']) : set_value('sub_topics') ?>
+                    <?= isset($intervention_content) ? esc($intervention_content['modules']) : set_value('modules') ?>
                 </textarea>
                 <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('sub_topics')) ? $validation->getError('sub_topics') : '' ?>
-                </span>
-            </div>
-            <div class="form-group">
-                <label for="summernote1">Objectives</label>
-                <textarea id="summernote1" name="objectives">
-                    <?= isset($intervention_content) ? esc($intervention_content['objectives']) : set_value('objectives') ?>
-              </textarea>
-                <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('objectives')) ? $validation->getError('objectives') : '' ?>
+                    <?= (isset($validation) && $validation->hasError('modules')) ? $validation->getError('modules') : '' ?>
                 </span>
             </div>
 

@@ -18,7 +18,7 @@ class Email extends BaseConfig
     /**
      * The mail sending protocol: mail, sendmail, smtp
      */
-    public string $protocol = 'mail';
+    public string $protocol = 'smtp';
 
     /**
      * The server path to Sendmail.
@@ -28,17 +28,17 @@ class Email extends BaseConfig
     /**
      * SMTP Server Hostname
      */
-    public string $SMTPHost = 'smtp.gmail.com';
+    public string $SMTPHost = 'email-smtp.eu-west-1.amazonaws.com';
 
     /**
      * SMTP Username
      */
-    public string $SMTPUser = 'aas1800216.com@buk.edu.ng';
+    public string $SMTPUser = 'AKIAU26TFZAZRZAMXI56';
 
     /**
      * SMTP Password
      */
-    public string $SMTPPass = 'ggykwlhirboytrin';
+    public string $SMTPPass = 'BPgKSTouY8u1+ou6Nz8tUyYONViHqYDS2roFSikvJf9A';
 
     /**
      * SMTP Port
@@ -48,7 +48,7 @@ class Email extends BaseConfig
     /**
      * SMTP Timeout (in seconds)
      */
-    public int $SMTPTimeout = 60;
+    public int $SMTPTimeout = 120;
 
     /**
      * Enable persistent SMTP connections

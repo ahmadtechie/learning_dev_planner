@@ -25,6 +25,22 @@
                 </span>
             </div>
             <div class="form-group">
+                <label for="competency_type_id">Competency Type <span>*</span></label>
+                <select id="competency_type_id" name="competency_type_id" class="form-control" required>
+                    <option value="">Select Competency Type</option>
+                    <?php if (!empty($competencyTypes)): ?>
+                        <?php foreach ($competencyTypes as $competencyType): ?>
+                            <option value="<?= $competencyType['id'] ?>" <?= (isset($competency) && $competency['competency_type_id'] == $competencyType['id']) ? 'selected' : '' ?>>
+                                <?= $competencyType['name'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif ?>
+                </select>
+                <span class="text-danger">
+                    <?= (isset($validation) && $validation->hasError('competency_type_id')) ? $validation->getError('competency_type_id') : '' ?>
+                </span>
+            </div>
+            <div class="form-group">
                 <label for="qualification">Descriptors <span>*</span></label>
                 <textarea id="qualification" name="description" class="form-control" rows="3" placeholder="Enter Description" required><?= isset($competency) ? esc($competency['description']) : set_value('description') ?></textarea>
                 <span class="text-danger">

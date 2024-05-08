@@ -1,7 +1,7 @@
 <div class="col-md-4 mx-auto">
     <div class="card card-info">
         <div class="card-header">
-            <h3 class="card-title"><?= isset($intervention_type) ? 'Edit \'' . esc($intervention_type['name']) . '\' ': 'Create Intervention Type' ?> </h3>
+            <h3 class="card-title"><?= isset($competency_type) ? 'Edit \'' . esc($competency_type['name']) . '\' ': 'Create Competency Type' ?> </h3>
         </div>
         <!-- /.card-header -->
         <div class="card-body">
@@ -25,16 +25,16 @@
                     }, 3000);
                 </script>
             <?php endif; ?>
-            <?php if (isset($intervention_type)): ?>
-                <?= form_open(url_to('ldm.intervention.type.update', esc($intervention_type['id']))) ?>
+            <?php if (isset($competency_type)): ?>
+                <?= form_open(url_to('ldm.competencies.types.update', esc($competency_type['id']))) ?>
             <?php else: ?>
-                <?= form_open(url_to('ldm.intervention.type.create')) ?>
+                <?= form_open(url_to('ldm.competencies.types.create')) ?>
             <?php endif; ?>
 
             <div class="form-group">
-                <label>Intervention Type <span class="required">*</span></label>
-                <input type="text" name="name" value="<?= isset($intervention_type) ? esc($intervention_type['name']) : set_value('name') ?>"
-                       class="form-control" placeholder="Enter Intervention Type" required>
+                <label for="competency_type">Competency Type <span class="required">*</span></label>
+                <input id="competency_type" type="text" name="name" value="<?= isset($competency_type) ? esc($competency_type['name']) : set_value('name') ?>"
+                       class="form-control" placeholder="Enter Competency Type" required>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('name')) ? $validation->getError('name') : '' ?>
                 </span>
@@ -51,4 +51,4 @@
         <!-- /.card-body -->
     </div>
 </div>
-<?php include(APPPATH . 'Views/tables/intervention_type_table.php'); ?>
+<?php include(APPPATH . 'Views/tables/competency_type_table.php'); ?>

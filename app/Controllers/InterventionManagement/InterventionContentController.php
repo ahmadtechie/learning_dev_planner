@@ -22,14 +22,8 @@ class InterventionContentController extends BaseController
                 'integer' => 'An intervention must be selected.',
             ],
         ],
-        'module_title' => [
-            'rules' => 'required',
-            'errors' => [
-                'required' => 'A module title must.',
-            ],
-        ],
-        'sub_topics' => 'permit_empty',
-        'objectives' => 'permit_empty',
+        'learning_objectives' => 'permit_empty',
+        'modules' => 'permit_empty',
     ];
 
     function __construct()

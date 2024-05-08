@@ -37,16 +37,16 @@ class DevelopmentRatingController extends BaseController
         $this->developmentContractingModel = model(DevelopmentContractingModel::class);
         $this->emailHelper = model(EmailHelper::class);
         $loggedInUserId = session()->get('loggedInUser');
-        $loggedInUserFullName = session()->get('first_name') . " " . session()->get('last_name');
         $employee = $this->employeeModel->where('user_id', $loggedInUserId)->first();
         $competencies = $this->employeeModel->getCompetenciesForEmployeeJob($employee['id']);
+        $loggedInUserFullName = session()->get('first_name') . " " . session()->get('last_name');
 
         $this->data = [
             'title' => $loggedInUserFullName . " Development Rating | LD Planner",
-            'employee' => $employee,
-            'line_manager' => $this->employeeModel->find($employee['line_manager_id']),
-            'competencies' => $competencies,
             'cycles' => $this->cycleModel->where('is_active', true)->findAll(),
+            'employee' => $employee,
+            'competencies' => $competencies,
+            'line_manager' => $this->employeeModel->find($employee['line_manager_id']),
             'page_name' => 'Self-Rating',
         ];
     }
@@ -93,10 +93,10 @@ class DevelopmentRatingController extends BaseController
             return redirect('ldm.rating.self')->withInput()->with('error', "You can only carry out development rating for " . $cycle['cycle_year'] . " cycle year once.");
         }
 
-        for ($idx_competency = 1; $idx_competency <= $cycle['max_competencies']; $idx_competency++) {
+        for ($idx_competency = 1; $idx_competency <= count($this->data['competencies']); $idx_competency++) {
             $this->developmentContractingModel->insert([
                 'employee_id' => $employee_id,
-                'competency_id' => $this->request->getPost("competency" . $idx_competency),
+                'competency_id' => $_POST["competency" . $idx_competency],
                 'self_rating' => $this->request->getPost("rating" . $idx_competency),
                 'cycle_id' => $cycle_id,
             ]);

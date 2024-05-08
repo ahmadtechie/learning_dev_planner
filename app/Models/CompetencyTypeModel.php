@@ -4,17 +4,16 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class InterventionContentModel extends Model
+class CompetencyTypeModel extends Model
 {
-    protected $table            = 'intervention_content';
+    protected $DBGroup          = 'default';
+    protected $table            = 'competency_type';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['intervention_id', 'sub_topics', 'objectives','created_at', 'updated_at', 'deleted_at'];
-
-    protected bool $allowEmptyInserts = false;
+    protected $allowedFields    = ['name', 'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
     protected $useTimestamps = true;

@@ -4,6 +4,7 @@ namespace App\Controllers\CompetencyFramework;
 
 use App\Controllers\BaseController;
 use App\Models\CompetencyModel;
+use App\Models\CompetencyTypeModel;
 use App\Models\JobModel;
 use CodeIgniter\Config\Services;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -16,6 +17,7 @@ class CompetencyController extends BaseController
 {
     public array $data;
     public CompetencyModel $competencyModel;
+    public CompetencyTypeModel $competencyTypeModel;
     public array $validation = [
         'competency_name' => [
             'rules' => 'required|min_length[3]|validateCompetencyUnique[competency.competency_name]',
@@ -24,6 +26,12 @@ class CompetencyController extends BaseController
                 'min_length' => 'Competency name must be at least 3 characters.',
                 'validateCompetencyUnique' => 'A competency with this name already registered'
             ]
+        ],
+        'competency_type_id' => [
+            'rules' => 'required|integer',
+            'errors' => [
+                'integer' => 'A competency must be selected.',
+            ],
         ],
         'description' => [
             'rules' => 'required',
@@ -37,10 +45,12 @@ class CompetencyController extends BaseController
     {
         $this->competencyModel = new CompetencyModel();
         $competencies = $this->competencyModel->orderBy('created_at', 'DESC')->findAll();
+        $this->competencyTypeModel = model(CompetencyTypeModel::class);
 
         $this->data = [
             'title' => 'Competency Page | LD Planner',
             'competencies' => $competencies,
+            'competencyTypes' => $this->competencyTypeModel->orderBy('updated_at', 'desc')->findAll(),
             'page_name' => 'competencies',
         ];
     }

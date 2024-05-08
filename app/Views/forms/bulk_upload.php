@@ -2,7 +2,7 @@
     <div class="col-md-8 mx-auto">
         <div class="card card-default">
             <div class="card-header">
-                <h3 class="card-title">Upload Employee Data</h3>
+                <h3 class="card-title">Upload New Users Data</h3>
             </div>
             <?= form_open_multipart(url_to('ldm.employee.upload.preview')) ?>
             <div class="card-body">

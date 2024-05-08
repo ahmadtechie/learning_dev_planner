@@ -20,7 +20,6 @@
                             </thead>
                             <tbody>
                             <?php
-
                             use App\Models\EmployeeInterventionsModel;
                             use App\Models\LearningInterventionModel;
                             use App\Models\InterventionClassModel;
@@ -35,21 +34,26 @@
                             $employeeModel = model(EmployeeModel::class);
                             $emailLogModel = model(EmailLogModel::class);
 
-                            $employeeInterventions = $employeeInterventionsModel
-                                ->groupBy('id, employee_id, cycle_id')
-                                ->findAll();
-
+                            $employeeInterventions = $employeeInterventionsModel->findAll();
 
                             if (!empty($employeeInterventions) && is_array($employeeInterventions)) {
                                 foreach ($employeeInterventions as $employeeIntervention) {
+                                    if (isset($iterated[$employeeIntervention['employee_id']][$employeeIntervention['cycle_id']])) {
+                                        continue;
+                                    }
+
                                     $employee = $employeeModel->getEmployeeDetailsWithUser($employeeIntervention['employee_id']);
                                     if (!$employee) {
                                         continue;
                                     }
+
                                     $cycle_year = $cycleModel->find($employeeIntervention['cycle_id']);
                                     if (!$cycle_year) {
                                         continue;
                                     }
+
+                                    $iterated[$employeeIntervention['employee_id']][$employeeIntervention['cycle_id']] = true;
+
                                     $is_mail_sent = 0;
 
                                     $interventionsData = $employeeInterventionsModel

@@ -1,3 +1,7 @@
+<?php
+$loggedInEmployeeId = session()->get('loggedInEmployee');
+
+?>
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -19,7 +23,6 @@
                             </thead>
                             <tbody>
                             <?php
-
                             use App\Models\CompetencyModel;
                             use App\Models\DevelopmentCycleModel;
                             use App\Models\EmailLogModel;
@@ -37,27 +40,32 @@
                                     $classModel = model(InterventionClassModel::class);
                                     $cycle = $devCycleModel->find($plan['cycle_id']);
                                     $competency = $competencyModel->find($plan['competency_id']);
-                                    $assignedIntervention = '-';
+                                    $assignedIntervention = '';
 
-                                    $interventionClasses = [];
-                                    $is_competency_intervention_exist = $interventionModel->where('competency_id', $competency['id'])->findAll();
-                                    if (!empty($is_competency_intervention_exist)) {
-                                        foreach ($is_competency_intervention_exist as $competency_intervention) {
-                                            $intervention = $interventionModel->find($competency_intervention['id']);
+                                    $employeeInterventions = $employeeInterventionModel
+                                        ->select('employee_interventions.*, learning_intervention.competency_id')
+                                        ->join('learning_intervention', 'learning_intervention.id = employee_interventions.intervention_id')
+                                        ->where('employee_id', $loggedInEmployeeId)
+                                        ->where('learning_intervention.competency_id', $competency['id'])
+                                        ->findAll();
+
+                                    if (!empty($employeeInterventions)) {
+                                        foreach ($employeeInterventions as $employeeIntervention) {
+                                            $intervention = $interventionModel->find($employeeIntervention['intervention_id']);
                                             if ($intervention) {
-                                                if (!isset($intervention['class_id'])) continue;
-                                                $classIds = explode(',', $intervention['class_id']);
+                                                $classIds = explode(',', $employeeIntervention['class_id']);
+                                                $classNames = [];
                                                 foreach ($classIds as $classId) {
                                                     $class = $classModel->find($classId);
                                                     if ($class) {
-                                                        $interventionClasses[$intervention['intervention_name']][] = $class['class_name'];
+                                                        $classNames[] = $class['class_name'];
                                                     }
                                                 }
+                                                $assignedIntervention .= "{$intervention['intervention_name']}: " . implode(', ', $classNames) . "<br>";
                                             }
                                         }
-                                        foreach ($interventionClasses as $interventionName => $classNames) {
-                                            $assignedIntervention .= "{$interventionName}: " . implode(', ', $classNames) . "<br>";
-                                        }
+                                    } else {
+                                        $assignedIntervention = '-';
                                     }
                                     ?>
                                     <tr>
@@ -66,8 +74,16 @@
                                         <td><?= $plan['average_rating'] ?></td>
                                         <td><?= $assignedIntervention ?></td>
                                     </tr>
-                                <?php endforeach; ?>
-                            <?php endif ?>
+                                <?php
+                                endforeach;
+                            else:
+                                ?>
+                                <tr>
+                                    <td colspan="4">No plans found</td>
+                                </tr>
+                            <?php
+                            endif;
+                            ?>
                             </tbody>
                         </table>
                     </div>
@@ -76,3 +92,42 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(function () {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": [
+                {
+                    extend: 'csvHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+                , "colvis",
+            ],
+            "order": [[0, "desc"]],
+
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

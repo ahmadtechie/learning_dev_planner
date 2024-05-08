@@ -79,7 +79,7 @@ class InterventionVendorController extends BaseController
 
         $validData = $this->validator->getValidated();
         $this->interventionVendorModel->save($validData);
-        return redirect('ldm.trainer')->with('success', "Vendor/Trainer {$validData['vendor_name']} created successfully.");
+        return redirect('ldm.vendor')->with('success', "Vendor/Trainer {$validData['vendor_name']} created successfully.");
     }
 
     public function edit($id): string

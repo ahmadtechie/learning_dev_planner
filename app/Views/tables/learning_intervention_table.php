@@ -40,7 +40,7 @@
                                     $competency = $competencyModel->find($intervention['competency_id'])
                                     ?>
                                     <tr>
-                                        <td><?= $intervention['intervention_name'] ?></td>
+                                        <td><?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id'] . ']' ?></td>
                                         <td><?php if ($trainer)echo $trainer['first_name'] . ' ' . $trainer['last_name']; else echo '-' ?></td>
                                         <td><?php if($competency) echo $competency['competency_name']; else echo '-' ?></td>
                                         <td><?= $cycle['cycle_year'] ?></td>

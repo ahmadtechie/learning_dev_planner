@@ -90,7 +90,7 @@ class EmployeeController extends BaseController
             'roles' => $this->userRoleModel->findAll(),
             'line_managers' => $this->employeeRolesModel->getAllLineManagersWithUser(),
             'jobs' => $jobs,
-            'page_name' => 'employees',
+            'page_name' => 'users',
             'departments' => $this->departmentModel->findAll(),
             'units' => $this->unitModel->findAll(),
         ];
@@ -169,12 +169,11 @@ class EmployeeController extends BaseController
 
 
         $email = $this->emailHelper->send_email($user_email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
-        return view('display_email', ['emailBody' => $emailBody]);
-//        if ($email) {
-//            return redirect()->to(url_to('ldm.employee'))->with('success', "Email sent to new user $firstName successfully.");
-//        } else {
-//            return redirect()->to(url_to('ldm.employee'))->with('error', "Email failed!")->withInput();
-//        }
+        if ($email) {
+            return redirect()->to(url_to('ldm.employee'))->with('success', "Email sent to new user $firstName successfully.");
+        } else {
+            return redirect()->to(url_to('ldm.employee'))->with('error', "Email failed!")->withInput();
+        }
     }
 
     public function edit($employeeId): string

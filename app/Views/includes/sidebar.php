@@ -41,8 +41,7 @@
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                data-accordion="false">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <li class="nav-item menu-open">
                     <a href="/" class="nav-link active">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -104,25 +103,25 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item <?= strpos(uri_string(), "employee") ? 'menu-open' : ''; ?>">
+                    <li class="nav-item <?= strpos(uri_string(), "users") ? 'menu-open' : ''; ?>">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-user-md"></i>
                             <p>
-                                Employee Data
+                                System Users
                                 <i class="fas fa-angle-left right"></i>
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="<?= url_to('ldm.employee.upload') ?>" class="nav-link <?= strpos(url_to('ldm.employee.upload'), uri_string()) ? 'active' : ''; ?>">
+                                <a href="<?= url_to('ldm.employee') ?>" class="nav-link <?= strpos(url_to('ldm.employee'), uri_string()) ? 'active' : ''; ?>">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>CSV Upload</p>
+                                    <p>Users Data</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="<?= url_to('ldm.employee') ?>" class="nav-link <?= strpos(url_to('ldm.employee'), uri_string()) ? 'active' : ''; ?>">
+                                <a href="<?= url_to('ldm.employee.upload') ?>" class="nav-link <?= strpos(url_to('ldm.employee.upload'), uri_string()) ? 'active' : ''; ?>">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Staff Data</p>
+                                    <p>CSV Upload</p>
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -140,7 +139,7 @@
                         </ul>
                     </li>
                     <li class="nav-item <?= strpos(uri_string(), "competency") ? 'menu-open' : ''; ?>">
-                        <a href="<?= url_to('ldm.competencies.mapping.dashboard') ?>" class="nav-link <?= strpos(url_to('ldm.competencies.mapping.dashboard'), uri_string()) ? 'active' : ''; ?>">
+                        <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-snowflake"></i>
                             <p>
                                 Competency Frameworks
@@ -152,6 +151,12 @@
                                 <a href="<?= url_to('ldm.jobs') ?>" class="nav-link <?= strpos(url_to('ldm.jobs'), uri_string()) ? 'active' : ''; ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Jobs</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= url_to('ldm.competencies.types') ?>" class="nav-link <?= strpos(url_to('ldm.competencies.types'), uri_string()) ? 'active' : ''; ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Competency Types</p>
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -212,6 +217,12 @@
                                 <a href="<?= url_to('ldm.rating.validate') ?>" class="nav-link <?= strpos(url_to('ldm.rating.validate'), uri_string()) ? 'active' : ''; ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Validate Ratings</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= url_to('ldm.rating.pdp') ?>" class="nav-link <?= strpos(url_to('ldm.rating.pdp'), uri_string()) ? 'active' : ''; ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Manage PDPs</p>
                                 </a>
                             </li>
                         <?php endif; ?>

@@ -41,8 +41,7 @@
 
                                 $cycleModel = new DevelopmentCycleModel();
                                 $activeCycle = $cycleModel->where('is_active', 1)->first();
-                                ?>
-                                <?php
+
                                 $ratingModel = new DevelopmentContractingModel();
                                 $competencyModel = new CompetencyModel();
                                 $employeeModel = new EmployeeModel();
@@ -56,9 +55,7 @@
                                         ->where('cycle_id', $activeCycle['id'])
                                         ->orderBy('updated_at', 'ASC')
                                         ->findAll();
-                                    if (empty($employee_ratings)):
-                                        continue;
-                                    endif;
+                                    if (empty($employee_ratings)) continue;
                                     ?>
                                     <tr data-employee="<?= $lineManagerEmployee['employee_id'] ?>"
                                         class="expandable-row">

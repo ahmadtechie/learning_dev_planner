@@ -36,7 +36,7 @@
                                                     <!-- Edit link -->
                                                     <a class="dropdown-item" href="<?= url_to('ldm.jobs.edit', $job['id']) ?>">Edit</a>
                                                     <!-- Delete link -->
-                                                    <a class="dropdown-item" href="<?= url_to('ldm.jobs.delete', $job['id']) ?>">Delete</a>
+                                                    <a class="dropdown-item" href="#" onclick="confirmDelete(<?= $job['id'] ?>)">Delete</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -52,6 +52,14 @@
         </div>
     </div>
 </section>
+
+<script>
+    function confirmDelete(jobId) {
+        if (confirm("Are you sure you want to delete this competency type?")) {
+            window.location.href = "<?= url_to('ldm.jobs.delete') ?>?job_id=" + jobId;
+        }
+    }
+</script>
 
 <script>
     $(function () {
