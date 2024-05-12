@@ -47,17 +47,17 @@ class EmployeeController extends BaseController
             ]
         ],
         'first_name' => [
-            'rules' => 'required|min_length[3]',
+            'rules' => 'required|min_length[2]',
             'errors' => [
                 'required' => 'First Name is required!',
-                'min_length' => 'First Name must be at least 3 characters.'
+                'min_length' => 'First Name must be at least 2 characters.'
             ],
         ],
         'last_name' => [
-            'rules' => 'required|min_length[3]',
+            'rules' => 'required|min_length[2]',
             'errors' => [
                 'required' => 'Last Name is required!',
-                'min_length' => 'Last Name must be at least 3 characters.'
+                'min_length' => 'Last Name must be at least 2 characters.'
             ],
         ],
         'job_id' => [
@@ -181,7 +181,7 @@ class EmployeeController extends BaseController
         $this->data['userData'] = $this->request->userData;
         $employee = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
         $this->data['employee'] = $employee;
-        $this->data['selected_roles'] = $this->employeeModel->where('id', $employeeId)->findAll();
+        $this->data['selected_roles'] = $this->employeeRolesModel->where('employee_id', $employeeId)->findAll();
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
@@ -218,6 +218,7 @@ class EmployeeController extends BaseController
         }
 
         $userData = [
+            'email' => $this->request->getPost('email'),
             'first_name' => $this->request->getPost('first_name'),
             'last_name' => $this->request->getPost('last_name')
         ];

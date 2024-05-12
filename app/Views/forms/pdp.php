@@ -46,7 +46,10 @@ $loggedInEmployeeId = session()->get('loggedInEmployee');
                                     the <?= isset($active_cycle) ? $active_cycle['max_competencies'] : '' ?> top
                                     competencies you're focusing on for the <?= $active_cycle['cycle_year'] ?> cycle.
                                 </div>
+                                <p class="text-center">Job: <?= $my_job['job_title'] ?></p>
                             </div>
+                        </div>
+                        <div class="form-row text-center">
                         </div>
                         <div class="form-row text-center">
                             <div class="form-group col-md-6">
@@ -98,32 +101,32 @@ $loggedInEmployeeId = session()->get('loggedInEmployee');
                         <h3 class="card-title">Employee and Line Manager Sign-off</h3>
                     </div>
                     <div class="card-body">
-                        <?= form_open(url_to('ldm.dashboard.pdp.signoff', $active_cycle['id']), array('id' => 'signOffForm')) ?>
-                        <?php if (isset($employee) and $employee['id'] === $loggedInEmployeeId): ?>
+                        <?= form_open(url_to('ldm.dashboard.pdp.signoff', $active_cycle['id'])) ?>
+                        <?php if (isset($employee) and $employee['employee_id'] === $loggedInEmployeeId): ?>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="employee-signoff"
-                                       name="employee_signed_off">
+                                       name="employee_signed_off" <?= (isset($isEmployeeSignedOff) and $isEmployeeSignedOff) ? 'checked disabled' : '' ?>>
                                 <label class="form-check-label" for="employee-signoff">Employee Sign-off</label>
                             </div>
-                            <?php if (isset($employeeSignedOff) and !$employeeSignedOff): ?>
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                            <?php if (isset($isEmployeeSignedOff) and !$isEmployeeSignedOff): ?>
+                                <div class="row card-footer justify-content-center">
+                                    <button type="submit" class="btn btn-primary col-md-4">Submit</button>
+                                </div>
                             <?php endif; ?>
                         <?php endif; ?>
                         <?php if (isset($line_manager) and $line_manager['employee_id'] === $loggedInEmployeeId): ?>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="lm-signoff"
-                                       name="line_manager_signed_off">
+                                       name="line_manager_signed_off" <?= (isset($isLineManagerSignedOff) and $isLineManagerSignedOff) ? 'checked disabled' : '' ?>>
                                 <label class="form-check-label" for="lm-signoff">Line Manager Sign-off</label>
                             </div>
-                            <?php if (isset($lineManagerSignedOff) and !$lineManagerSignedOff): ?>
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                            <?php if (isset($isLineManagerSignedOff) and !$isLineManagerSignedOff): ?>
+                                <div class="row card-footer justify-content-center">
+                                    <button type="submit" class="btn btn-primary col-md-4">Submit</button>
+                                </div>
                             <?php endif; ?>
                         <?php endif; ?>
                         <?= form_close(); ?>
-                    </div>
-
-                    <div class="row card-footer justify-content-center">
-                        <button type="submit" class="btn btn-primary col-md-3">Submit</button>
                     </div>
                 </div>
             </div>

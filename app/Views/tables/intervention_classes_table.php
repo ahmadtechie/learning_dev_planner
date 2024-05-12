@@ -11,7 +11,7 @@
                         <table id="example1" class="table table-bordered table-striped interventionClassTable">
                             <thead>
                             <tr>
-                                <th>Learning Intervention</th>
+                                <th>Intervention </th>
                                 <th>Class Name</th>
                                 <th>Cycle Year</th>
                                 <th>Start Date</th>

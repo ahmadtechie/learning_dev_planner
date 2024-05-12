@@ -12,7 +12,7 @@ class InterventionAttendanceModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['intervention_id', 'employee_id', 'attendance_date', 'attendance_status', 'remarks', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['intervention_id', 'intervention_class_id', 'employee_id', 'attendance_date', 'attendance_status', 'remarks', 'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
     protected $useTimestamps = true;

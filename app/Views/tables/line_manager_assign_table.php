@@ -26,7 +26,7 @@
                                     $employees_under_manager = $employeeModel->getEmployeesUnderLineManager($line_manager['employee_id'])
                                 ?>
                                     <tr>
-                                        <td><?= "{$line_manager['first_name']} {$line_manager['last_name']}"  ?></td>
+                                        <td><?= "{$line_manager['first_name']} {$line_manager['last_name']}" . " [" . $line_manager['username'] . "]" ?></td>
                                         <td><?= $line_manager['job_title']; ?></td>
                                         <td>
                                             <?php if (!empty($employees_under_manager) && is_array($employees_under_manager)): ?>

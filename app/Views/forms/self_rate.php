@@ -69,6 +69,7 @@
                     </div>
 
                     <div class="card-footer text-center">
+                        <button type="reset"class="btn btn-primary">Reset</button>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                     <?= form_close() ?>

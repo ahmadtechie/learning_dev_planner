@@ -54,7 +54,7 @@
 <div class="row mt-3">
     <div class="col-md-8 mx-auto">
         <div class="alert alert-info" role="alert">
-            <strong>Hint:</strong> The InterventionID is needed for a successful employee-intervention attendance mapping.
+            <strong>Hint:</strong> Please use the format d-m-Y (e.g., 12-05-2024) when entering dates. This ensures consistency and accuracy.
         </div>
     </div>
 </div>

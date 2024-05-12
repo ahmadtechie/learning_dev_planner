@@ -32,14 +32,21 @@
             <?php endif; ?>
 
             <div class="form-group">
-                <label for="intervention_id">Learning Intervention</label>
+                <label for="intervention_id">Learning Intervention <span>*</span></label>
                 <select id="intervention_id" name="intervention_id" class="form-control" required>
                     <option value="">Select Intervention</option>
                     <?php if (!empty($interventions)): ?>
                         <?php foreach ($interventions as $intervention): ?>
-                            <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_class) && $intervention_class['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
-                                <?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id']  . ']' ?>
-                            </option>
+                            <?php $selected_intervention_id = isset($intervention_class) ? $intervention_class['intervention_id'] : set_value('intervention_id'); ?>
+                            <?php if ($selected_intervention_id == $intervention['id'] or set_value('intervention_id') == $intervention['id']): ?>
+                                <option value="<?= $intervention['id'] ?>" selected>
+                                    <?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id'] . ']' ?>
+                                </option>
+                            <?php else: ?>
+                                <option value="<?= $intervention['id'] ?>">
+                                    <?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id'] . ']' ?>
+                                </option>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -49,7 +56,7 @@
             </div>
 
             <div class="form-group">
-                <label for="class_name">Class Name</label>
+                <label for="class_name">Class Name <span>*</span></label>
                 <input type="text" id="class_name" name="class_name" class="form-control"
                        value="<?= isset($intervention_class) ? esc($intervention_class['class_name']) : set_value('class_name') ?>"
                        required>
@@ -59,7 +66,7 @@
             </div>
 
             <div class="form-group">
-                <label for="start_date">Start Date</label>
+                <label for="start_date">Start Date <span>*</span></label>
                 <input type="date" id="start_date" name="start_date" class="form-control"
                        value="<?= isset($intervention_class) ? esc($intervention_class['start_date']) : set_value('start_date') ?>"
                        required>
@@ -69,7 +76,7 @@
             </div>
 
             <div class="form-group">
-                <label for="end_date">End Date</label>
+                <label for="end_date">End Date <span>*</span></label>
                 <input type="date" id="end_date" name="end_date" class="form-control"
                        value="<?= isset($intervention_class) ? esc($intervention_class['end_date']) : set_value('end_date') ?>"
                        required>
@@ -79,7 +86,7 @@
             </div>
 
             <div class="form-group">
-                <label for="venue">Venue</label>
+                <label for="venue">Venue <span>*</span></label>
                 <input type="text" id="venue" name="venue" class="form-control"
                        value="<?= isset($intervention_class) ? esc($intervention_class['venue']) : set_value('venue') ?>"
                        required>

@@ -121,3 +121,70 @@ $cycleModel = model(DevelopmentCycleModel::class);
 
 
 <?php include(APPPATH . 'Views/tables/employee_interventions_table.php'); ?>
+
+<script>
+    $(document).ready(function() {
+        $('#cycle_id').on('change', function() {
+            updateInterventions($(this).val());
+        });
+
+        $('#intervention_id').on('change', function() {
+            updateClasses($(this).val());
+        });
+    });
+
+    function updateInterventions(cycleId) {
+        $.ajax({
+            url: 'http://localhost:8080/ldm/intervention/fetch-interventions/',
+            method: 'POST',
+            data: { cycle_id: cycleId },
+            success: function(data) {
+                $('#intervention_id').html(data);
+                $('#intervention_id').trigger('change');
+            }
+        });
+    }
+
+    // Function to update classes based on intervention_id
+    function updateClasses(interventionId) {
+        $.ajax({
+            url: 'http://localhost:8080/ldm/intervention/fetch-classes/',
+            method: 'POST',
+            data: { intervention_id: interventionId },
+            success: function(data) {
+                $('#class_ids').html(data);
+                $('#class_ids').select2();
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('#intervention_id').on('change', function() {
+            updateEmployees();
+        });
+    });
+
+    function updateEmployees() {
+        let interventionId = $('#intervention_id').val();
+        let cycleId = $('#cycle_id').val();
+        $.ajax({
+            url: 'http://localhost:8080/ldm/intervention/fetch-employees/',
+            method: 'POST',
+            data: {
+                intervention_id: interventionId,
+                cycle_id: cycleId,
+            },
+            success: function(data) {
+                console.log(data)
+                $('#employee_ids').html(data);
+            },
+            error: function(err) {
+                console.log(err)
+            }
+        });
+    }
+</script>
+
+
+
+

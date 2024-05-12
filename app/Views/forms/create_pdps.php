@@ -1,3 +1,28 @@
+<?php
+
+use App\Models\CompetencyModel;
+use App\Models\DevelopmentContractingModel;
+use App\Models\EmployeeModel;
+use App\Models\PDPModel;
+
+$employeeModel = new EmployeeModel();
+$ratingModel = new DevelopmentContractingModel();
+$pdpModel = new PDPModel();
+$loggedInLineMngId = session()->get('loggedInEmployee');
+$activeCycleSelectedEmployeeCompetencies = null;
+
+$lineManagerEmployees = $employeeModel->getEmployeesUnderLineManager($loggedInLineMngId);
+?>
+
+<script>
+    function disableAllCompetencies(employeeId) {
+        let checkboxes = document.querySelectorAll('.table[data-employee-id="' + employeeId + '"] input[type="checkbox"]');
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.disabled = true;
+        });
+    }
+</script>
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -32,7 +57,10 @@
                         <div class="row mt-3">
                             <div class="col-md-8 mx-auto">
                                 <div class="alert alert-info" role="alert">
-                                    <strong>Hint:</strong> Please select the top '<?= isset($active_cycle) ? $active_cycle['max_competencies'] : '' ?>'  competencies agreed with each of your direct reports for the <?= $active_cycle['cycle_year'] ?> development cycle.
+                                    <strong>Hint:</strong> Please select the top
+                                    '<?= isset($active_cycle) ? $active_cycle['max_competencies'] : '' ?>' competencies
+                                    agreed with each of your direct reports for the <?= $active_cycle['cycle_year'] ?>
+                                    development cycle.
                                 </div>
                             </div>
                         </div>
@@ -40,20 +68,11 @@
                             <table id="example1" class="table table-hover">
                                 <tbody>
                                 <?php
-
-                                use App\Models\CompetencyModel;
-                                use App\Models\DevelopmentContractingModel;
-                                use App\Models\EmployeeModel;
-
-                                $employeeModel = new EmployeeModel();
-                                $ratingModel = new DevelopmentContractingModel();
-                                $loggedInLineMngId = session()->get('loggedInEmployee');
-
-                                $lineManagerEmployees = $employeeModel->getEmployeesUnderLineManager($loggedInLineMngId);
                                 foreach ($lineManagerEmployees as $lineManagerEmployee):
                                     $employeeRatings = $ratingModel
                                         ->where('employee_id', $lineManagerEmployee['employee_id'])
                                         ->where('cycle_id', $active_cycle['id'])
+                                        ->where('line_manager_rating !=', 0)
                                         ->orderBy('updated_at', 'ASC')
                                         ->findAll();
                                     if (empty($employee_ratings)) continue;
@@ -68,7 +87,8 @@
                                     <tr class="expandable-content" style="display: none;">
                                         <td>
                                             <div class="p-0">
-                                                <table class="table table-hover">
+                                                <table class="table table-hover"
+                                                       data-employee-id="<?= $lineManagerEmployee['employee_id'] ?>">
                                                     <thead>
                                                     <tr>
                                                         <th>Select Top <?= $active_cycle['max_competencies'] ?>
@@ -84,11 +104,18 @@
                                                         <?php $competency = $competencyModel->find($rating['competency_id']); ?>
                                                         <tr>
                                                             <td>
+                                                                <?php
+                                                                $activeCycleSelectedEmployeeCompetencies = $pdpModel
+                                                                    ->where('cycle_id', $active_cycle['id'])
+                                                                    ->where('employee_id', $lineManagerEmployee['employee_id'])
+                                                                    ->findAll();
+
+                                                                ?>
                                                                 <input type="checkbox"
                                                                        class="form-check-input competency-checkbox ml-2"
                                                                        id="competency<?= $ratingCount ?>"
-                                                                       name="competency<?= $ratingCount ?>"
-                                                                       value="<?= $competency['id'] ?>" <?= (in_array($competency['id'], array_column($activeCycleSelectedCompetencies, 'competency_id'))) ? 'checked' : '' ?>>
+                                                                       name="competency_<?= $lineManagerEmployee['employee_id'] ?>_<?= $ratingCount ?>"
+                                                                       value="<?= $competency['id'] ?>" <?= (in_array($competency['id'], array_column($activeCycleSelectedEmployeeCompetencies, 'competency_id'))) ? 'checked' : '' ?>>
                                                                 <span class="ml-5"><?= $competency['competency_name'] ?></span>
                                                             </td>
                                                             <td>
@@ -99,6 +126,12 @@
                                                                        value="<?= $avg_rating ?>">
                                                             </td>
                                                         </tr>
+                                                        <script>
+                                                            <?php $isEmployeeRatingsSelected = in_array($lineManagerEmployee['employee_id'], $employeesWithPDPs); ?>
+                                                            if (<?= $isEmployeeRatingsSelected ?>) {
+                                                                disableAllCompetencies(<?= $lineManagerEmployee['employee_id'] ?>);
+                                                            }
+                                                        </script>
                                                         <?php $ratingCount++; ?>
                                                     <?php endforeach; ?>
                                                     </tbody>
@@ -131,9 +164,25 @@
 </script>
 
 <script>
-    function limitCheckboxSelection(formId, maxSelection) {
-        var checkboxes = document.querySelectorAll('#' + formId + ' input[type="checkbox"]');
-        var checkedCount = 0;
+    window.addEventListener('load', function () {
+        let tables = document.querySelectorAll('.table.table-hover');
+        console.log(<?php echo print_r($activeCycleSelectedEmployeeCompetencies, true) ?>)
+
+        tables.forEach(function (table) {
+            let employeeId = table.dataset.employeeId;
+            let maxSelection = <?= $active_cycle['max_competencies'] ?>;
+
+            table.querySelectorAll('input[type="checkbox"]').forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    limitCheckboxSelection(employeeId, maxSelection);
+                });
+            });
+        });
+    });
+
+    function limitCheckboxSelection(employeeId, maxSelection) {
+        let checkboxes = document.querySelectorAll('.table[data-employee-id="' + employeeId + '"] input[type="checkbox"]');
+        let checkedCount = 0;
 
         checkboxes.forEach(function (checkbox) {
             if (checkbox.checked) {
@@ -152,36 +201,15 @@
                 }
             });
         }
-    }
 
-    // Function to disable all checkboxes
-    function disableAllCompetencies(formId) {
-        var checkboxes = document.querySelectorAll('#' + formId + ' input[type="checkbox"]');
-
-        checkboxes.forEach(function (checkbox) {
-            checkbox.disabled = true;
-        });
-    }
-
-    window.addEventListener('load', function () {
-        var forms = document.querySelectorAll('.competencyForm'); // Select all forms with class competencyForm
-        forms.forEach(function (form) {
-            var formId = form.id;
-            var maxSelection = <?= $active_cycle['max_competencies'] ?>; // Retrieve max competencies for each form
-            limitCheckboxSelection(formId, maxSelection); // Initially limit selections for each form
-
-            form.querySelectorAll('input[type="checkbox"]').forEach(function (checkbox) {
-                checkbox.addEventListener('change', function () {
-                    limitCheckboxSelection(formId, maxSelection); // Update the limit whenever a checkbox is clicked for each form
-                });
+        if (checkedCount > maxSelection) {
+            checkboxes.forEach(function (checkbox) {
+                if (!checkbox.checked) {
+                    checkbox.disabled = true;
+                }
             });
-
-            let selectedCompetencies = <?= json_encode(array_column($activeCycleSelectedCompetencies, 'competency_id')) ?>;
-            if (selectedCompetencies.length > 0) {
-                disableAllCompetencies(formId); // Disable all checkboxes if there are selected competencies for each form
-            }
-        });
-    });
+        }
+    }
 </script>
 
 

@@ -26,7 +26,6 @@
                         <tr>
                             <td><?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id']  . ']'?></td>
                             <td><?= $content['modules'] ?></td>
-                            <td><?= $content['created_at']  ?></td>
                             <td><?= $content['updated_at'] ?></td>
                             <td>
                                 <div class="btn-group">

@@ -5,9 +5,11 @@ namespace App\Controllers\Trainer;
 use App\Controllers\BaseController;
 use App\Models\EmployeeModel;
 use App\Models\InterventionAttendanceModel;
+use App\Models\InterventionClassModel;
 use App\Models\LearningInterventionModel;
 use App\Models\UserModel;
 use CodeIgniter\HTTP\Files\UploadedFile;
+use Config\Services;
 use DateTime;
 
 helper(['form', 'url']);
@@ -18,6 +20,7 @@ class InterventionAttendanceController extends BaseController
     public UserModel $userModel;
     public EmployeeModel $employeeModel;
     public LearningInterventionModel $interventionModel;
+    public InterventionClassModel $interventionClassModel;
     public InterventionAttendanceModel $interventionAttendanceModel;
     public array $validation = [
         'attendance_csv' => [
@@ -34,6 +37,7 @@ class InterventionAttendanceController extends BaseController
         $this->userModel = model(UserModel::class);
         $this->employeeModel = model(EmployeeModel::class);
         $this->interventionModel = model(LearningInterventionModel::class);
+        $this->interventionClassModel = model(InterventionClassModel::class);
         $this->data = [
             'title' => 'Attendance Bulk Upload Page | LD Planner',
             'all_attendance' => $this->interventionAttendanceModel->orderBy('updated_at', 'DESC')->findAll(),
@@ -54,7 +58,7 @@ class InterventionAttendanceController extends BaseController
 
     public function format()
     {
-        $columns = ['employee_username', 'intervention_id', 'attendance_date', 'attendance_status', 'remarks'];
+        $columns = ['employee_username', 'intervention_class_name', 'attendance_date', 'attendance_status', 'remarks'];
         $csvData = implode(',', $columns) . "\n";
         $filename = 'intervention_attendance_bulk_upload_template.csv';
 
@@ -122,10 +126,10 @@ class InterventionAttendanceController extends BaseController
             ];
         }
 
-        $validation = \Config\Services::validation();
+        $validation = Services::validation();
         $validation->setRules([
             'employee_username' => 'required',
-            'intervention_id' => 'required',
+            'intervention_class_name' => 'required',
             'attendance_date' => 'required',
             'attendance_status' => 'required',
             'remarks' => 'permit_empty'
@@ -143,7 +147,7 @@ class InterventionAttendanceController extends BaseController
             'success' => true,
             'data' => [
                 'employee_username' => $rowData['employee_username'],
-                'intervention_id' => $rowData['intervention_id'],
+                'intervention_class_id' => $rowData['intervention_class_name'],
                 'attendance_date' => $rowData['attendance_date'],
                 'attendance_status' => $rowData['attendance_status'],
                 'remarks' => $rowData['remarks'],
@@ -180,21 +184,20 @@ class InterventionAttendanceController extends BaseController
             foreach ($csvData as $rowNumber => $rowData) {
                 if ($rowNumber === 0) continue;
 
-                $employee_username = $rowData[0];
-                $intervention_id = $rowData[1];
-                $attendance_date = $rowData[2];
-                $attendance_status = $rowData[3];
+                $employeeUsername = $rowData[0];
+                $interventionClassName = trim(strtolower($rowData[1])); ;
+                $attendanceDate = date('Y-m-d', strtotime(str_replace('/', '-', $rowData[2])));
+                $attendanceStatus = $rowData[3];
                 $remarks = $rowData[4];
 
                 try {
-                    $user = $this->userModel->where('username', $employee_username)->first();
+                    $user = $this->userModel->where('username', $employeeUsername)->first();
                     if (!$user) continue;
-                    $intervention = $this->interventionModel->where('intervention_id', $intervention_id)->first();
-                    if (!$intervention) continue;
                     $employeeData = $this->employeeModel->where('user_id', $user['id'])->first();
-                    $attendanceData = $this->interventionAttendanceModel->where('employee_id', $employeeData['id'])->where('intervention_id', $intervention['id'])->first();
-                    if (!$attendanceData) continue;
-                    $this->interventionAttendanceModel->update($attendanceData['id'], ['attendance_date' => $attendance_date, 'attendance_status' => $attendance_status, 'remarks' => $remarks]);
+                    $interventionClassData = $this->interventionClassModel->where('class_name', $interventionClassName)->first();
+                    $attendance = $this->interventionAttendanceModel->where('employee_id', $employeeData['id'])->where('intervention_class_id', $interventionClassData['id'])->where('attendance_date', $attendanceDate)->first();
+                    if (!$attendance) continue;
+                    $this->interventionAttendanceModel->update($attendance['id'], ['attendance_date' => $attendanceDate, 'attendance_status' => $attendanceStatus, 'remarks' => $remarks]);
                     $successCount++;
                 } catch
                 (\Exception $e) {

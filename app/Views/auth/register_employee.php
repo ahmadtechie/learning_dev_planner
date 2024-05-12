@@ -4,7 +4,9 @@
             <div class="col-md-6">
                 <div class="card card-info">
                     <div class="card-header">
-                        <?php if (isset($employee)): ?>
+                        <?php use App\Models\UserModel;
+
+                        if (isset($employee)): ?>
                             <h3 class="card-title">Update User Details</h3>
                         <?php else: ?>
                             <h3 class="card-title">Register New User</h3>
@@ -114,7 +116,7 @@
                             <select id="line_manager" class="form-control" name="line_manager_id">
                                 <option>Choose Line Manager</option>
                                 <?php
-                                $model = new \App\Models\UserModel();
+                                $model = new UserModel();
                                 ?>
                                 <?php if (!empty($line_managers) && is_array($line_managers)): ?>
                                     <?php $selected_line_manager_id = isset($employee) ? $employee['line_manager_id'] : set_value('line_manager_id') ?>
@@ -124,20 +126,22 @@
                                                     selected><?= esc($line_manager['first_name']);
                                                 esc($line_manager['last_name']); ?></option>
                                         <?php else: ?>
-                                            <option value="<?= $line_manager['employee_id'] ?>"><?= esc($line_manager['first_name']);
-                                                esc($line_manager['last_name']); ?></option>
+                                            <option value="<?= $line_manager['employee_id'] ?>"><?= esc($line_manager['first_name']) . ' ' .
+                                                esc($line_manager['last_name']) . ' [' . $line_manager['username'] . ']' ?></option>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
                             <span class="text-danger">
                                     <?= (isset($validation) && $validation->hasError('line_manager_id')) ? $validation->getError('line_manager_id') : '' ?>
-                                </span>
+                            </span>
                         </div>
                     </div>
-
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                    <div class="item form-group mb-3">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button class="btn btn-primary" type="reset">Reset</button>
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
                     </div>
                     <?= form_close() ?>
                 </div>

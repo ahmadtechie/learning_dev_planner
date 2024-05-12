@@ -4,7 +4,6 @@ namespace App\Controllers\CompetencyFramework;
 
 use App\Controllers\BaseController;
 use App\Models\JobModel;
-use CodeIgniter\Config\Services;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use ReflectionException;
 

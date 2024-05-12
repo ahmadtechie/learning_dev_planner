@@ -3,10 +3,14 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\AnnualDevelopmentPlanModel;
+use App\Models\DepartmentModel;
 use App\Models\DevelopmentContractingModel;
 use App\Models\DevelopmentCycleModel;
 use App\Models\EmailTemplateModel;
 use App\Models\EmployeeModel;
+use App\Models\GroupModel;
+use App\Models\JobModel;
 use App\Models\PDPModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -19,9 +23,14 @@ class PDPController extends BaseController
     public DevelopmentContractingModel $developmentContractingModel;
     public DevelopmentCycleModel $cycleModel;
     public EmployeeModel $employeeModel;
+    public AnnualDevelopmentPlanModel $ADPModel;
+    public GroupModel $groupModel;
+    public DepartmentModel $departmentModel;
     public PDPModel $pdpModel;
+    public JobModel $jobModel;
     public array $employeeRatings;
     public array $activeCycle;
+    public $employee;
 
     function __construct()
     {
@@ -29,10 +38,15 @@ class PDPController extends BaseController
         $this->cycleModel = model(DevelopmentCycleModel::class);
         $this->pdpModel = model(PDPModel::class);
         $this->developmentContractingModel = model(DevelopmentContractingModel::class);
+        $this->jobModel = model(JobModel::class);
+        $this->ADPModel = model(AnnualDevelopmentPlanModel::class);
+        $this->groupModel = model(GroupModel::class);
+        $this->departmentModel = model(DepartmentModel::class);
         $loggedInEmployeeId = session()->get('loggedInEmployee');
         $loggedInUserFullName = session()->get('first_name') . " " . session()->get('last_name');
-        $employee = $this->employeeModel->find($loggedInEmployeeId);
-        $line_manager = $this->employeeModel->getEmployeeDetailsWithUser($employee['line_manager_id']);
+        $this->employee = $this->employeeModel->getEmployeeDetailsWithUser($loggedInEmployeeId);
+        $my_job = $this->jobModel->find($this->employee['job_id']);
+        $line_manager = $this->employeeModel->getEmployeeDetailsWithUser($this->employee['line_manager_id']);
         $this->activeCycle = $this->cycleModel->where('is_active', true)->first();
         $this->employeeRatings = $this->developmentContractingModel
             ->where('employee_id', $loggedInEmployeeId)
@@ -40,13 +54,20 @@ class PDPController extends BaseController
             ->orderBy('updated_at', 'ASC')
             ->findAll();
         $myPlans = $this->pdpModel->where('employee_id', $loggedInEmployeeId)->orderBy('updated_at', 'DESC')->findAll();
-        $activeCycleSelectedCompetencies = $this->pdpModel->where('cycle_id', $this->activeCycle['id'])->where('employee_id', $employee['id'])->findAll();
+        $activeCycleSelectedCompetencies = $this->pdpModel->where('cycle_id', $this->activeCycle['id'])->where('employee_id', $this->employee['employee_id'])->findAll();
+        $employeesWithPDPs = $this->pdpModel->getUniqueEmployeeIds();
+        $isEmployeeSignedOff = $this->pdpModel->where('employee_id', $this->employee['employee_id'])->where('cycle_id', $this->activeCycle['id'])->where('employee_signed_off', true)->countAllResults();
+        $isLineManagerSignedOff = $this->pdpModel->where('employee_id', $this->employee['employee_id'])->where('cycle_id', $this->activeCycle['id'])->where('line_manager_signed_off', true)->countAllResults();
         $this->data = [
             'title' => 'Personal Development Plan | LD Planner',
-            'employee' => $employee,
+            'employee' => $this->employee,
+            'my_job' => $my_job,
             'line_manager' => $line_manager,
+            'employeesWithPDPs' => $employeesWithPDPs,
             'employee_ratings' => $this->employeeRatings,
             'pdpOwnerEmployeeId' => $loggedInEmployeeId,
+            'isEmployeeSignedOff' => $isEmployeeSignedOff,
+            'isLineManagerSignedOff' => $isLineManagerSignedOff,
             'active_cycle' => $this->activeCycle,
             'all_cycles' => $this->cycleModel->orderBy('updated_at', 'DESC')->findAll(),
             'loggedInUserFullName' => $loggedInUserFullName,
@@ -139,9 +160,10 @@ class PDPController extends BaseController
     /**
      * @throws \ReflectionException
      */
-    public function createPlans() {
-        $employee_id = session()->get('loggedInEmployee');
-        $lineManagerEmployees = $this->employeeModel->getEmployeesUnderLineManager($employee_id);
+    public function createPlans()
+    {
+        $loggedInEmployeeID = session()->get('loggedInEmployee');
+        $lineManagerEmployees = $this->employeeModel->getEmployeesUnderLineManager($loggedInEmployeeID);
         $n_competencies = $this->activeCycle['max_competencies'];
 
         foreach ($lineManagerEmployees as $lineManagerEmployee) {
@@ -159,13 +181,28 @@ class PDPController extends BaseController
                     ->orderBy('updated_at', 'ASC')
                     ->findAll();
                 for ($ratingCount = 0; $ratingCount < count($employeeRatings); $ratingCount++) {
-                    $competency_id = $this->request->getPost('competency' . $ratingCount);
+                    $competency_id = $this->request->getPost('competency_' . $employee_id . '_' . $ratingCount);
                     if ($competency_id) {
                         $this->pdpModel->insert([
                             'employee_id' => $employee_id,
                             'cycle_id' => $this->activeCycle['id'],
                             'competency_id' => $competency_id,
                             'average_rating' => $_POST['average_rating' . $ratingCount],
+                        ]);
+                        $divisionID = null;
+                        $groupID = null;
+                        if($this->employee['department_id']) $groupID = $this->departmentModel->find($this->employee['department_id'])['group_id'];
+                        if ($groupID) $divisionID = $this->groupModel->find($groupID)['division_id'];
+                        // consolidate PDPs into ADPs
+                        $this->ADPModel->insert([
+                            'employee_id' => $employee_id,
+                            'cycle_id' => $this->activeCycle['id'],
+                            'competency_id' => $competency_id,
+                            'job_id' => $this->employee['job_id'],
+                            'division_id' => $divisionID,
+                            'group_id' => $groupID,
+                            'department_id' => $this->employee['department_id'],
+                            'unit_id' => $this->employee['unit_id'],
                         ]);
                     }
                 }

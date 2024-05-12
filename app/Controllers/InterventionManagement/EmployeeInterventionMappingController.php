@@ -14,6 +14,7 @@ use App\Models\InterventionClassModel;
 use App\Models\InterventionContentModel;
 use App\Models\LearningInterventionModel;
 use App\Models\SiteSettingsModel;
+use DateTime;
 
 helper(['form', 'url']);
 
@@ -64,7 +65,7 @@ class EmployeeInterventionMappingController extends BaseController
 
         $this->data = [
             'title' => 'Employee Intervention Mapping | LD Planner',
-            'employees' => $this->employeeModel->getAllEmployeesWithUserDetails(),
+            'employees' => $this->employeeModel->getAllActiveEmployeesWithUserDetails(),
             'active_cycles' => $this->cycleModel->orderBy('cycle_year', 'DESC')->where('is_active', true)->findAll(),
             'all_cycles' => $this->cycleModel->orderBy('cycle_year', 'DESC')->findAll(),
             'interventions' => $this->learningInterventionModel->orderBy('updated_at', 'DESC')->findAll(),
@@ -116,12 +117,25 @@ class EmployeeInterventionMappingController extends BaseController
                                     <p><strong>End Date:</strong> {$classDetail['end_date']}</p>
                                     <p><strong>Venue:</strong> {$classDetail['venue']}</p>
                                 </div>";
+
         }
-        $intervention_content = $this->interventionContentModel->find($intervention_id);
+        $interventionContentDetail = $this->interventionContentModel->where('intervention_id', $intervention_id)->first();
+        if ($interventionContentDetail) {
+            $interventionContent = "<div class=\"class-details\">
+                                    <p><strong>Learning Objectives:</strong> {$interventionContentDetail['learning_objectives']}</p>
+                                    <p><strong>Modules:</strong> {$interventionContentDetail['modules']}</p>
+                                </div>";
+        } else {
+            $interventionContent = '';
+        }
+
 
         foreach ($employeeIds as $employeeId) {
             foreach ($classIds as $classId) {
+                $classDetail = $this->interventionClassModel->find($classId);
                 $this->employeeInterventionsModel->insert(['employee_id' => $employeeId, 'intervention_id' => $intervention_id, 'class_id' => $classId, 'cycle_id' => $cycle_id]);
+
+                $this->initiateEmployeeAttendance($classDetail, $employeeId);
             }
 
             $employeeData = $this->employeeModel->getEmployeeDetailsWithUser($employeeId);
@@ -132,6 +146,7 @@ class EmployeeInterventionMappingController extends BaseController
                 $employeeData['first_name'] . ' ' . $employeeData['last_name'],
                 $intervention['intervention_name'],
                 $classDetails,
+                $interventionContent,
                 $siteName,
                 $trainer['first_name'] . ' ' . $trainer['last_name']
             ];
@@ -139,13 +154,35 @@ class EmployeeInterventionMappingController extends BaseController
             $emailSubject = str_replace(['{site_name}', '{cycle_year}'], [$siteName, $cycleData['cycle_year']], $emailData['email_subject']);
             $this->emailHelper->send_email($employeeData['email'], $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
             $this->emailLogModel->insert(['email' => $employeeData['email'], 'status' => 'success', 'type' => 'employee_intervention_invite', 'intervention_id' => $intervention_id]);
-
-            // initiate the attendance marking for each participant
-            $this->interventionAttendanceModel->insert(['intervention_id' => $intervention_id, 'employee_id' => $employeeId, 'attendance_status' => 'absent']);
         }
         $this->sendLineManagerNotification($employeeIds, $intervention, $classDetails, $cycleData, $trainer);
 
         return redirect('ldm.intervention.map')->with('success', 'The selected employees have been mapped to the intervention.');
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function initiateEmployeeAttendance($classDetail, $employeeId)
+    {
+        $start_date = new DateTime($classDetail['start_date']);
+        $end_date = new DateTime($classDetail['end_date']);
+
+        $intervention_id = $classDetail['intervention_id'];
+        $class_id = $classDetail['id'];
+
+        $current_date = clone $start_date;
+        while ($current_date <= $end_date) {
+            $this->interventionAttendanceModel->insert([
+                'intervention_id' => $intervention_id,
+                'intervention_class_id' => $class_id,
+                'employee_id' => $employeeId,
+                'attendance_date' => $current_date->format('Y-m-d'),
+                'attendance_status' => 'absent',
+                'remarks' => '',
+            ]);
+            $current_date->modify('+1 day');
+        }
     }
 
     /**
@@ -222,7 +259,7 @@ class EmployeeInterventionMappingController extends BaseController
     {
         $interventionId = $this->request->getPost('intervention_id');
         $cycleId = $this->request->getPost('cycle_id');
-        $eligibleEmployees = $this->employeeInterventionsModel->getEmployeesWithoutIntervention($interventionId, $cycleId);
+        $eligibleEmployees = $this->employeeModel->getEmployeesWithoutIntervention($interventionId, $cycleId);
 
         $employeeIds = array_column($eligibleEmployees, 'id');
         $options = '';

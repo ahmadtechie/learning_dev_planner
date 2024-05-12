@@ -12,7 +12,7 @@ class InterventionContentModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['intervention_id', 'sub_topics', 'objectives','created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['intervention_id', 'learning_objectives', 'modules', 'created_at', 'updated_at', 'deleted_at'];
 
     protected bool $allowEmptyInserts = false;
 

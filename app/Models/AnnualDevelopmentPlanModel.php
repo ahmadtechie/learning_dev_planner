@@ -13,7 +13,7 @@ class AnnualDevelopmentPlanModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['employee_id', 'cycle_id', 'competency_id', 'division_id', 'department_id', 'unit_id', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['employee_id', 'cycle_id', 'job_id', 'competency_id', 'division_id', 'division_id', 'department_id', 'unit_id', 'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
     protected $useTimestamps = true;

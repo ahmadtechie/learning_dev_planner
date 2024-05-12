@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
+<aside class="main-sidebar main-sidebar-custom sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="<?php url_to('ldm.home') ?>" class="h1" style="display: inline-block; vertical-align: middle;">
         <img src="<?php echo base_url("images/LD planner horizontal W.png") ?>" alt="LIM Logo" class="brand-image"
@@ -299,7 +299,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="<?= url_to('ldm.feedback') ?>" class="nav-link <?= strpos(url_to('ldm.feedback'), uri_string()) ? 'active' : ''; ?>">
+                                <a href="<?= url_to('ldm.feedback.invite') ?>" class="nav-link <?= strpos(url_to('ldm.feedback.invite'), uri_string()) ? 'active' : ''; ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Feedback Invite</p>
                                 </a>
@@ -312,4 +312,7 @@
         <!-- /.sidebar-menu -->
     </div>
     <!-- /.sidebar -->
+    <div class="sidebar-custom text-center">
+        <a href="<?= url_to('ldm.logout') ?>" class="text-white"  style="font-size: 20px"><ion-icon name="log-out-outline"></ion-icon></a>
+    </div>
 </aside>

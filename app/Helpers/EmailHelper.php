@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use CodeIgniter\Email\Email;
+use Config\Services;
 
 class EmailHelper
 {
@@ -10,7 +11,7 @@ class EmailHelper
 
     public function __construct()
     {
-        $this->email = \Config\Services::email();
+        $this->email = Services::email();
 
     }
 
@@ -24,8 +25,6 @@ class EmailHelper
         if ($this->email->send()) {
             return true;
         } else {
-            echo $this->email->printDebugger(['headers']);
-
             return false;
         }
     }

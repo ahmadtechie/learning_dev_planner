@@ -28,9 +28,9 @@
                                 <?php foreach ($competencies as $competency): ?>
 
                                     <tr data-division-id="<?= $competency['id'] ?>">
-                                        <?php $competencyType = $competencyTypeModel->find($competency['competency_type_id']) ?>
+                                        <?php if($competency['competency_type_id']) $competencyType = $competencyTypeModel->find($competency['competency_type_id'])['name']; else $competencyType = '' ?>
                                         <td><?= $competency['competency_name']; ?></td>
-<!--                                        <td>--><?php //= $competencyType['name'] ?><!--</td>-->
+                                        <td><?= $competencyType ?></td>
                                         <td><?= $competency['description']; ?></td>
                                         <td><?= $competency['created_at']; ?></td>
                                         <td><?= $competency['updated_at']; ?></td>

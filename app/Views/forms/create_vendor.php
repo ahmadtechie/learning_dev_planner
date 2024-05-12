@@ -38,7 +38,7 @@
             <?php endif; ?>
 
             <div class="form-group">
-                <label for="intervention_id">Learning Intervention</label>
+                <label for="intervention_id">Learning Intervention <span>*</span></label>
                 <select id="intervention_id" name="intervention_id" class="form-control" required>
                     <option value="">Select Intervention</option>
                     <?php if (!empty($interventions)): ?>

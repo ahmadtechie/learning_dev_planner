@@ -37,7 +37,7 @@
                                 <?php foreach ($data as $row) : ?>
                                     <tr>
                                         <td><?= esc($row['employee_username']) ?? '' ?></td>
-                                        <td><?= esc($row['intervention_id']) ?? '' ?></td>
+                                        <td><?= esc($row['intervention_class_id']) ?? '' ?></td>
                                         <td><?= esc($row['attendance_date']) ?? '' ?></td>
                                         <td><?= esc($row['attendance_status']) ?? ''  ?></td>
                                         <td><?= esc($row['remarks']) ?? ''  ?></td>

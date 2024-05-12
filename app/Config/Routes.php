@@ -4,7 +4,6 @@ use App\Controllers\AuthController;
 use App\Controllers\CompetencyFramework\CompetencyController;
 use App\Controllers\CompetencyFramework\CompetencyMappingController;
 use App\Controllers\CompetencyFramework\CompetencyTypeController;
-use App\Controllers\CompetencyFramework\JobController;
 use App\Controllers\DevelopmentContracting\DevelopmentRatingController;
 use App\Controllers\DevelopmentCycle\DevelopmentCycleController;
 use App\Controllers\Employee\EmployeeController;
@@ -26,6 +25,7 @@ use App\Controllers\PDPController;
 use App\Controllers\Trainer\InterventionAttendanceController;
 use App\Controllers\Trainer\ParticipantFeedbackController;
 use CodeIgniter\Router\RouteCollection;
+use App\Controllers\CompetencyFramework\JobController;
 
 /**
  * @var RouteCollection $routes
@@ -198,8 +198,9 @@ $routes->group('ldm', function ($routes) {
         $routes->get('attendance/format', [InterventionAttendanceController::class, 'format'], ['as' => 'ldm.intervention.attendance.format']);
         $routes->post('attendance/preview', [InterventionAttendanceController::class, 'previewUpload'], ['as' => 'ldm.intervention.attendance.preview']);
 
-        $routes->get('feedback/', [ParticipantFeedbackController::class, 'index'], ['as' => 'ldm.feedback']);
-        $routes->post('feedback/', [ParticipantFeedbackController::class, 'create'], ['as' => 'ldm.feedback.create']);
+        $routes->get('feedback/invite', [ParticipantFeedbackController::class, 'index'], ['as' => 'ldm.feedback.invite']);
+        $routes->post('feedback/invite/create', [ParticipantFeedbackController::class, 'inviteCreate'], ['as' => 'ldm.feedback.invite.create']);
+        $routes->post('feedback/submit', [ParticipantFeedbackController::class, 'create'], ['as' => 'ldm.feedback.create']);
         $routes->get('feedback/edit/(:num)/', [ParticipantFeedbackController::class, 'edit'], ['as' => 'ldm.feedback.edit']);
         $routes->post('feedback/update/(:num)/', [ParticipantFeedbackController::class, 'update'], ['as' => 'ldm.feedback.update']);
         $routes->post('feedback/delete/(:num)/', [ParticipantFeedbackController::class, 'delete'], ['as' => 'ldm.feedback.delete']);

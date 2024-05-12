@@ -12,7 +12,7 @@ class CompetencyModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['competency_name', 'description', 'created_at', 'updated_at', 'deleted_at'];
+    protected $allowedFields    = ['competency_name', 'description', 'competency_type_id', 'created_at', 'updated_at', 'deleted_at'];
 
     // Dates
     protected $useTimestamps = true;

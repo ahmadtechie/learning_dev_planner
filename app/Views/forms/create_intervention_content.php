@@ -26,41 +26,44 @@
                 </script>
             <?php endif; ?>
             <?php if (isset($intervention_content)): ?>
-                <?= form_open(url_to('ldm.learning.intervention.update', esc($intervention_content['id']))) ?>
+                <?= form_open(url_to('ldm.intervention.content.update', esc($intervention_content['id']))) ?>
             <?php else: ?>
                 <?= form_open(url_to('ldm.intervention.content.create')) ?>
             <?php endif; ?>
-
             <div class="form-group">
-                <label for="intervention_id">Learning Intervention</label>
+                <label for="intervention_id">Learning Intervention <span>*</span></label>
                 <select id="intervention_id" name="intervention_id" class="form-control" required>
                     <option value="">Select Intervention</option>
                     <?php if (!empty($interventions)): ?>
                         <?php foreach ($interventions as $intervention): ?>
-                            <option value="<?= $intervention['id'] ?>" <?= (isset($intervention_content) && $intervention_content['intervention_id'] == $intervention['id']) ? 'selected' : '' ?>>
-                                <?= $intervention['intervention_name'] ?>
-                            </option>
+                            <?php $selected_intervention_id = isset($intervention_content) ? $intervention_content['intervention_id'] : set_value('intervention_id'); ?>
+                            <?php if ($selected_intervention_id == $intervention['id'] or set_value('intervention_id') == $intervention['id']): ?>
+                                <option value="<?= $intervention['id'] ?>" selected>
+                                    <?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id'] . ']' ?>
+                                </option>
+                            <?php else: ?>
+                                <option value="<?= $intervention['id'] ?>">
+                                    <?= $intervention['intervention_name'] . ' [' . $intervention['intervention_id'] . ']' ?>
+                                </option>
+                            <?php endif; ?>
                         <?php endforeach; ?>
-                    <?php endif ?>
+                    <?php endif; ?>
                 </select>
-                <span class="text-danger">
-                    <?= (isset($validation) && $validation->hasError('intervention_id')) ? $validation->getError('intervention_id') : '' ?>
-                </span>
             </div>
 
             <div class="form-group">
-                <label for="summernote1">Learning Objectives</label>
-                <textarea id="summernote1" name="learning_objectives">
+                <label for="summernote1">Learning Objectives <span>*</span></label>
+                <textarea id="summernote1" name="learning_objectives" required>
                     <?= isset($intervention_content) ? esc($intervention_content['learning_objectives']) : set_value('learning_objectives') ?>
-              </textarea>
+                </textarea>
                 <span class="text-danger">
                     <?= (isset($validation) && $validation->hasError('learning_objectives')) ? $validation->getError('learning_objectives') : '' ?>
                 </span>
             </div>
 
             <div class="form-group">
-                <label for="summernote">Modules/Titles/Lessons</label>
-                <textarea id="summernote" name="sub_topics">
+                <label for="summernote">Modules/Titles/Lessons <span>*</span></label>
+                <textarea id="summernote" name="modules">
                     <?= isset($intervention_content) ? esc($intervention_content['modules']) : set_value('modules') ?>
                 </textarea>
                 <span class="text-danger">

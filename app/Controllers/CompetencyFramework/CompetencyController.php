@@ -30,7 +30,7 @@ class CompetencyController extends BaseController
         'competency_type_id' => [
             'rules' => 'required|integer',
             'errors' => [
-                'integer' => 'A competency must be selected.',
+                'integer' => 'A competency type must be selected.',
             ],
         ],
         'description' => [
