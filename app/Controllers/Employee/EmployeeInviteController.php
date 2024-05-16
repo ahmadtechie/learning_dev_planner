@@ -100,6 +100,6 @@ class EmployeeInviteController extends BaseController
             }
         }
 
-        return redirect('ldm.employee.invite');
+        return redirect('ldm.employee.invite')->with('success', 'Email invites sent successfully.');
     }
 }

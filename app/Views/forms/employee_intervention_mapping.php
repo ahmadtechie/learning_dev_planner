@@ -135,8 +135,8 @@ $cycleModel = model(DevelopmentCycleModel::class);
 
     function updateInterventions(cycleId) {
         $.ajax({
-            url: 'http://localhost:8080/ldm/intervention/fetch-interventions/',
-            method: 'POST',
+            url: '<?= base_url()?>ldm/intervention/fetch-interventions/',
+            method: 'GET',
             data: { cycle_id: cycleId },
             success: function(data) {
                 $('#intervention_id').html(data);
@@ -148,8 +148,8 @@ $cycleModel = model(DevelopmentCycleModel::class);
     // Function to update classes based on intervention_id
     function updateClasses(interventionId) {
         $.ajax({
-            url: 'http://localhost:8080/ldm/intervention/fetch-classes/',
-            method: 'POST',
+            url: '<?= base_url()?>ldm/intervention/fetch-classes/',
+            method: 'GET',
             data: { intervention_id: interventionId },
             success: function(data) {
                 $('#class_ids').html(data);
@@ -168,8 +168,8 @@ $cycleModel = model(DevelopmentCycleModel::class);
         let interventionId = $('#intervention_id').val();
         let cycleId = $('#cycle_id').val();
         $.ajax({
-            url: 'http://localhost:8080/ldm/intervention/fetch-employees/',
-            method: 'POST',
+            url: '<?= base_url()?>ldm/intervention/fetch-employees/',
+            method: 'GET',
             data: {
                 intervention_id: interventionId,
                 cycle_id: cycleId,

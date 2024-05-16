@@ -128,19 +128,41 @@ class EmployeeModel extends Model
             ->groupBy('employee.id');
 
         if (!empty($employeeIdsWithIntervention)) {
-            $query->whereNotIn('employee.id', $employeeIdsWithIntervention);
+            $query->whereNotIn('employee.id', $employeeIdsWithIntervention)->findAll();
         }
-
         return $query->findAll();
+    }
+
+    public function getEmployeeWithInterventionForFeedback($intervention_id, $cycle_id):array
+    {
+        // Subquery to get employee IDs with the intervention
+        $subQuery = $this->db->table('employee_interventions')
+            ->select('employee_id')
+            ->where('intervention_id', $intervention_id)
+            ->where('cycle_id', $cycle_id)
+            ->groupBy('employee_id')
+            ->get()
+            ->getResultArray();
+
+        $employeeIdsWithIntervention = array_column($subQuery, 'employee_id');
+
+        $query = $this->select('employee.id AS employee_id, employee.*, user.*')
+            ->join('user', 'user.id = employee.user_id')
+            ->groupBy('employee.id');
+
+        if (!empty($employeeIdsWithIntervention)) {
+            $query->whereIn('employee.id', $employeeIdsWithIntervention);
+            return $query->findAll();
+        }
+        return [];
     }
 
     public function getUnAssignedEmployeeDetailsWithUser(): array
     {
-        return $this->select('employee.id AS employee_id, employee.*, user.*, job.job_title as job_title, CONCAT(line_manager.first_name, " ", line_manager.last_name) as line_manager_name')
+        return $this->select('employee.id AS employee_id, employee.*, user.*, CONCAT(line_manager.first_name, " ", line_manager.last_name) as line_manager_name')
             ->join('user', 'user.id = employee.user_id')
-            ->join('job', 'job.id = employee.job_id')
             ->join('user as line_manager', 'line_manager.id = employee.line_manager_id', 'left')
-            ->where('employee.line_manager_id IS NULL')
+            ->where('(employee.line_manager_id IS NULL OR employee.line_manager_id = 0)')
             ->findAll();
     }
 
@@ -154,6 +176,7 @@ class EmployeeModel extends Model
             ->join('job', 'job.id = employee.job_id')
             ->join('employee_roles', 'employee_roles.employee_id = employee.id')
             ->where('employee_roles.role_id', $line_manager_role_id)
+            ->orderBy('first_name')
             ->findAll();
     }
 

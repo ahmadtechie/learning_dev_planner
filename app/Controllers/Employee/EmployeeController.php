@@ -283,7 +283,7 @@ class EmployeeController extends BaseController
 
     public function getEmployeeLineManager(): ResponseInterface
     {
-        $lineManagerId = $this->request->getPost('line_manager_id');
+        $lineManagerId = $this->request->getVar('line_manager_id');
         $employeeLineManagerId = $this->employeeModel->find($lineManagerId)['line_manager_id'];
         return $this->response->setJSON(['subordinate_line_manager_id' => $employeeLineManagerId]);
     }
@@ -292,6 +292,7 @@ class EmployeeController extends BaseController
     {
         $this->data['userData'] = $this->request->userData;
         $this->data['page_name'] = 'Employee-Org Mapping';
+        $this->data['title'] = 'Employee-Org Mapping | LD Planner';
 
         return view('includes/head', $this->data) .
             view('includes/navbar') .
@@ -329,7 +330,6 @@ class EmployeeController extends BaseController
 
         if (!$this->validate($validation)) {
             $validation = ['validation' => $this->validator];
-
             return view('includes/head', $this->data) .
                 view('includes/navbar') .
                 view('includes/sidebar') .

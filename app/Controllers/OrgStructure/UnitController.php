@@ -117,7 +117,7 @@ class UnitController extends BaseController
     public function allUnits(): ResponseInterface
     {
         $unitModel = new UnitModel();
-        $department_id = $this->request->getPost('department_id');
+        $department_id = $this->request->getVar('department_id');
         $units = $unitModel->where('department_id', $department_id)->findAll();
 
         $formattedUnits = [];

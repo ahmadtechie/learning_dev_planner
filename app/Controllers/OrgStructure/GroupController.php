@@ -8,6 +8,7 @@ use App\Models\GroupModel;
 use CodeIgniter\Config\Services;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
+use CodeIgniter\HTTP\ResponseInterface;
 
 helper(['form']);
 
@@ -127,4 +128,19 @@ class GroupController extends BaseController
         return redirect('ldm.groups')->with('deleted', "Group deleted successfully.");
     }
 
+    public function allGroups(): ResponseInterface
+    {
+        $division_id = $this->request->getVar('division_id');
+        $groups = $this->groupModel->where('division_id', $division_id)->findAll();
+
+        $formattedGroups = [];
+        foreach ($groups as $group) {
+            $formattedGroups[] = [
+                'id' => $group['id'],
+                'group_name' => $group['group_name'],
+            ];
+        }
+
+        return $this->response->setJSON($formattedGroups);
+    }
 }

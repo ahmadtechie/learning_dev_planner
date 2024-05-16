@@ -2,10 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Models\EmailTemplateModel;
 use App\Models\EmployeeModel;
 use App\Models\EmployeeRolesModel;
+use App\Models\PasswordResetModel;
 use App\Models\UserModel;
 use CodeIgniter\Controller;
+use App\Helpers\EmailHelper;
+
 use CodeIgniter\HTTP\RedirectResponse;
 
 helper('form');
@@ -102,7 +106,7 @@ class AuthController extends Controller
         $token = bin2hex(random_bytes(32));
 
         // Save the token in the database along with the user's email and a timestamp
-        $passwordResetModel = new \App\Models\PasswordResetModel();
+        $passwordResetModel = new PasswordResetModel();
         $passwordResetModel->insert([
             'email' => $email,
             'token' => $token,
@@ -110,20 +114,77 @@ class AuthController extends Controller
         ]);
 
         // Send an email to the user with a link to reset the password
-        $resetLink = site_url('reset-password?token=' . $token);
-        $emailSubject = 'Password Reset Link';
-        $emailBody = 'Click the following link to reset your password: ' . $resetLink;
+        $resetLink = url_to('ldm.password.new') . '?token=' . $token;
+        $emailTemplateModel = model(EmailTemplateModel::class);
 
-        // You can use your preferred email sending library or helper function here
-        // For example, using CodeIgniter's Email class:
-        $email = \Config\Services::email();
-        $email->setTo($user['email']);
-        $email->setSubject($emailSubject);
-        $email->setMessage($emailBody);
-        $email->send();
+        $emailData = $emailTemplateModel->where('email_type', 'forgot_password')->first();
+        $find = ['{user_name}', '{password_reset_link}'];
+        $replace = [$user['first_name'], $resetLink];
+        $emailBody = str_replace($find, $replace, $emailData['email_body']);
+        $emailSubject = $emailData['email_subject'];
+        $emailHelper = new EmailHelper();
+        $email = $emailHelper->send_email($email, $emailData["email_from"], $emailData['email_from_name'], $emailSubject, $emailBody);
+        if ($email) {
+            return redirect()->to(url_to('ldm.forgot.password'))->with('success', "Password reset link sent to your email.");
+        } else {
+            return redirect()->to(url_to('ldm.employee'))->with('error', "Email failed!")->withInput();
+        }
+    }
 
-        // Redirect the user with a success message
-        return redirect()->to('login')->with('success', 'Password reset link sent to your email.');
+    public function resetPassword(): RedirectResponse
+    {
+        $token = $this->request->getVar('token');
+
+        $passwordResetModel = model(PasswordResetModel::class);
+
+        $expirationTime = strtotime('+15 minutes');
+        $passwordResetData = $passwordResetModel->where('token', $token)->first();
+
+        if (time() > strtotime($passwordResetData['created_at']) + $expirationTime) {
+            return redirect()->to(url_to('ldm.forgot.password'))->with('error', 'Token expired.');
+        }
+
+        if ($passwordResetData == null) {
+            return redirect()->to(url_to('ldm.forgot.password'))->with('error', 'Invalid or expired token.');
+        }
+
+        $rules = [
+            'password' => [
+                'rules' => 'required|min_length[8]|max_length[255]',
+                'errors' => [
+                    'required' => 'Password is required.',
+                    'min_length' => 'Password must be at least 8 characters long.',
+                    'max_length' => 'Password cannot exceed 255 characters.'
+                ]
+            ],
+            'password_confirm' => [
+                'rules' => 'matches[password]',
+                'errors' => [
+                    'matches' => 'The password confirmation does not match the password.'
+                ]
+            ]
+        ];
+
+        if (!$this->validate($rules)) {
+            $errors = $this->validator->getErrors();
+
+            if (isset($errors['password'])) {
+                return redirect()->to(url_to('ldm.password.new') . '?token=' . $token)->with('error', $errors['password']);
+            } elseif (isset($errors['password_confirm'])) {
+                return redirect()->to(url_to('ldm.password.new') . '?token=' . $token)->with('error', $errors['password_confirm']);
+            } else {
+                return redirect()->to(url_to('ldm.password.new') . '?token=' . $token)->with('error', 'Validation error. Please try again.');
+            }
+        }
+
+        $newPassword = $this->request->getPost('password');
+        $userModel = new UserModel();
+        $user = $userModel->where('email', $passwordResetData['email'])->first();
+
+        $userModel->update($user['id'], ['password' => password_hash($newPassword, PASSWORD_DEFAULT)]);
+        $passwordResetModel->delete($passwordResetData['id']);
+
+        return redirect()->to(url_to('ldm.login'))->with('success', 'Password reset successfully. You can now log in with your new password.');
     }
 
     public function logout(): RedirectResponse
@@ -133,6 +194,17 @@ class AuthController extends Controller
             session()->remove('loggedInUser');
         }
         return redirect()->to(url_to('ldm.login.auth'))->with('error', "You are logged out");
+    }
+
+    public function passwordChangeForm(): string
+    {
+        return view('auth/change_password', $this->data);
+
+    }
+
+    public function getPasswordSubmitForm(): string
+    {
+        return view('auth/password_change', $this->data);
     }
 
     public function getChangePassword(): string

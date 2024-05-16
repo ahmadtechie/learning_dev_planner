@@ -65,7 +65,7 @@ class EmployeeInterventionMappingController extends BaseController
 
         $this->data = [
             'title' => 'Employee Intervention Mapping | LD Planner',
-            'employees' => $this->employeeModel->getAllActiveEmployeesWithUserDetails(),
+            'employees' =>  [],
             'active_cycles' => $this->cycleModel->orderBy('cycle_year', 'DESC')->where('is_active', true)->findAll(),
             'all_cycles' => $this->cycleModel->orderBy('cycle_year', 'DESC')->findAll(),
             'interventions' => $this->learningInterventionModel->orderBy('updated_at', 'DESC')->findAll(),
@@ -233,7 +233,7 @@ class EmployeeInterventionMappingController extends BaseController
 
     public function fetchInterventions()
     {
-        $cycleId = $this->request->getPost('cycle_id');
+        $cycleId = $this->request->getVar('cycle_id');
         $interventionsData = $this->learningInterventionModel->where('cycle_id', $cycleId)->orderBy('updated_at', 'DESC')->findAll();
 
         $options = '<option value="">Choose Intervention</option>';
@@ -246,7 +246,7 @@ class EmployeeInterventionMappingController extends BaseController
 
     public function fetchClasses()
     {
-        $interventionId = $this->request->getPost('intervention_id');
+        $interventionId = $this->request->getVar('intervention_id');
         $classesData = $this->interventionClassModel->where('intervention_id', $interventionId)->orderBy('updated_at', 'DESC')->findAll();
         $options = '';
         foreach ($classesData as $class) {
@@ -257,8 +257,8 @@ class EmployeeInterventionMappingController extends BaseController
 
     public function fetchEligibleEmployees()
     {
-        $interventionId = $this->request->getPost('intervention_id');
-        $cycleId = $this->request->getPost('cycle_id');
+        $interventionId = $this->request->getVar('intervention_id');
+        $cycleId = $this->request->getVar('cycle_id');
         $eligibleEmployees = $this->employeeModel->getEmployeesWithoutIntervention($interventionId, $cycleId);
 
         $employeeIds = array_column($eligibleEmployees, 'id');

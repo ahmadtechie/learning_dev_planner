@@ -77,3 +77,31 @@
 
 
 <?php include(APPPATH . 'Views/tables/employee_dept_table.php'); ?>
+
+<script>
+    $(document).ready(function () {
+        $('#department_map').on('change', function () {
+            var selectedDepartmentId = $(this).val();
+            console.log(selectedDepartmentId)
+
+            $.ajax({
+                url: '<?= base_url() ?>ldm/structure/units/all',
+                type: 'GET',
+                data: {department_id: selectedDepartmentId},
+                dataType: 'json',
+                success: function (response) {
+                    units = response
+                    // Clear existing options and add new options for fetched units
+                    $('#unit').empty().append('<option>Choose Unit</option>');
+                    $.each(units, function (index, unit) {
+                        $('#unit').append('<option value="' + unit.id + '">' + unit.unit_name + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching units data:', error);
+                }
+            });
+        });
+    });
+</script>
+

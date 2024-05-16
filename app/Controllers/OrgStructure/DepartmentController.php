@@ -9,6 +9,7 @@ use App\Models\GroupModel;
 use CodeIgniter\Config\Services;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Model;
 
 helper(['form']);
@@ -116,6 +117,22 @@ class DepartmentController extends BaseController
         $department_id = $this->request->getVar('department_id');
         $this->departmentModel->delete($department_id);
         return redirect()->to(url_to('ldm.departments'))->with('deleted', "Department deleted successfully.");
+    }
+
+    public function allDepartments(): ResponseInterface
+    {
+        $group_id = $this->request->getVar('group_id');
+        $departments = $this->departmentModel->where('group_id', $group_id)->findAll();
+
+        $formattedDepartments = [];
+        foreach ($departments as $department) {
+            $formattedDepartments[] = [
+                'id' => $department['id'],
+                'department_name' => $department['department_name'],
+            ];
+        }
+
+        return $this->response->setJSON($formattedDepartments);
     }
 }
 

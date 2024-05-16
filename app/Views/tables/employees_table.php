@@ -31,7 +31,6 @@
                                     $employeeModel = new EmployeeModel();
 
                                     $jobData = $jobModel->find($employee['job_id']);
-
                                     $lineManagerData = '-';
 
                                     if ($employee['line_manager_id'] !== null) {

@@ -41,7 +41,7 @@
                         <?php endif; ?>
 
                         <div class="form-group">
-                            <label for="InputEmail">Email address</label>
+                            <label for="InputEmail">Email address <span>*</span></label>
                             <input type="email" name="email" class="form-control" id="InputEmail"
                                    placeholder="Enter email"
                                    value="<?= isset($employee) ? esc($employee['email']) : set_value('email') ?>"
@@ -52,7 +52,7 @@
                         </span>
                         </div>
                         <div class="form-group">
-                            <label for="FirstName">First Name</label>
+                            <label for="FirstName">First Name <span>*</span></label>
                             <input type="text" name="first_name" class="form-control" id="FirstName"
                                    placeholder="Enter first name"
                                    value="<?= isset($employee) ? esc($employee['first_name']) : set_value('first_name') ?>"
@@ -62,7 +62,7 @@
                         </span>
                         </div>
                         <div class="form-group">
-                            <label for="LastName">Last Name</label>
+                            <label for="LastName">Last Name <span>*</span></label>
                             <input type="text" name="last_name" class="form-control" id="LastName"
                                    placeholder="Enter last name"
                                    value="<?= isset($employee) ? esc($employee['last_name']) : set_value('last_name') ?>"
@@ -72,7 +72,7 @@
                         </span>
                         </div>
                         <div class="form-group">
-                            <label for="job">Job</label>
+                            <label for="job">Job <span>*</span></label>
                             <select id="job" class="form-control" name="job_id" required>
                                 <option>Choose Job</option>
                                 <?php $selected_job_id = isset($employee) ? $employee['job_id'] : set_value('job_id'); ?>

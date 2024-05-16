@@ -79,6 +79,11 @@
                                             }
                                         }
                                     }
+                                    $mostRecentUpdate = $employeeInterventionsModel
+                                        ->where('employee_id', $employeeIntervention['employee_id'])
+                                        ->where('cycle_id', $employeeIntervention['cycle_id'])
+                                        ->orderBy('updated_at', 'desc')
+                                        ->first();
                                     echo "<tr>";
                                     echo "<td>{$employee['first_name']} {$employee['last_name']} [{$employee['username']}]</td>";
                                     echo "<td>{$cycle_year['cycle_year']}</td>";
@@ -90,7 +95,7 @@
                                     echo "<td>";
                                     if ($is_mail_sent) echo 'Yes'; else echo 'No';
                                     echo "</td>";
-                                    echo "<td>{$employeeIntervention['updated_at']}</td>";
+                                    echo "<td>{$mostRecentUpdate['updated_at']}</td>";
                                     echo "</tr>";
                                 }
                             } else {

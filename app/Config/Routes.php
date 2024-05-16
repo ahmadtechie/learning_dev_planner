@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\ADPController;
 use App\Controllers\AuthController;
 use App\Controllers\CompetencyFramework\CompetencyController;
 use App\Controllers\CompetencyFramework\CompetencyMappingController;
@@ -34,7 +35,6 @@ use App\Controllers\CompetencyFramework\JobController;
 $routes->group('', ['filter' => 'AuthCheck'], function ($routes) {
     $routes->get('/', [Home::class, 'index'], ['as' => 'ldm.home']);
     $routes->get('/home', [Home::class, 'index'], ['as' => 'ldm.home.dashboard']);
-    $routes->get('/email', [Home::class, 'email'], ['as' => 'ldm.home.email']);
     $routes->get('/access-denied', [Home::class, 'accessDenied'], ['as' => 'ldm.access_denied']);
 });
 
@@ -52,12 +52,14 @@ $routes->group('ldm', function ($routes) {
         // Group routes
         $routes->get('groups/', [GroupController::class, 'index'], ['as' => 'ldm.groups']);
         $routes->post('groups/', [GroupController::class, 'create'], ['as' => 'ldm.groups.create']);
+        $routes->get('groups/all', [GroupController::class, 'allGroups'], ['as' => 'ldm.groups.all']);
         $routes->get('groups/edit/(:num)/', [GroupController::class, 'edit'], ['as' => 'ldm.groups.edit']);
         $routes->post('groups/update/(:num)/', [GroupController::class, 'update'], ['as' => 'ldm.groups.update']);
         $routes->get('groups/delete/', [GroupController::class, 'delete'], ['as' => 'ldm.groups.delete']);
 
         // Department routes
         $routes->get('departments/', [DepartmentController::class, 'index'], ['as' => 'ldm.departments']);
+        $routes->get('departments/all', [DepartmentController::class, 'allDepartments'], ['as' => 'ldm.departments.all']);
         $routes->post('departments/', [DepartmentController::class, 'create'], ['as' => 'ldm.departments.create']);
         $routes->get('departments/edit/(:num)/', [DepartmentController::class, 'edit'], ['as' => 'ldm.departments.edit']);
         $routes->post('departments/update/(:num)/', [DepartmentController::class, 'update'], ['as' => 'ldm.departments.update']);
@@ -65,7 +67,7 @@ $routes->group('ldm', function ($routes) {
 
         // Unit routes
         $routes->get('units/', [UnitController::class, 'index'], ['as' => 'ldm.units']);
-        $routes->post('units/all', [UnitController::class, 'allUnits'], ['as' => 'ldm.units.all']);
+        $routes->get('units/all', [UnitController::class, 'allUnits'], ['as' => 'ldm.units.all']);
         $routes->post('units/', [UnitController::class, 'create'], ['as' => 'ldm.units.create']);
         $routes->get('units/edit/(:num)/', [UnitController::class, 'edit'], ['as' => 'ldm.units.edit']);
         $routes->post('units/update/(:num)/', [UnitController::class, 'update'], ['as' => 'ldm.units.update']);
@@ -110,7 +112,7 @@ $routes->group('ldm', function ($routes) {
         $routes->post('update/(:num)/', [EmployeeController::class, 'update'], ['as' => 'ldm.employee.update']);
         $routes->get('delete/', [EmployeeController::class, 'delete'], ['as' => 'ldm.employee.delete']);
         $routes->get('activate/(:num)/', [EmployeeController::class, 'activate'], ['as' => 'ldm.employee.activate']);
-        $routes->post('line-manager/', [EmployeeController::class, 'getEmployeeLineManager'], ['as' => 'ldm.employee.line.manager']);
+        $routes->get('line-manager/', [EmployeeController::class, 'getEmployeeLineManager'], ['as' => 'ldm.employee.line.manager']);
 
         $routes->group('org/map/', function ($routes) {
             $routes->get('', [EmployeeController::class, 'map'], ['as' => 'ldm.map.org']);
@@ -187,30 +189,30 @@ $routes->group('ldm', function ($routes) {
 
         $routes->get('map/', [EmployeeInterventionMappingController::class, 'index'], ['as' => 'ldm.intervention.map']);
         $routes->post('map/', [EmployeeInterventionMappingController::class, 'create'], ['as' => 'ldm.intervention.map.create']);
-        $routes->post('fetch-interventions/', [EmployeeInterventionMappingController::class, 'fetchInterventions'], ['as' => 'ldm.intervention.fetch']);
-        $routes->post('fetch-classes/', [EmployeeInterventionMappingController::class, 'fetchClasses'], ['as' => 'ldm.intervention.class.fetch']);
-        $routes->post('fetch-employees/', [EmployeeInterventionMappingController::class, 'fetchEligibleEmployees'], ['as' => 'ldm.intervention.employees.fetch']);
+        $routes->get('fetch-interventions/', [EmployeeInterventionMappingController::class, 'fetchInterventions'], ['as' => 'ldm.intervention.fetch']);
+        $routes->get('fetch-classes/', [EmployeeInterventionMappingController::class, 'fetchClasses'], ['as' => 'ldm.intervention.class.fetch']);
+        $routes->get('fetch-employees/', [EmployeeInterventionMappingController::class, 'fetchEligibleEmployees'], ['as' => 'ldm.intervention.employees.fetch']);
     });
 
     $routes->group('trainer', ['filter' => 'TrainerCheck'], function ($routes) {
         $routes->get('attendance/', [InterventionAttendanceController::class, 'index'], ['as' => 'ldm.intervention.attendance']);
         $routes->post('attendance/', [InterventionAttendanceController::class, 'create'], ['as' => 'ldm.intervention.attendance.create']);
-        $routes->get('attendance/format', [InterventionAttendanceController::class, 'format'], ['as' => 'ldm.intervention.attendance.format']);
-        $routes->post('attendance/preview', [InterventionAttendanceController::class, 'previewUpload'], ['as' => 'ldm.intervention.attendance.preview']);
+        $routes->get('attendance/format/', [InterventionAttendanceController::class, 'format'], ['as' => 'ldm.intervention.attendance.format']);
+        $routes->post('attendance/preview/', [InterventionAttendanceController::class, 'previewUpload'], ['as' => 'ldm.intervention.attendance.preview']);
 
-        $routes->get('feedback/invite', [ParticipantFeedbackController::class, 'index'], ['as' => 'ldm.feedback.invite']);
-        $routes->post('feedback/invite/create', [ParticipantFeedbackController::class, 'inviteCreate'], ['as' => 'ldm.feedback.invite.create']);
-        $routes->post('feedback/submit', [ParticipantFeedbackController::class, 'create'], ['as' => 'ldm.feedback.create']);
-        $routes->get('feedback/edit/(:num)/', [ParticipantFeedbackController::class, 'edit'], ['as' => 'ldm.feedback.edit']);
-        $routes->post('feedback/update/(:num)/', [ParticipantFeedbackController::class, 'update'], ['as' => 'ldm.feedback.update']);
-        $routes->post('feedback/delete/(:num)/', [ParticipantFeedbackController::class, 'delete'], ['as' => 'ldm.feedback.delete']);
+        $routes->get('feedback/invite/', [ParticipantFeedbackController::class, 'index'], ['as' => 'ldm.feedback.invite']);
+        $routes->get('feedback/form/', [ParticipantFeedbackController::class, 'feedbackForm'], ['as' => 'ldm.feedback.form']);
+        $routes->post('feedback/create/submit/', [ParticipantFeedbackController::class, 'submitFeedback'], ['as' => 'ldm.feedback.create']);
+        $routes->post('feedback/invite/submit/', [ParticipantFeedbackController::class, 'sendEmailInvite'], ['as' => 'ldm.feedback.invite.create']);
+        $routes->get('feedback/fetch-employees/', [ParticipantFeedbackController::class, 'fetchEmployeesForFeedback'], ['as' => 'ldm.feedback.employees.fetch']);
+        $routes->get('feedback/list/', [ParticipantFeedbackController::class, 'feedbackList'], ['as' => 'ldm.feedback.list']);
     });
 
     $routes->group('dashboard', ['filter' => 'AuthCheck'], function ($routes) {
         $routes->get('pdp/', [PDPController::class, 'index'], ['as' => 'ldm.dashboard.pdp']);
-        $routes->post('pdp/create', [PDPController::class, 'create'], ['as' => 'ldm.dashboard.pdp.create']);
+        $routes->post('pdp/create/', [PDPController::class, 'create'], ['as' => 'ldm.dashboard.pdp.create']);
         $routes->post('pdp/signoff/(:num)/', [PDPController::class, 'signoff'], ['as' => 'ldm.dashboard.pdp.signoff']);
-        $routes->get('adp/', [InterventionVendorController::class, 'index'], ['as' => 'ldm.dashboard.adp']);
+        $routes->get('adp/', [ADPController::class, 'index'], ['as' => 'ldm.dashboard.adp']);
     });
 
     $routes->get('login/', [AuthController::class, 'index'], ['as' => 'ldm.login']);
@@ -218,6 +220,9 @@ $routes->group('ldm', function ($routes) {
     $routes->get('logout/', [AuthController::class, 'logout'], ['as' => 'ldm.logout']);
     $routes->get('password/forgot/', [AuthController::class, 'forgotPassword'], ['as' => 'ldm.forgot.password']);
     $routes->post('password/retrieve/', [AuthController::class, 'handleForgotPassword'], ['as' => 'ldm.retrieve.password']);
+    $routes->post('password/change/form', [AuthController::class, 'passwordChangeForm'], ['as' => 'ldm.password.change']);
+    $routes->get('password/new/form', [AuthController::class, 'getPasswordSubmitForm'], ['as' => 'ldm.password.new']);
+    $routes->post('password/reset', [AuthController::class, 'resetPassword'], ['as' => 'ldm.password.reset']);
 
     $routes->group('', ['filter' => 'AuthCheck'], function ($routes) {
         $routes->get('password/change', [AuthController::class, 'getChangePassword'], ['as' => 'ldm.change.password']);

@@ -27,7 +27,7 @@
                                 <thead>
                                 <tr>
                                     <th>Employee Username</th>
-                                    <th>Intervention ID</th>
+                                    <th>Class Name</th>
                                     <th>Attendance Date</th>
                                     <th>Attendance Status</th>
                                     <th>Remarks</th>

@@ -114,19 +114,12 @@ $loggedInEmployeeId = session()->get('loggedInEmployee');
                                 </div>
                             <?php endif; ?>
                         <?php endif; ?>
-                        <?php if (isset($line_manager) and $line_manager['employee_id'] === $loggedInEmployeeId): ?>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="lm-signoff"
-                                       name="line_manager_signed_off" <?= (isset($isLineManagerSignedOff) and $isLineManagerSignedOff) ? 'checked disabled' : '' ?>>
-                                <label class="form-check-label" for="lm-signoff">Line Manager Sign-off</label>
-                            </div>
-                            <?php if (isset($isLineManagerSignedOff) and !$isLineManagerSignedOff): ?>
-                                <div class="row card-footer justify-content-center">
-                                    <button type="submit" class="btn btn-primary col-md-4">Submit</button>
-                                </div>
-                            <?php endif; ?>
-                        <?php endif; ?>
                         <?= form_close(); ?>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="lm-signoff"
+                                   name="line_manager_signed_off" <?= (isset($isLineManagerSignedOff) and $isLineManagerSignedOff) ? 'checked' : '' ?> disabled>
+                            <label class="form-check-label" for="lm-signoff">Line Manager Sign-off</label>
+                        </div>
                     </div>
                 </div>
             </div>

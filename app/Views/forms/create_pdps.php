@@ -75,7 +75,7 @@ $lineManagerEmployees = $employeeModel->getEmployeesUnderLineManager($loggedInLi
                                         ->where('line_manager_rating !=', 0)
                                         ->orderBy('updated_at', 'ASC')
                                         ->findAll();
-                                    if (empty($employee_ratings)) continue;
+                                    if (empty($employeeRatings)) continue;
                                     ?>
                                     <tr data-employee="<?= $lineManagerEmployee['employee_id'] ?>"
                                         class="expandable-row">

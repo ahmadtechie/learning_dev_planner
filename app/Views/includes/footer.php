@@ -111,6 +111,43 @@
 </script>
 
 <script>
+    $(document).ready(function () {
+        let initialEmployeeOptions = $('#employee_ids').html();
+
+        function filterEmployeeOptions(lineManagerId) {
+            $('#employee_ids').html(initialEmployeeOptions);
+            $('#employee_ids option[value="' + lineManagerId + '"]').remove();
+        }
+
+        $('#line_manager').on('change', function () {
+            let selectedLineManagerId = $(this).val();
+            if (selectedLineManagerId) {
+                filterEmployeeOptions(selectedLineManagerId);
+                // Send AJAX request to fetch subordinate line manager
+                $.ajax({
+                    url: '<?= base_url() ?>ldm/users/line-manager',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {line_manager_id: selectedLineManagerId},
+                    success: function (response) {
+                        let subordinateLineManagerId = response.subordinate_line_manager_id;
+                        $('#employee_ids option[value="' + subordinateLineManagerId + '"]').remove();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        console.error('Error fetching line manager id.');
+                    }
+                });
+            } else {
+                // If no line manager is selected, reset the employee options
+                $('#employee_ids').html(initialEmployeeOptions);
+            }
+        });
+    });
+
+</script>
+
+<script>
     // Event listener for Preview button
     document.getElementById("previewBtn").addEventListener("click", function () {
         // Clear existing previews
@@ -138,71 +175,6 @@
                 console.error('Error:', error);
             });
     });
-
-</script>
-
-<script>
-    $(document).ready(function () {
-        $('#department_map').on('change', function () {
-            var selectedDepartmentId = $(this).val();
-            console.log(selectedDepartmentId)
-
-            $.ajax({
-                url: 'http://localhost:8080/ldm/structure/units/all',
-                type: 'POST',
-                data: {department_id: selectedDepartmentId},
-                dataType: 'json',
-                success: function (response) {
-                    units = response
-                    // Clear existing options and add new options for fetched units
-                    $('#unit').empty().append('<option>Choose Unit</option>');
-                    $.each(units, function (index, unit) {
-                        $('#unit').append('<option value="' + unit.id + '">' + unit.unit_name + '</option>');
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error fetching units data:', error);
-                }
-            });
-        });
-    });
-</script>
-
-<script>
-    $(document).ready(function () {
-        let initialEmployeeOptions = $('#employee_ids').html();
-
-        function filterEmployeeOptions(lineManagerId) {
-            $('#employee_ids').html(initialEmployeeOptions);
-            $('#employee_ids option[value="' + lineManagerId + '"]').remove();
-        }
-
-        $('#line_manager').on('change', function () {
-            let selectedLineManagerId = $(this).val();
-            if (selectedLineManagerId) {
-                filterEmployeeOptions(selectedLineManagerId);
-                // Send AJAX request to fetch subordinate line manager
-                $.ajax({
-                    url: 'http://localhost:8080/ldm/employee/line-manager',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {line_manager_id: selectedLineManagerId},
-                    success: function (response) {
-                        let subordinateLineManagerId = response.subordinate_line_manager_id;
-                        $('#employee_ids option[value="' + subordinateLineManagerId + '"]').remove();
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(xhr.responseText);
-                        console.error('Error fetching line manager id.');
-                    }
-                });
-            } else {
-                // If no line manager is selected, reset the employee options
-                $('#employee_ids').html(initialEmployeeOptions);
-            }
-        });
-    });
-
 </script>
 
 <script>

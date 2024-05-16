@@ -30,7 +30,7 @@ class PDPController extends BaseController
     public JobModel $jobModel;
     public array $employeeRatings;
     public array $activeCycle;
-    public $employee;
+    public array $employee;
 
     function __construct()
     {
@@ -46,7 +46,6 @@ class PDPController extends BaseController
         $loggedInUserFullName = session()->get('first_name') . " " . session()->get('last_name');
         $this->employee = $this->employeeModel->getEmployeeDetailsWithUser($loggedInEmployeeId);
         $my_job = $this->jobModel->find($this->employee['job_id']);
-        $line_manager = $this->employeeModel->getEmployeeDetailsWithUser($this->employee['line_manager_id']);
         $this->activeCycle = $this->cycleModel->where('is_active', true)->first();
         $this->employeeRatings = $this->developmentContractingModel
             ->where('employee_id', $loggedInEmployeeId)
@@ -62,7 +61,6 @@ class PDPController extends BaseController
             'title' => 'Personal Development Plan | LD Planner',
             'employee' => $this->employee,
             'my_job' => $my_job,
-            'line_manager' => $line_manager,
             'employeesWithPDPs' => $employeesWithPDPs,
             'employee_ratings' => $this->employeeRatings,
             'pdpOwnerEmployeeId' => $loggedInEmployeeId,
@@ -126,19 +124,32 @@ class PDPController extends BaseController
     {
         $employee_id = session()->get('loggedInEmployee');
         $employee_signed_off = $this->request->getPost('employee_signed_off') ? 1 : 0;
-
-        $line_manager_signed_off = $this->request->getPost('line_manager_signed_off') ? 1 : 0;
-
-        $affectedRows = $this->pdpModel
+        $recordsToUpdate = $this->pdpModel
             ->where('cycle_id', $cycle_id)
-            ->where('employee_id', $employee_id)
-            ->set([
+            ->where('employee_id', $employee_id);
+        $recordsToUpdate->set([
                 'employee_signed_off' => $employee_signed_off,
-                'line_manager_signed_off' => $line_manager_signed_off,
             ])
             ->update();
 
-        if ($affectedRows > 0) {
+        // consolidate the PDP into ADP
+        $cycleApprovedCompetencies = $this->pdpModel
+            ->where('cycle_id', $cycle_id)
+            ->where('employee_id', $employee_id)
+            ->where('employee_signed_off', 1)
+            ->findAll();
+        $employee = $this->employeeModel->find($employee_id);
+        foreach ($cycleApprovedCompetencies as $cycleApprovedCompetency) {
+            $this->ADPModel->insert([
+                'employee_id' => $employee_id,
+                'cycle_id' => $cycleApprovedCompetency['cycle_id'],
+                'competency_id' => $cycleApprovedCompetency['competency_id'],
+                'job_id' => $employee['job_id'],
+                'line_manager_id' => $cycleApprovedCompetency['line_manager_id']
+            ]);
+        }
+
+        if ($recordsToUpdate->countAllResults() > 0) {
             return redirect()->back()->with('success', 'Sign-off status updated successfully.');
         } else {
             return redirect()->back()->with('error', 'Failed to update sign-off status.');
@@ -149,6 +160,7 @@ class PDPController extends BaseController
     {
         $this->data['userData'] = $this->request->userData;
         $this->data['page_name'] = 'Direct Reports PDPs';
+        $this->data['title'] = 'Personal Development Plan Module | LD Planner';
         return view('includes/head', $this->data) .
             view('includes/navbar') .
             view('includes/sidebar') .
@@ -185,24 +197,11 @@ class PDPController extends BaseController
                     if ($competency_id) {
                         $this->pdpModel->insert([
                             'employee_id' => $employee_id,
+                            'line_manager_id' => $loggedInEmployeeID,
                             'cycle_id' => $this->activeCycle['id'],
                             'competency_id' => $competency_id,
                             'average_rating' => $_POST['average_rating' . $ratingCount],
-                        ]);
-                        $divisionID = null;
-                        $groupID = null;
-                        if($this->employee['department_id']) $groupID = $this->departmentModel->find($this->employee['department_id'])['group_id'];
-                        if ($groupID) $divisionID = $this->groupModel->find($groupID)['division_id'];
-                        // consolidate PDPs into ADPs
-                        $this->ADPModel->insert([
-                            'employee_id' => $employee_id,
-                            'cycle_id' => $this->activeCycle['id'],
-                            'competency_id' => $competency_id,
-                            'job_id' => $this->employee['job_id'],
-                            'division_id' => $divisionID,
-                            'group_id' => $groupID,
-                            'department_id' => $this->employee['department_id'],
-                            'unit_id' => $this->employee['unit_id'],
+                            'line_manager_signed_off' => 1,
                         ]);
                     }
                 }
